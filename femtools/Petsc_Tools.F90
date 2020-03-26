@@ -70,13 +70,13 @@ module Petsc_Tools
      ! global length of Petsc vector 
      integer universal_length
      ! block size as seen by petsc
-     integer group_size
+     PetscInt group_size
      ! start index of local part of petsc vector
      integer offset
      ! mapping between "global" (fludity numbering inside each local domain)
      ! and "universal" numbering (truly global numbering over all processes
      ! used by PETSc), second index is for multi-component fields
-     integer, dimension(:,:), pointer:: gnn2unn
+     PetscInt, dimension(:,:), pointer:: gnn2unn
      ! list of ghost nodes, these are skipped in copying from and to 
      ! PETSc vectors, and will have a zero row and column in the matrix
      ! with something suitable on the diagonal
@@ -171,8 +171,10 @@ contains
     integer, dimension(:), allocatable:: ghost_marker
     integer i, g, f, start, offset, fpg
     integer nuniversalnodes, ngroups, ierr
+    integer, dimension(:,:), allocatable :: gnn2unn
 
     allocate( petsc_numbering%gnn2unn(1:nnodes, 1:nfields) )
+    allocate( gnn2unn(1:nnodes, 1:nfields) )
 
     if (present(halo)) then
        if (associated(halo)) then
@@ -235,9 +237,9 @@ contains
 
        ! the hard work is done inside get_universal_numbering() for the case fpg=1
        ! for fpg>1 we just ask for a numbering for the groups and pad it out afterwards
-       call get_universal_numbering(halo, petsc_numbering%gnn2unn(:,1:ngroups))
+       call get_universal_numbering(halo, gnn2unn(:,1:ngroups))
        ! petsc uses base 0
-       petsc_numbering%gnn2unn(:,1:ngroups) = petsc_numbering%gnn2unn(:,1:ngroups)-1
+       petsc_numbering%gnn2unn(:,1:ngroups) = gnn2unn(:,1:ngroups)-1
 
        if (fpg>1) then
          ! the universal node number of the first node in each group is
@@ -310,7 +312,9 @@ contains
     else
        nullify( petsc_numbering%ghost_nodes )
        nullify( petsc_numbering%ghost2unn )
-    end if
+     end if
+
+     deallocate(gnn2unn)
     
     nullify(petsc_numbering%refcount) ! Hack for gfortran component initialisation
     !                         bug.
@@ -402,7 +406,8 @@ contains
     type(petsc_numbering_type), intent(in):: petsc_numbering
     Vec, intent(inout) :: vec
   
-    integer ierr, nnodp, start, b, nfields, nnodes
+    integer ierr, start, b, nfields, nnodes
+    PetscInt nnodp
 
     ! number of nodes owned by this process:
     nnodp=petsc_numbering%nprivatenodes
@@ -451,7 +456,8 @@ contains
     type(petsc_numbering_type), intent(in):: petsc_numbering
     Vec, intent(inout) :: vec
   
-    integer ierr, nnodp, b, nfields, nnodes
+    integer ierr, b, nfields, nnodes
+    PetscInt nnodp
     integer i, j
 
     ! number of nodes owned by this process:
@@ -511,7 +517,8 @@ contains
     type(petsc_numbering_type), intent(in):: petsc_numbering
     Vec, intent(inout) :: vec
   
-    integer ierr, nnodp, b, nfields, nnodes
+    integer ierr, b, nfields, nnodes
+    PetscInt nnodp
 
     ! number of nodes owned by this process:
     nnodp=petsc_numbering%nprivatenodes
@@ -567,7 +574,8 @@ contains
     Vec vec
   
     
-    integer ierr, nnodp, plength, ulength, nfields
+    integer ierr, nnodp, nfields
+    PetscInt plength, ulength
     logical parallel
 
     ! number of nodes owned by this process:
@@ -602,7 +610,7 @@ contains
     integer, intent(in):: dim
 
     PetscErrorCode:: ierr
-    integer:: nnodp
+    PetscInt:: nnodp
 
     nnodp = petsc_numbering%nprivatenodes
 
@@ -618,7 +626,8 @@ contains
     type(petsc_numbering_type), intent(in):: petsc_numbering
     real, dimension(:), intent(out) :: array
     
-    integer ierr, nnodp, start, b, nfields, nnodes
+    integer ierr, start, b, nfields, nnodes
+    PetscInt nnodp
 #ifndef DOUBLEP
     PetscScalar, dimension(:), allocatable :: vals
 #endif
@@ -690,7 +699,8 @@ contains
     !! for ghost_nodes the value of the rhs gets copied into fields
     type(scalar_field), dimension(:), intent(in), optional :: rhs
     
-    integer ierr, nnodp, b, nfields, nnodes
+    integer ierr, b, nfields, nnodes
+    PetscInt nnodp
 #ifndef DOUBLEP
     PetscScalar, dimension(:), allocatable :: vals
 #endif
@@ -789,7 +799,8 @@ contains
   type(petsc_numbering_type), intent(in):: petsc_numbering
   type(vector_field), dimension(:), intent(inout) :: fields
     
-    integer ierr, nnodp, b, nfields, nnodes
+  integer ierr, b, nfields, nnodes
+  PetscInt nnodp
     integer i, j
 #ifndef DOUBLEP
     PetscScalar, dimension(:), allocatable :: vals
@@ -923,12 +934,13 @@ contains
     real, dimension(:), pointer:: vals
     real ghost_pivot, mindiag, maxdiag, diag
     integer, dimension(:), pointer:: cols 
-    integer, dimension(:), allocatable:: colidx
+    PetscInt, dimension(:), allocatable:: colidx
     integer, dimension(:), allocatable:: row2ghost
     integer nbrows, nbcols, nblocksv, nblocksh
     integer nbrowsp, nbcolsp
-    integer rows(1)
-    integer len, bh, bv, i, g, row, ierr
+    PetscInt rows(1)
+    integer bh, bv, i, g, ierr
+    PetscInt len, row
    
     if (present(petsc_numbering)) then
       row_numbering=petsc_numbering
@@ -1045,10 +1057,10 @@ contains
                rows(1)=row_numbering%gnn2unn(i, bv)
                vals => row_val_ptr(A, bv, bh, i)
 #ifdef DOUBLEP
-               call MatSetValues(M, 1, rows, len, colidx(1:len), vals, &
+               call MatSetValues(M, int(1, kind=kind(len)), rows, len, colidx(1:len), vals, &
                    INSERT_VALUES, ierr)
 #else
-               call MatSetValues(M, 1, rows, len, colidx(1:len), real(vals, kind = PetscScalar_kind), &
+               call MatSetValues(M, int(1, kind=kind(len)), rows, len, colidx(1:len), real(vals, kind = PetscScalar_kind), &
                    INSERT_VALUES, ierr)
 #endif
             end do
@@ -1094,10 +1106,11 @@ contains
     PetscErrorCode ierr
     real, dimension(:), allocatable:: vals
     integer, dimension(:), pointer:: cols
-    integer rows(1)
-    integer, dimension(:), allocatable:: colidx, nnz
+    PetscInt rows(1)
+    PetscInt, dimension(:), allocatable:: colidx, nnz
     integer ncols, nprows, npcols
-    integer i, l
+    integer i
+    PetscInt l
     
     ncols=size(sparsity,2)
     if (associated(sparsity%row_halo)) then
@@ -1149,10 +1162,10 @@ contains
       end where
       rows(1)=i-1
 #ifdef DOUBLEP
-      call MatSetValues(M, 1, rows, l, colidx(1:l), vals(1:l), &
+      call MatSetValues(M, int(1, kind=kind(l)), rows, l, colidx(1:l), vals(1:l), &
             INSERT_VALUES, ierr)
 #else
-      call MatSetValues(M, 1, rows, l, colidx(1:l), real(vals(1:l), kind = PetscScalar_kind), &
+      call MatSetValues(M, int(1, kind=kind(l)), rows, l, colidx(1:l), real(vals(1:l), kind = PetscScalar_kind), &
             INSERT_VALUES, ierr)
 #endif
     end do    
@@ -1175,10 +1188,11 @@ contains
   logical, intent(in), optional:: use_inodes
   Mat M
 
-    integer, dimension(:), allocatable:: nnz
-    integer nrows, ncols, nbrows, nbcols, nblocksv, nblocksh
+    PetscInt, dimension(:), allocatable:: nnz
+    integer nbrows, nbcols, nblocksv, nblocksh
     integer row, len, ierr
     integer bv, i
+    PetscInt nrows, ncols
 
     ! total number of rows and cols:
     nrows=row_numbering%universal_length
@@ -1214,7 +1228,7 @@ contains
     call MatSetBlockSizes(M, row_numbering%group_size, col_numbering%group_size, ierr)
     call MatSetType(M, MATAIJ, ierr)
     ! NOTE: 2nd argument is not used
-    call MatSeqAIJSetPreallocation(M, 0, nnz, ierr)
+    call MatSeqAIJSetPreallocation(M, int(0, kind=kind(nrows)), nnz, ierr)
       
     if (.not. present_and_true(use_inodes)) then
       call MatSetOption(M, MAT_USE_INODES, PETSC_FALSE, ierr)
@@ -1340,9 +1354,11 @@ contains
     type(csr_sparsity) :: sparsity
     double precision, dimension(MAT_INFO_SIZE):: matrixinfo
     PetscScalar, dimension(:), allocatable:: row_vals
-    integer, dimension(:), allocatable:: row_cols, unn2gnn
+    integer, dimension(:), allocatable:: unn2gnn
+    PetscInt, dimension(:), allocatable :: row_cols
     integer private_columns
-    integer i, j, k, ui, rows, columns, entries, ncols, offset, end_of_range
+    integer i, j, k, ui, entries
+    PetscInt rows, columns, offset, end_of_range, ncols
     logical parallel
     
     ! get the necessary info about the matrix:
@@ -1361,7 +1377,7 @@ contains
       assert( private_columns==column_numbering%nprivatenodes )
       assert( private_columns<=columns )
       assert( size(column_numbering%gnn2unn,2)==1 )
-      call allocate(sparsity, rows, columns, entries, &
+      call allocate(sparsity, int(rows), int(columns), entries, &
         diag=.false., name="petsc2csrSparsity")
       if (associated(column_numbering%halo)) then
          allocate(sparsity%column_halo)
@@ -1383,7 +1399,7 @@ contains
       ! in parallel no halo rows or columns  are included, so
       ! in both the serial and the parallel case we allocate a matrix with
       ! nprivate_nodes==nnodes:
-      call allocate(sparsity, rows, columns, entries, diag=.false., &
+      call allocate(sparsity, int(rows), int(columns), entries, diag=.false., &
         name="petsc2csrSparsity")
     end if
     call allocate(A, sparsity)
@@ -1420,26 +1436,31 @@ contains
     else
       ! Serial case:
       j=1
+      allocate(row_cols(1:entries))
       do i=0, rows-1
         sparsity%findrm(i+1)=j
 #ifdef DOUBLEP
-        call MatGetRow(matrix, offset+i, ncols, sparsity%colm(j:), A%val(j:), ierr)
+        call MatGetRow(matrix, offset+i, ncols, row_cols(j:), A%val(j:), ierr)
+        sparsity%colm(j:) = row_cols(j:)
         j=j+ncols
         ! This is stupid, we were given copies in MatGetRow so it could
         ! have restored its internal tmp arrays straight away, anyway:
-        call MatRestoreRow(matrix, offset+i, ncols, sparsity%colm(j:), A%val(j:), ierr)
+        call MatRestoreRow(matrix, offset+i, ncols, row_cols(j:), A%val(j:), ierr)
 #else        
         allocate(row_vals(size(A%val) - j + 1))
-        call MatGetRow(matrix, offset+i, ncols, sparsity%colm(j:), row_vals, ierr)
+        call MatGetRow(matrix, offset+i, ncols, row_cols(j:), row_vals, ierr)
+        sparsity%colm(j:) = row_cols(j:)
         A%val(j:) = row_vals
         j=j+ncols
         ! This is stupid, we were given copies in MatGetRow so it could
         ! have restored its internal tmp arrays straight away, anyway:
-        call MatRestoreRow(matrix, offset+i, ncols, sparsity%colm(j:), row_vals, ierr)
+        call MatRestoreRow(matrix, offset+i, ncols, row_cols(j:), row_vals, ierr)
         deallocate(row_vals)
 #endif
       end do
       A%sparsity%findrm(i+1)=j
+
+      deallocate(row_cols)
       
       ! matrix is indexed from offset+0, colm should be indexed from 1:
       sparsity%colm=sparsity%colm-offset+1

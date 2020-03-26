@@ -40,7 +40,6 @@ using namespace std;
 extern "C" { // This is the glue between METIS and fluidity  
   
   // Declarations needed from METIS
-  typedef int idxtype;
 #ifdef PARMETIS_V3
   void METIS_PartGraphKway(int *,idxtype *,idxtype *,idxtype *,idxtype *,int *,int *,int *,
                            int *,int *,idxtype *);
@@ -180,10 +179,10 @@ namespace Fluidity{
         partition_method = 1; // METIS PartGraphKway
     }
 
-    int nnodes = graph.size();
+    idx_t nnodes = graph.size();
 
     // Compress graph    
-    vector<idxtype> xadj(nnodes+1), adjncy;
+    vector<idx_t> xadj(nnodes+1), adjncy;
     int pos=0;
     xadj[0]=1;
     for(int i=0;i<nnodes;i++){

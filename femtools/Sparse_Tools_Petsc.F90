@@ -176,6 +176,7 @@ contains
     logical:: ldiagonal
     integer, dimension(2):: lgroup_size
     integer:: nprows
+    PetscInt :: pi
     
     ldiagonal=present_and_true(diagonal)
 
@@ -239,7 +240,7 @@ contains
 
     endif
 
-    call MatSetBlockSizes(matrix%M, lgroup_size(1), lgroup_size(2), ierr)
+    call MatSetBlockSizes(matrix%M, int(lgroup_size(1), kind=kind(pi)), int(lgroup_size(2), kind=kind(pi)), ierr)
     
     ! this is very important for assembly routines (e.g. DG IP viscosity)
     ! that try to add zeros outside the provided sparsity; if we go outside
@@ -335,6 +336,7 @@ contains
     integer:: nprows, npcols, urows, ucols
     integer:: index_rows, index_columns
     logical:: use_element_blocks
+    PetscInt :: pi
     
     matrix%name = name
     
@@ -432,7 +434,7 @@ contains
       ! Create serial matrix:
       call MatCreateAIJ(MPI_COMM_SELF, urows, ucols, urows, ucols, &
          PETSC_NULL_INTEGER, dnnz, 0, PETSC_NULL_INTEGER, matrix%M, ierr)
-      call MatSetBlockSizes(matrix%M, lgroup_size(1), lgroup_size(2), ierr)
+      call MatSetBlockSizes(matrix%M, int(lgroup_size(1), kind=kind(pi)), int(lgroup_size(2), kind=kind(pi)), ierr)
       
     else
       
@@ -442,7 +444,7 @@ contains
       call MatCreateAIJ(MPI_COMM_FEMTOOLS, nprows*blocks(1), npcols*blocks(2), &
          urows, ucols, &
          PETSC_NULL_INTEGER, dnnz, PETSC_NULL_INTEGER, onnz, matrix%M, ierr)
-      call MatSetBlockSizes(matrix%M, lgroup_size(1), lgroup_size(2), ierr)
+      call MatSetBlockSizes(matrix%M, int(lgroup_size(1), kind=kind(pi)), int(lgroup_size(2), kind=kind(pi)), ierr)
       
     endif
     call MatSetup(matrix%M, ierr)
@@ -764,7 +766,7 @@ contains
     real, intent(in) :: val
 
     PetscErrorCode:: ierr
-    integer:: row, col
+    PetscInt :: row, col
     
     row=matrix%row_numbering%gnn2unn(i,blocki)
     col=matrix%column_numbering%gnn2unn(j,blockj)
@@ -784,11 +786,14 @@ contains
     PetscInt, dimension(size(i)):: idxm
     PetscInt, dimension(size(j)):: idxn
     PetscErrorCode:: ierr
+    PetscInt :: ni, nj
     
     idxm=matrix%row_numbering%gnn2unn(i,blocki)
     idxn=matrix%column_numbering%gnn2unn(j,blockj)
+    ni = size(idxm)
+    nj = size(idxn)
     
-    call MatSetValues(matrix%M, size(i), idxm, size(j), idxn, real(val, kind=PetscScalar_kind), &
+    call MatSetValues(matrix%M, ni, idxm, nj, idxn, real(val, kind=PetscScalar_kind), &
         ADD_VALUES, ierr)
 
     matrix%is_assembled=.false.
@@ -806,11 +811,14 @@ contains
     PetscInt, dimension(size(matrix%row_numbering%gnn2unn,2)):: idxm
     PetscInt, dimension(size(matrix%column_numbering%gnn2unn,2)):: idxn
     PetscErrorCode:: ierr
+    PetscInt :: ni, nj
     
     idxm=matrix%row_numbering%gnn2unn(i,:)
     idxn=matrix%column_numbering%gnn2unn(j,:)
-    
-    call MatSetValues(matrix%M, size(idxm), idxm, size(idxn), idxn, &
+    ni = size(idxm)
+    nj = size(idxn)
+
+    call MatSetValues(matrix%M, ni, idxm, nj, idxn, &
                   real(val, kind=PetscScalar_kind), ADD_VALUES, ierr)
 
     matrix%is_assembled=.false.
@@ -831,6 +839,10 @@ contains
     PetscInt, dimension(size(j)):: idxn
     PetscErrorCode:: ierr
     integer:: blocki, blockj
+    PetscInt :: ni, nj
+
+    ni = size(i)
+    nj = size(j)
     
     do blocki=1, size(matrix%row_numbering%gnn2unn,2)
       idxm=matrix%row_numbering%gnn2unn(i,blocki)
@@ -838,7 +850,7 @@ contains
         idxn=matrix%column_numbering%gnn2unn(j,blockj)
         ! unfortunately we need a copy here to pass contiguous memory
         value=val(blocki, blockj, :, :)
-        call MatSetValues(matrix%M, size(i), idxm, size(j), idxn, &
+        call MatSetValues(matrix%M, ni, idxm, nj, idxn, &
               value, ADD_VALUES, ierr)
       end do
     end do
@@ -862,6 +874,10 @@ contains
     PetscInt, dimension(size(j)):: idxn
     PetscErrorCode:: ierr
     integer:: blocki, blockj
+    PetscInt :: ni, nj
+
+    ni = size(i)
+    nj = size(j)
     
     do blocki=1, size(matrix%row_numbering%gnn2unn,2)
       idxm=matrix%row_numbering%gnn2unn(i,blocki)
@@ -870,7 +886,7 @@ contains
           idxn=matrix%column_numbering%gnn2unn(j,blockj)
           ! unfortunately we need a copy here to pass contiguous memory
           value=val(blocki, blockj, :, :)
-          call MatSetValues(matrix%M, size(i), idxm, size(j), idxn, &
+          call MatSetValues(matrix%M, ni, idxm, nj, idxn, &
                 value, ADD_VALUES, ierr)
         end if
       end do
@@ -1149,7 +1165,7 @@ contains
     PetscScalar, dimension(:), allocatable:: old_diagonal_values, unscaled_rhs_values
     PetscScalar, parameter:: pivot = 1.0
     PetscErrorCode:: ierr
-    integer:: i, j, row
+    PetscInt :: i, j, row, num_rows
 
     logical, parameter:: fix_scaling = .true.
 
@@ -1163,9 +1179,9 @@ contains
 
     do i=1, size(boundary_nodes)
       do j=1, key_count(boundary_nodes(i))
-        row = A%row_numbering%gnn2unn(fetch(boundary_nodes(i), j), i)
+        row = A%row_numbering%gnn2unn(fetch(boundary_nodes(i), int(j)), i)
         if (row>=0) then
-          call insert(row_set, row)
+          call insert(row_set, int(row))
         end if
       end do
     end do
@@ -1209,7 +1225,8 @@ contains
       call MatGetDiagonal(A%M, diag, ierr)
     end if
 
-    call MatZeroRowsColumns(A%M, size(node_list), node_list, &
+    num_rows = size(node_list)
+    call MatZeroRowsColumns(A%M, num_rows, node_list, &
       pivot, xvec, bvec, ierr)
 
     if (fix_scaling) then
@@ -1219,13 +1236,13 @@ contains
       ! free slip node may become decoupled from the rest of the problem in the aggregation procedure
       allocate(old_diagonal_values(1:size(node_list)))
       if (size(node_list)>0) then ! work around bug in vecgetvalues for 0-lenght arrays
-        call VecGetValues(diag, size(node_list), node_list, old_diagonal_values, ierr)
+        call VecGetValues(diag, num_rows, node_list, old_diagonal_values, ierr)
       end if
        
       if (present(rhs)) then
         allocate(unscaled_rhs_values(1:size(node_list)))
         if (size(node_list)>0) then ! work around bug in vecgetvalues for 0-lenght arrays
-          call VecGetValues(bvec, size(node_list), node_list, unscaled_rhs_values, ierr)
+          call VecGetValues(bvec, num_rows, node_list, unscaled_rhs_values, ierr)
         end if
       end if
       do i=1, size(node_list)

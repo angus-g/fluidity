@@ -1199,6 +1199,7 @@ logical, optional, intent(in):: nomatrixdump
   character(len=FIELD_NAME_LEN):: name
   logical print_norms, timing
   real time1, time2
+  PetscInt tmpi
 
   ! Initialise profiler
   if(present(sfield)) then
@@ -1251,7 +1252,8 @@ logical, optional, intent(in):: nomatrixdump
 
   call KSPSolve(ksp, b, y, ierr)
   call KSPGetConvergedReason(ksp, reason, ierr)
-  call KSPGetIterationNumber(ksp, iterations, ierr)
+  call KSPGetIterationNumber(ksp, tmpi, ierr)
+  iterations = tmpi
 
   ewrite(1, *) 'Out of solver.'
 
@@ -1596,6 +1598,7 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
     PetscObject vf
     
     logical startfromzero, remove_null_space
+    integer :: tmpopt
     
     ewrite(1,*) "Inside setup_ksp_from_options"
     
@@ -1626,7 +1629,8 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
 
     if(trim(ksptype) == 'gmres') then
        call get_option(trim(solver_option_path)//&
-            '/iterative_method::gmres/restart', lrestart, default=-1)
+            '/iterative_method::gmres/restart', tmpopt, default=-1)
+       lrestart = tmpopt
        if (lrestart >= 0) then
           call KSPGMRESSetRestart(ksp, lrestart, ierr)
           ewrite(2, *) 'restart:', lrestart
@@ -1644,7 +1648,8 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
     ! this may end up in the schema:
     dtol=PETSC_DEFAULT_REAL
     ! maximum n/o iterations is required, so no default:
-    call get_option(trim(solver_option_path)//'/max_iterations', max_its)
+    call get_option(trim(solver_option_path)//'/max_iterations', tmpopt)
+    max_its = tmpopt
     
     ! set this choice as default (maybe overridden by PETSc options below)
     call KSPSetTolerances(ksp, rtol, atol, dtol, max_its, ierr)
@@ -1862,6 +1867,7 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
     PCType:: pctype, hypretype
     MatSolverType:: matsolvertype
     PetscErrorCode:: ierr
+    PetscInt :: i
     
     call get_option(trim(option_path)//'/name', pctype)
 
@@ -1989,10 +1995,12 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
         ! 0.01 is set at level 1 only, and a scaling of 1.0 (i.e. no scaling) is applied
         ! so that other levels get the same threshold value
         call PCGAMGSetThresholdScale(pc, 1.0, ierr)
-        call PCGAMGSetThreshold(pc, (/ 0.01/), 1, ierr)
+        i = 1
+        call PCGAMGSetThreshold(pc, (/ 0.01/), i, ierr)
 #endif
         ! this was the old default:
-        call PCGAMGSetCoarseEqLim(pc, 800, ierr)
+        i = 800
+        call PCGAMGSetCoarseEqLim(pc, i, ierr)
         ! PC setup seems to be required so that the Coarse Eq Lim option is used.
         call PCSetup(pc,ierr)
 
@@ -2007,7 +2015,8 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
           call KSPSetType(subksp, KSPPREONLY, ierr)
           call KSPGetPC(subksp, subpc, ierr)
           call PCSetType(subpc, PCSOR, ierr)
-          call KSPSetTolerances(subksp, 1e-50, 1e-50, 1e50, 10, ierr)
+          i = 10
+          call KSPSetTolerances(subksp, 1e-50, 1e-50, 1e50, i, ierr)
         end if
       end if
       
@@ -2269,7 +2278,7 @@ end subroutine set_solver_options_tensor
 subroutine petsc_monitor_setup(petsc_numbering, max_its)
   ! sets up the petsc monitors "exact" or "iteration_vtus"
   type(petsc_numbering_type), intent(in):: petsc_numbering
-  integer, intent(in) :: max_its
+  PetscInt, intent(in) :: max_its
   
   type(mesh_type), pointer:: mesh
   integer :: ierr, ncomponents
@@ -2466,11 +2475,11 @@ subroutine MyKSPMonitor(ksp,n,rnorm,dummy,ierr)
     end if
 
     if (size(petsc_monitor_numbering%gnn2unn,2)==1) then
-      call vtk_write_fields(petsc_monitor_vtu_name, index=n, &
+      call vtk_write_fields(petsc_monitor_vtu_name, index=int(n), &
         model=petsc_monitor_positions%mesh, position=petsc_monitor_positions, &
         sfields=petsc_monitor_sfields)
     else
-      call vtk_write_fields(petsc_monitor_vtu_name, index=n, &
+      call vtk_write_fields(petsc_monitor_vtu_name, index=int(n), &
         model=petsc_monitor_positions%mesh, position=petsc_monitor_positions, &
         vfields=petsc_monitor_vfields)
     end if
@@ -2492,8 +2501,10 @@ function create_null_space_from_options_scalar(mat, null_space_option_path) &
    MatNullSpace :: null_space
    PetscErrorCode :: ierr
    PetscBool :: isnull
+   PetscInt :: i
 
-   call MatNullSpaceCreate(MPI_COMM_FEMTOOLS, PETSC_TRUE, 0, ArrayOfZeroVecs, null_space, ierr)
+   i = 0
+   call MatNullSpaceCreate(MPI_COMM_FEMTOOLS, PETSC_TRUE, i, ArrayOfZeroVecs, null_space, ierr)
 
    if(have_option(trim(null_space_option_path)//'/test_null_space')) then
      call MatNullSpaceTest(null_space, mat, isnull, ierr)
@@ -2525,8 +2536,9 @@ function create_null_space_from_options_vector(mat, null_space_option_path, &
    PetscReal :: norm
    PetscErrorCode :: ierr
    PetscBool :: isnull
+   PetscInt :: i, nnulls
 
-   integer :: i, nnulls, nnodes, comp, dim, universal_nodes
+   integer :: nnodes, comp, dim, universal_nodes
    logical, dimension(3) :: rot_mask
    logical, dimension(size(petsc_numbering%gnn2unn,2)) :: mask
    real, dimension(:,:), allocatable :: null_vector
@@ -2615,7 +2627,7 @@ function create_null_space_from_options_vector(mat, null_space_option_path, &
    allocate(null_vector(nnodes,dim))
    universal_nodes=petsc_numbering%universal_length/dim
 
-   ewrite(2,*) "Setting up array of "//int2str(nnulls)//" null spaces."
+   ewrite(2,*) "Setting up array of "//int2str(int(nnulls))//" null spaces."
    
    ! now loop back over the components building up the null spaces we want
    i = 0
@@ -2709,7 +2721,7 @@ function create_null_space_from_options_vector(mat, null_space_option_path, &
    if(have_option(trim(null_space_option_path)//'/write_null_space')) then
      allocate(vtk_vector_fields(1:nnulls))
      do i=1, nnulls
-       call allocate(vtk_vector_fields(i), positions%dim, positions%mesh, name="NullVector"//int2str(i))
+       call allocate(vtk_vector_fields(i), positions%dim, positions%mesh, name="NullVector"//int2str(int(i)))
        call petsc2field(null_space_array(i), petsc_numbering, vtk_vector_fields(i))
      end do
      vtk_index = vtk_index + 1

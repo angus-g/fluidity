@@ -63,7 +63,7 @@ PC :: internal_smoother_pc
 !Matrix for internal smoother
 Mat :: internal_smoother_mat
 !list of surface nodes
-integer, dimension(:), pointer, save :: surface_node_list => null()
+PetscInt, dimension(:), pointer, save :: surface_node_list => null()
 !list of surface values, for copying
 PetscReal, dimension(:), pointer, save :: surface_values => null()
 !=====================================
@@ -155,12 +155,14 @@ subroutine ApplySmoother(dummy,vec_in,vec_out,ierr_out)
   integer, intent(in) :: dummy
   
   integer :: ierr
+  PetscInt :: nnodes
   
   ierr_out=0
   
   call PCApply(internal_smoother_pc,vec_in,vec_out, ierr)
 
-  call VecSetValues(vec_out, size(surface_node_list), &
+  nnodes = size(surface_node_list)
+  call VecSetValues(vec_out, nnodes, &
        surface_node_list, real(spread(0.0, 1, size(surface_values)), kind = PetscScalar_kind), &
        INSERT_VALUES, ierr)
 
@@ -204,6 +206,7 @@ integer :: linternal_smoothing_option
 
   PetscErrorCode ierr
   PC subprec, subsubprec
+  PetscInt :: i
   
   !! Get internal smoothing options
   linternal_smoothing_option = INTERNAL_SMOOTHING_NONE
@@ -234,19 +237,24 @@ integer :: linternal_smoothing_option
      call PCCompositeAddPC(prec, PCSOR, ierr)
      
      !set up the forward SOR
-     call PCCompositeGetPC(prec, 0, subprec, ierr)
+     i = 0
+     call PCCompositeGetPC(prec, i, subprec, ierr)
      call PCSORSetSymmetric(subprec,SOR_FORWARD_SWEEP,ierr)
-     call PCSORSetIterations(subprec,1,1,ierr)
+     i = 1
+     call PCSORSetIterations(subprec,i,i,ierr)
      call PCSORSetOmega(subprec,real(1.0, kind = PetscReal_kind),ierr)
 
      ! set up the backward SOR
-     call PCCompositeGetPC(prec, 2, subprec, ierr)
+     i = 2
+     call PCCompositeGetPC(prec, i, subprec, ierr)
      call PCSORSetSymmetric(subprec,SOR_BACKWARD_SWEEP,ierr)
-     call PCSORSetIterations(subprec,1,1,ierr)
+     i = 1
+     call PCSORSetIterations(subprec,i,i,ierr)
      call PCSORSetOmega(subprec,real(1.0, kind = PetscReal_kind),ierr)
      
-     !set up the middle PC 
-     call PCCompositeGetPC(prec, 1, subprec, ierr)
+     !set up the middle PC
+     i = 1
+     call PCCompositeGetPC(prec, i, subprec, ierr)
      !It is compositive additive
      call PCSetType(subprec, PCCOMPOSITE, ierr)
      call PCCompositeSetType(subprec, PC_COMPOSITE_ADDITIVE, ierr)
@@ -255,11 +263,13 @@ integer :: linternal_smoothing_option
      call PCCompositeAddPC(subprec, PCMG, ierr)
      call PCCompositeAddPC(subprec, PCSHELL, ierr)
      ! set up the vertical_lumped mg
-     call PCCompositeGetPC(subprec, 0, subsubprec, ierr)
+     i = 0
+     call PCCompositeGetPC(subprec, i, subsubprec, ierr)
      call SetupSmoothedAggregation(subsubprec, matrix, ierror, &
           external_prolongators, no_top_smoothing=.true.)
      !set up the "internal" mg shell
-     call PCCompositeGetPC(subprec, 1, subsubprec, ierr)
+     i = 1
+     call PCCompositeGetPC(subprec, i, subsubprec, ierr)
      call SetupInternalSmoother(surface_node_list,matrix_csr,subsubprec, &
           no_top_smoothing=.true.)
 
@@ -280,11 +290,13 @@ integer :: linternal_smoothing_option
      call PCCompositeAddPC(prec, PCMG, ierr)
      call PCCompositeAddPC(prec, PCSHELL, ierr)
      ! set up the vertical_lumped mg
-     call PCCompositeGetPC(prec, 0, subprec, ierr)
+     i = 0
+     call PCCompositeGetPC(prec, i, subprec, ierr)
      call SetupSmoothedAggregation(subprec, matrix, ierror, &
           external_prolongators=external_prolongators)
      ! set up the "internal" mg shell
-     call PCCompositeGetPC(prec, 1, subprec, ierr)
+     i = 1
+     call PCCompositeGetPC(prec, i, subprec, ierr)
      call SetupInternalSmoother(surface_node_list,matrix_csr,subprec)
 
   case default
@@ -299,13 +311,16 @@ PC, intent(inout):: prec
   PetscErrorCode ierr
   PCType pctype
   PC subprec
+  PetscInt :: i
   
   call PCGetType(prec, pctype, ierr)
   if (pctype==PCCOMPOSITE) then
     ! destroy the real mg
-    call PCCompositeGetPC(prec, 0, subprec, ierr)
+    i = 0
+    call PCCompositeGetPC(prec, i, subprec, ierr)
     ! destroy the internal mg
-    call PCCompositeGetPC(prec, 1, subprec, ierr)
+    i = 1
+    call PCCompositeGetPC(prec, i, subprec, ierr)
     call DestroyInternalSmoother()
   end if
   
@@ -339,8 +354,10 @@ logical, intent(in), optional :: no_top_smoothing
   Vec:: eigvec, Px
   PetscReal, allocatable, dimension(:):: emin, emax
   integer, allocatable, dimension(:):: contexts
-  integer i, j, ri, nolevels, m, n, top_level
-  integer nosmd, nosmu, clustersize, no_external_prolongators
+  integer j, ri, m, n, top_level
+  PetscInt :: i, mm, nn
+  PetscInt :: nolevels, nosmd, nosmu, clustersize
+  integer no_external_prolongators
   logical forgetlastone
   logical lno_top_smoothing
 
@@ -419,7 +436,9 @@ logical, intent(in), optional :: no_top_smoothing
       end if
       
       ! prolongator between i+1 and i, is restriction between i and i+1
-      call MatGetLocalSize(prolongators(i), m, n, ierr)
+      call MatGetLocalSize(prolongators(i), mm, nn, ierr)
+      m = mm
+      n = nn
       call MatPtAP(matrices(i), prolongators(i), MAT_INITIAL_MATRIX, real(1.0, kind = PetscReal_kind), &
         matrices(i+1), ierr)
       
@@ -547,13 +566,15 @@ logical, intent(in), optional :: no_top_smoothing
     call MatGetNullSpace(matrix, nullsp, ierr)
     if (IsParallel() .or. (ierr==0 .and. .not. IsNullMatNullSpace(nullsp))) then
       ! if parallel or if we have a null space: use smoothing instead of direct solve
+      i = 20
       call SetupSORSmoother(ksp_smoother, matrices(nolevels), &
-        SOR_LOCAL_SYMMETRIC_SWEEP, 20)
+        SOR_LOCAL_SYMMETRIC_SWEEP, i)
     else
       call KSPSetOperators(ksp_smoother, matrices(nolevels), matrices(nolevels), ierr)
       call KSPSetType(ksp_smoother, KSPPREONLY, ierr)
       call PCSetType(prec_smoother, PCLU, ierr)
-      call KSPSetTolerances(ksp_smoother, 1.0e-100_PetscReal_kind, 1e-8_PetscReal_kind, 1e10_PetscReal_kind, 300, ierr)
+      i = 300
+      call KSPSetTolerances(ksp_smoother, 1.0e-100_PetscReal_kind, 1e-8_PetscReal_kind, 1e10_PetscReal_kind, i, ierr)
     end if
     
     ! destroy our references of the operators at levels 2 (==one but finest) up to coarsest
@@ -572,24 +593,26 @@ subroutine SetupSORSmoother(ksp, matrix, sortype, iterations)
 KSP, intent(in):: ksp
 Mat, intent(in):: matrix
 MatSORType, intent(in):: sortype
-integer, intent(in):: iterations
+PetscInt, intent(in):: iterations
   
   PC:: pc
   PetscErrorCode:: ierr
-  
+  PetscInt :: i
+
+  i = 1
   call KSPSetType(ksp, KSPRICHARDSON, ierr)
   call KSPSetOperators(ksp, matrix, matrix, ierr)
   ! set 1 richardson iteration, as global iteration inside pcsor might be more efficient
   call KSPSetTolerances(ksp, PETSC_DEFAULT_REAL, &
     PETSC_DEFAULT_REAL, PETSC_DEFAULT_REAL, &
-    1, ierr)
+    i, ierr)
   call KSPSetNormType(ksp, KSP_NORM_NONE, ierr)
   
   call KSPGetPC(ksp, pc, ierr)
   call PCSetType(pc, PCSOR, ierr)
   call PCSORSetSymmetric(pc, sortype, ierr)
   call PCSORSetOmega(pc, real(1.0, kind = PetscReal_kind), ierr)
-  call PCSORSetIterations(pc, iterations, 1, ierr)
+  call PCSORSetIterations(pc, iterations, i, ierr)
 
 end subroutine SetupSORSmoother
 
@@ -599,12 +622,14 @@ Mat, intent(in):: matrix
   
   PC:: pc
   PetscErrorCode:: ierr
-  
+  PetscInt :: i
+
+  i = 0
   call KSPSetType(ksp, KSPRICHARDSON, ierr)
   call KSPSetOperators(ksp, matrix, matrix, ierr)
   call KSPSetTolerances(ksp, PETSC_DEFAULT_REAL, &
     PETSC_DEFAULT_REAL, PETSC_DEFAULT_REAL, &
-    0, ierr)
+    i, ierr)
   call KSPRichardsonSetScale(ksp,real(0.0, kind = PetscReal_kind),ierr)
   call KSPSetNormType(ksp, KSP_NORM_NONE, ierr)
   
@@ -617,7 +642,7 @@ subroutine SetupChebychevSmoother(ksp, matrix, emin, emax, iterations)
 KSP, intent(in):: ksp
 Mat, intent(in):: matrix
 PetscReal, intent(in):: emin, emax
-integer, intent(in):: iterations
+PetscInt, intent(in):: iterations
   
   PC:: pc
   PetscErrorCode:: ierr
@@ -638,8 +663,8 @@ end subroutine SetupChebychevSmoother
 subroutine SetSmoothedAggregationOptions(epsilon, epsilon_decay, omega, maxlevels, &
   coarsesize, nosmd, nosmu, clustersize)
 PetscReal, intent(out):: epsilon, epsilon_decay, omega
-integer, intent(out):: maxlevels, coarsesize
-integer, intent(out):: nosmd, nosmu, clustersize
+PetscInt, intent(out):: maxlevels, coarsesize
+PetscInt, intent(out):: nosmd, nosmu, clustersize
 
   PetscBool flag
   PetscErrorCode ierr
@@ -702,7 +727,7 @@ PetscReal, intent(in):: epsilon
 !! overrelaxtion in jacobi-smoothed aggregation
 PetscReal, intent(in):: omega
 !! maximum size of clusters
-integer, intent(in):: maxclustersize 
+PetscInt, intent(in):: maxclustersize 
 !! 0 means only clustering as in Vanek '96
 !! if supplied returns cluster number each node is assigned to:
 integer, optional, dimension(:), intent(out):: cluster
@@ -713,15 +738,16 @@ integer, optional, dimension(:), intent(out):: cluster
   Vec:: sqrt_diag, inv_sqrt_diag, diag, one
   double precision, dimension(MAT_INFO_SIZE):: matrixinfo
   integer, dimension(:), allocatable:: findN, N, R
-  integer:: nrows, nentries, ncols
-  integer:: jc, ccnt, base, end_of_range
+  PetscInt:: nrows, nentries, ncols
+  PetscInt:: end_of_range, base
+  integer :: jc, ccnt
     
   ! find out basic dimensions of A
   call MatGetLocalSize(A, nrows, ncols, ierr)
   ! use Petsc_Tools's MatGetInfo because of bug in earlier patch levels of petsc 3.0
   call MatGetInfo(A, MAT_LOCAL, matrixinfo, ierr)
   nentries=matrixinfo(MAT_INFO_NZ_USED)
-  call MatGetOwnerShipRange(A, base, end_of_range, ierr)
+  call MatGetOwnershipRange(A, base, end_of_range, ierr)
   ! we decrease by 1, so base+i gives 0-based petsc index if i is the local fortran index:
   base=base-1
   
@@ -815,12 +841,12 @@ end function Prolongator
 subroutine create_prolongator(P, nrows, ncols, findN, N, R, A, base, omega)
   
   Mat, intent(out):: P
-  integer, intent(in):: nrows ! number of fine nodes
+  PetscInt, intent(in):: nrows ! number of fine nodes
   integer, intent(in):: ncols ! number of clusters
   integer, dimension(:), intent(in):: findN, N, R
   ! A needs to be left rescaled with the inverse diagonal: D^-1 A
   Mat, intent(in):: A
-  integer, intent(in):: base
+  PetscInt, intent(in):: base
   PetscReal, intent(in):: omega
   
   PetscErrorCode:: ierr
@@ -828,7 +854,8 @@ subroutine create_prolongator(P, nrows, ncols, findN, N, R, A, base, omega)
   PetscReal, dimension(:), allocatable:: Arowsum
   PetscReal:: aij(1), rowsum
   integer, dimension(:), allocatable:: dnnz, onnz
-  integer:: i, j, k, coarse_base, end_of_range
+  PetscInt :: i, j, coarse_base
+  integer:: k, end_of_range
   
   allocate(dnnz(1:nrows), Arowsum(1:nrows))
   
@@ -879,7 +906,7 @@ subroutine create_prolongator(P, nrows, ncols, findN, N, R, A, base, omega)
     ! the filtered matrix only contains the entries in N_i:
     do k=findN(i), findN(i+1)-1
       j=N(k)
-      call MatGetValues(A, 1, (/ base+i /), 1, (/ base+j /),  aij, ierr)
+      call MatGetValues(A, int(1, kind=kind(i)), (/ base+i /), int(1, kind=kind(i)), (/ base+j /),  aij, ierr)
       rowsum=rowsum+aij(1)
       if (R(j)>0) then
         call MatSetValue(P, base+i, coarse_base+R(j), -omega*aij(1), &
@@ -905,14 +932,16 @@ subroutine Prolongator_init(R, ccnt, findN, N, A, base, epsilon)
 integer, dimension(:), intent(out):: R, findN, N
 integer, intent(out):: ccnt
 Mat, intent(in):: A
-integer, intent(in):: base
+PetscInt, intent(in):: base
 PetscReal, intent(in):: epsilon
 
   PetscErrorCode:: ierr
   PetscReal, dimension(:), allocatable:: vals(:)
-  integer, dimension(:), allocatable:: cols(:)
+  PetscInt, dimension(:), allocatable:: cols(:)
   PetscReal aij, eps_sqrt
-  integer i, j, k, p, ncols
+  PetscInt i, j
+  integer k, p
+  PetscInt :: ncols
   
   ! workspace for MatGetRow
   allocate( vals(1:size(N)), cols(1:size(n)) )
@@ -951,7 +980,7 @@ subroutine Prolongator_step1(R, jc, findN, N, maxclustersize)
 integer, dimension(:), intent(inout):: R
 integer, intent(out):: jc
 integer, dimension(:), intent(in):: findN, N
-integer, intent(in):: maxclustersize
+PetscInt, intent(in):: maxclustersize
   ! Step 1 - Startup aggregation
   ! select some of the coupled neighbourhoods as an initial (incomplete) 
   !   covering
@@ -996,11 +1025,12 @@ subroutine Prolongator_step2(R, findN, N, A, base)
 integer, dimension(:), intent(inout):: R
 integer, dimension(:), intent(in):: findN, N
 Mat, intent(in):: A
-integer, intent(in):: base
+PetscInt, intent(in):: base
 
   PetscErrorCode:: ierr
   PetscReal:: maxc, aij(1)
-  integer:: i, j, k, p
+  PetscInt :: i, j
+  integer :: k, p
   
   do i=1, size(R)
     if (R(i)==COUPLED) then
@@ -1012,7 +1042,7 @@ integer, intent(in):: base
         j=N(p)
         if (R(j)>0) then
           j=N(p)
-          call MatGetValues(A, 1, (/ base+i /), 1, (/ base+j /),  aij, ierr)
+          call MatGetValues(A, int(1, kind=kind(i)), (/ base+i /), int(1, kind=kind(i)), (/ base+j /),  aij, ierr)
           if (abs(aij(1))>maxc) then
             maxc=abs(aij(1))
             k=R(j)
@@ -1072,6 +1102,7 @@ Vec, intent(out):: eigvec
   PetscReal:: rho_k, rho_kp1, norm2
   integer:: i
   PetscRandom:: pr
+  PetscInt :: t
   
   x_kp1 = PETSC_NOTANULL_VEC; x_k = PETSC_NOTANULL_VEC
   call MatCreateVecs(matrix, x_kp1, x_k, ierr)
@@ -1086,7 +1117,8 @@ Vec, intent(out):: eigvec
   do i=1, MAX_ITERATIONS
     call  MatMult(matrix, x_k, x_kp1, ierr)
     ! compute < x_k+1, x_k+1 > and < x_k+1, x_k >
-    call VecMDot(x_kp1, 2, (/ x_kp1, x_k /), dot_prods, ierr)
+    t = 2
+    call VecMDot(x_kp1, t, (/ x_kp1, x_k /), dot_prods, ierr)
     norm2=sqrt(dot_prods(1))
     rho_kp1=dot_prods(2)
     

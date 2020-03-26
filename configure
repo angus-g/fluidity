@@ -12632,9 +12632,10 @@ if test "$enable_petsc_fortran_modules" != "no" ; then
   # now try if the petsc fortran modules work:
   cat > conftest.$ac_ext <<_ACEOF
       program main
-
+#include <petsc/finclude/petscsys.h>
                           use petsc
-                          integer :: ierr
+			  implicit none
+                          PetscErrorCode :: ierr
                           print*, "hello petsc"
                           call PetscInitialize(PETSC_NULL_CHARACTER, ierr)
 
