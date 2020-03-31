@@ -129,8 +129,8 @@ contains
     type(csr_matrix) A
     real value
     real time1, time2, time3
-    integer i, n, n1, n2, iterations
-    
+    PetscInt i, n, n1, n2, iterations
+
     ewrite(0,*) "Called petsc_readnsolve without specifying flml."
     ewrite(0,*) "The recommend way of calling petsc_readnsolve is now"//&
                  &" by specifying both the .flml and field to solve for"//&
@@ -190,8 +190,9 @@ contains
     call KSPCreate(MPI_COMM_FEMTOOLS, krylov, ierr)
     call KSPSetType(krylov, krylov_method, ierr)
     call KSPSetOperators(krylov, matrix, matrix, ierr)
+    i = 3000
     call KSPSetTolerances(krylov, 1.0d-100, 1d-12, PETSC_DEFAULT_REAL, &
-      3000, ierr)
+      i, ierr)
     if (zero_init_guess) then
       call KSPSetInitialGuessNonzero(krylov, PETSC_FALSE, ierr)
       ! also explicitly zero x vector for output purposes
@@ -287,9 +288,10 @@ contains
     character(len=OPTION_PATH_LEN):: option_path
     character(len=FIELD_NAME_LEN):: field_name, mesh_name
     logical read_state, fail
-    integer i, n, istate, stat
+    integer i,  istate, stat
     type(halo_type), pointer :: my_halo
     integer nstates, universal_nodes, components, dim
+    PetscInt n
 
     ewrite(1,*) "Opening flml file ", trim(flml)
     call load_options(flml)
@@ -377,7 +379,7 @@ contains
       else if (mod(n, universal_nodes)==0) then
         
         components=universal_nodes/n
-        call petsc_readnsolve_vector(mesh, n, universal_nodes, option_path, x, matrix, rhs, &
+        call petsc_readnsolve_vector(mesh, int(n), universal_nodes, option_path, x, matrix, rhs, &
             states(istate), read_state)
               
       else
@@ -396,12 +398,12 @@ contains
       quad=make_quadrature(vertices=dim+1, dim=dim, degree=1)
       shape=make_element_shape(vertices=dim+1, dim=dim, degree=1, quad=quad)
       ! allocate the mesh with n nodes and 1 element
-      call allocate(mesh, n, 1, shape, "Mesh")
+      call allocate(mesh, int(n), 1, shape, "Mesh")
       call deallocate(shape)
       call deallocate(quad)
       
       ! setup trivial petsc numbering
-      call allocate(petsc_numbering, n, 1)
+      call allocate(petsc_numbering, int(n), 1)
       universal_nodes=n
       components=1
       
@@ -694,17 +696,20 @@ contains
     Mat new_matrix
     Vec new_x, new_rhs
     PetscErrorCode ierr
-    integer, dimension(:), allocatable:: allcols, unns
-    integer i, n, m, ncomponents
-    
-    integer mm,nn
+    integer, dimension(:), allocatable:: allcols
+    PetscInt, dimension(:), allocatable :: unns
+    PetscInt :: nunns
+    integer i, ncomponents
+    PetscInt m, n
+    PetscInt mm,nn
     
     n=petsc_numbering%nprivatenodes ! local length
     ncomponents=size(petsc_numbering%gnn2unn, 2)
     allocate(unns(1:n*ncomponents))
     unns=reshape( petsc_numbering%gnn2unn(1:n,:), (/ n*ncomponents /))
+    nunns = size(unns)
     call ISCreateGeneral(MPI_COMM_FEMTOOLS, &
-       size(unns), unns, PETSC_COPY_VALUES, row_indexset, ierr)
+       nunns, unns, PETSC_COPY_VALUES, row_indexset, ierr)
        
     m=petsc_numbering%universal_length ! global length
        
@@ -757,6 +762,7 @@ contains
   character(len=*), intent(out):: filename, flml, field
   logical, intent(out):: zero_init_guess, scipy, random_rhs
 
+  PetscInt t
     PetscBool flag
     PetscErrorCode ierr
     
@@ -781,7 +787,7 @@ contains
 
     call PetscOptionsHasName(PETSC_NULL_OPTIONS, 'prns_', '-random_rhs', random_rhs, ierr)
     
-    call PetscOptionsGetInt(PETSC_NULL_OPTIONS, 'prns_', '-verbosity', current_debug_level, flag, ierr)
+    call PetscOptionsGetInt(PETSC_NULL_OPTIONS, 'prns_', '-verbosity', int(current_debug_level, kind=kind(t)), flag, ierr)
     if (.not.flag) then
       current_debug_level=3
     end if
