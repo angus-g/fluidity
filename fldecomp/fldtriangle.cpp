@@ -40,7 +40,7 @@
 void write_partitions_triangle(bool verbose, 
                   string filename, string file_format,
                   int nparts, int nnodes, int dim, int no_coords,
-                  const vector<double>&x, const vector<int>& decomp,
+                  const vector<double>&x, const vector<idx_t>& decomp,
                   int nloc, const vector<int>& ENList, 
                   const vector<int>& regionIds, 
                   int snloc, const deque< vector<int> >& SENList, 
@@ -99,7 +99,7 @@ void write_partitions_triangle(bool verbose,
     deque< pair<int, int> > *sorted_elements = new deque< pair<int, int> >;
     for(int eid=0;eid<nelms;eid++){
       int halo_count=0;
-      pair<int, int> *owned_elm = new pair<int, int>(decomp[ENList[eid*nloc] - 1], eid);
+      pair<idx_t, int> *owned_elm = new pair<idx_t, int>(decomp[ENList[eid*nloc] - 1], eid);
       if(decomp[ENList[eid*nloc] - 1]!=part){
         halo_count++;
       }
@@ -588,7 +588,7 @@ int decomp_triangle( map<char, string> flArgs, bool verbose,
   columnSENList.clear();
   face_file.close();
   
-  vector<int> decomp;
+  vector<idx_t> decomp;
   int partition_method = -1;
   
   if(flArgs.count('r')){
@@ -622,7 +622,7 @@ int decomp_triangle( map<char, string> flArgs, bool verbose,
     edgecut = partition(topSENList, 2, snloc, snnodes, npartitions, partition_method, decomp);
     topSENList.clear();
     decomp.resize(nnodes);
-    vector<int> decomp_temp;
+    vector<idx_t> decomp_temp;
     decomp_temp.resize(nnodes);
     for(int i=0;i<nnodes;i++){
       decomp_temp[i] = decomp[surface_nids[i]-1]; // surface_nids=column number

@@ -48,6 +48,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <metis.h>
 #include "vtk.h"
 #include "Halos_IO.h"
 #include "fmangle.h"

@@ -38,16 +38,16 @@ namespace Fluidity{
                 std::vector<std::set<int> >& graph);
 
   int partition(const std::vector<int> &ENList, const int& dim, int nloc, int nnodes,
-                std::vector<int>& npartitions, int partition_method, std::vector<int> &decomp);
+                std::vector<int>& npartitions, int partition_method, std::vector<idx_t> &decomp);
                 
   int partition(const std::vector<int> &ENList, int nloc, int nnodes,
-                std::vector<int>& npartitions, int partition_method, std::vector<int> &decomp);
+                std::vector<int>& npartitions, int partition_method, std::vector<idx_t> &decomp);
 
   int partition(const std::vector<int> &ENList, const std::vector<int> &surface_nids, const int& dim, int nloc,
-                int nnodes, std::vector<int>& npartitions, int partition_method, std::vector<int> &decomp);
+                int nnodes, std::vector<int>& npartitions, int partition_method, std::vector<idx_t> &decomp);
 
   int partition(const std::vector<int> &ENList, const std::vector<int> &surface_nids, int nloc, int nnodes,
-                std::vector<int>& npartitions, int partition_method, std::vector<int> &decomp);
+                std::vector<int>& npartitions, int partition_method, std::vector<idx_t> &decomp);
 }
               
 #endif

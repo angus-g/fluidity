@@ -170,7 +170,7 @@ namespace Fluidity{
     return 0;
   }
   
-  int gpartition(const vector< set<int> > &graph, int npartitions, int partition_method, vector<int> &decomp){  
+  int gpartition(const vector< set<int> > &graph, idx_t npartitions, int partition_method, vector<idx_t> &decomp){  
     // If no partitioning method is set, choose a default.
     if(partition_method<0){
       if(npartitions<=8)
@@ -195,7 +195,8 @@ namespace Fluidity{
     
     // Partition graph
     decomp.resize(nnodes);
-    int wgtflag=0, numflag=1, edgecut=0;
+    int wgtflag=0, numflag=1;
+    idx_t edgecut=0;
 #ifdef PARMETIS_V3
     int options[] = {0};
 #else
@@ -231,9 +232,9 @@ namespace Fluidity{
     return edgecut;
   }
 
-  int hpartition(const vector< set<int> > &graph, vector<int>& npartitions, int partition_method, vector<int> &decomp){
+  int hpartition(const vector< set<int> > &graph, vector<int>& npartitions, int partition_method, vector<idx_t> &decomp){
 
-    vector<int> hdecomp;
+    vector<idx_t> hdecomp;
     int edgecut = gpartition(graph, npartitions[0], partition_method, hdecomp);
 
     if(npartitions.size()==2){
@@ -256,7 +257,8 @@ namespace Fluidity{
           }
         }
         
-        vector<int> pdecomp, ncores(npartitions[1], 0);
+        vector<idx_t> pdecomp;
+	vector<int> ncores(npartitions[1], 0);
         set<int> parts;
         int sedgecut = gpartition(pgraph, npartitions[1], partition_method, pdecomp);
         for(map<int, int>::const_iterator it=renumber.begin();it!=renumber.end();++it){
@@ -272,7 +274,7 @@ namespace Fluidity{
     return edgecut;
   }
 
-  int partition(const vector<int> &ENList, const int& dim, int nloc, int nnodes, vector<int>& npartitions, int partition_method, vector<int> &decomp){
+  int partition(const vector<int> &ENList, const int& dim, int nloc, int nnodes, vector<int>& npartitions, int partition_method, vector<idx_t> &decomp){
     // Build graph
     vector< set<int> > graph;
     int ret = FormGraph(ENList, dim, nloc, nnodes, graph);
@@ -285,7 +287,7 @@ namespace Fluidity{
     return edgecut;
   }  
   
-  int partition(const vector<int> &ENList, int nloc, int nnodes, vector<int>& npartitions, int partition_method, vector<int> &decomp){
+  int partition(const vector<int> &ENList, int nloc, int nnodes, vector<int>& npartitions, int partition_method, vector<idx_t> &decomp){
     return partition(ENList, 3, nloc, nnodes, npartitions, partition_method, decomp);
   }
   
@@ -333,7 +335,7 @@ namespace Fluidity{
       for(set<int>::const_iterator jt=it->second.begin(); jt!=it->second.end(); ++jt){
         cgraph[surface_nids[it->first-1]-1].insert(surface_nids[*jt-1]);
       }
-    vector<int> sdecomp(snnodes);
+    vector<idx_t> sdecomp(snnodes);
     int edgecut = hpartition(cgraph, npartitions, partition_method, sdecomp);
     
     // Map 2D decomposition onto 3D mesh.

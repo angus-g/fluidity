@@ -311,7 +311,7 @@ void write_partitions_gmsh(bool verbose,
                            string filename, string file_format,
                            const int nparts, const int nnodes, 
                            const int dim, const int no_coords,
-                           const vector<double>&x, const vector<int>& decomp,
+                           const vector<double>&x, const vector<idx_t>& decomp,
                            const int nloc, const vector<int>& ENList,
                            const vector<int>& regionIds,
                            const int snloc, const deque <vector<int> >& SENList,
@@ -375,7 +375,7 @@ void write_partitions_gmsh(bool verbose,
         for(int eid=0;eid<nelms;eid++)
           {
             int halo_count=0;
-            pair<int, int> *owned_elm = new pair<int, int>(decomp[ENList[eid*nloc] - 1], eid);
+            pair<idx_t, int> *owned_elm = new pair<idx_t, int>(decomp[ENList[eid*nloc] - 1], eid);
             if(decomp[ENList[eid*nloc] - 1]!=part)
               halo_count++;
             
@@ -1013,7 +1013,7 @@ int decomp_gmsh( map<char, string> flArgs, bool verbose,
   
   // Preparing to partition the mesh.
 
-  vector<int> decomp;
+  vector<idx_t> decomp;
   int partition_method = -1;
   
   if(flArgs.count('r')){
