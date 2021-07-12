@@ -377,10 +377,14 @@ contains
                    particle_lists(list_counter), xfield, dim, &
                    attr_counts, attr_names, old_attr_names, old_field_names, &
                    number_of_partitions)
-            else
+            elseif (have_option(trim(subgroup_path) // "/initial_position/from_python")) then
               call read_particles_from_python(subname, subgroup_path, &
                    particle_lists(list_counter), xfield, dim, &
                    current_time, state, attr_counts, global, sub_particles)
+            else
+              call init_particles_per_cv(subname, subgroup_path, &
+                   particle_lists(list_counter), xfield, dim, &
+                   attr_counts, sub_particles)
             end if
           end if
 
@@ -670,6 +674,58 @@ contains
 
     deallocate(coords)
   end subroutine read_particles_from_python
+
+  subroutine init_particles_per_cv(subgroup_name, subgroup_path, &
+       particle_list, xfield, dim, &
+       attr_counts, n_particles)
+
+    !> Name of the particles' subgroup
+    character(len=FIELD_NAME_LEN), intent(in) :: subgroup_name
+    !> Path prefix for subgroup in options
+    character(len=OPTION_PATH_LEN), intent(in) :: subgroup_path
+    !> Detector list to hold particles
+    type(detector_linked_list), intent(inout) :: particle_list
+    !> Coordinate vector field
+    type(vector_field), pointer, intent(in) :: xfield
+    !> Geometry dimension
+    integer, intent(in) :: dim
+    !> Counts of attributes, old attributes, and old fields
+    type(attr_counts_type), intent(in) :: attr_counts
+    !> Number of particles that were initialised
+    integer, intent(out) :: n_particles
+
+    integer :: ele, node, n_per_cv, proc_num, n
+    real :: rand_val, max_lcoord
+    integer, dimension(:), pointer :: nodes
+    real, dimension(xfield%dim) :: position ! global coordinates for each particle
+    real, dimension(xfield%dim + 1) :: node_coord ! local coordinates at a node
+
+    call get_option(trim(subgroup_path) // "/initial_position/per_cv", n_per_cv)
+    n_particles = 0
+    proc_num = getprocno()
+
+    ! loop over all elements in mesh
+    do ele = 1, element_count(xfield%mesh)
+      nodes => ele_nodes(xfield%mesh, ele)
+
+      ! loop over all nodes within the element (to get their CVs)
+      do node = 1, size(nodes)
+        do n = 1, n_per_cv
+          call random_number(rand_val)
+          max_lcoord = rand_val / (1/0.49) + 0.51
+          call set_spawned_lcoords(max_lcoord, node_coord, nodes(node), nodes)
+
+          ! convert local position to global
+          position = eval_field(ele, xfield, node_coord)
+
+          ! create new particle
+          n_particles = n_particles + 1
+          call create_single_particle(particle_list, xfield, position, n_particles, proc_num, xfield%dim, attr_counts)
+        end do
+      end do
+    end do
+
+  end subroutine init_particles_per_cv
 
   !> Read attributes for all ranks from an H5Part file
   subroutine read_attrs(h5_id, dim, counts, names, vals, prefix)
