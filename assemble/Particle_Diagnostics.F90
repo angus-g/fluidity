@@ -46,7 +46,7 @@ module particle_diagnostics
   use pickers
   use field_options
   use detector_tools, only: temp_list_insert, insert, allocate, deallocate, temp_list_deallocate, &
-       & remove, temp_list_remove
+       & remove, temp_list_remove, set_spawned_lcoords
   use particles, only : get_particle_arrays, initialise_constant_particle_attributes, &
        & update_particle_attributes_and_fields, get_particle_arrays, particle_lists
   use multimaterial_module, only: calculate_sum_material_volume_fractions
@@ -1102,46 +1102,6 @@ module particle_diagnostics
     end if
 
   end subroutine spawn_zero_particles
-
-  subroutine set_spawned_lcoords(max_lcoord, node_coord, node_num, node_numbers)
-    !Subroutine to randomly set spawned particle local coordinates based off
-    !the maximum local coordinate given
-
-    real, intent(inout) :: max_lcoord
-    real, dimension(:), intent(inout) :: node_coord
-    integer, intent(in) :: node_num
-    integer, dimension(:), intent(in) :: node_numbers
-
-    integer, dimension(4,4) :: permutation = reshape([1,2,3,4, 2,1,3,4, 2,3,1,4, 2,3,4,1], [4,4])
-    real, dimension(4) :: work
-    real :: tmp_res, rand_val
-    integer :: i, j
-
-    max_lcoord = max(0.51, min(max_lcoord, 0.999))
-    ! set up the node coordinates to be permuted
-    ! looks like: [x, (1 - x) * rand(), (1 - x - y) * rand(), 1 - x - y - z]
-    ! depending on the number of coordinates
-    work(1) = max_lcoord
-    tmp_res = 1 - max_lcoord
-    do j = 2, size(node_coord) - 1
-       call random_number(rand_val)
-       work(j) = tmp_res * rand_val
-       tmp_res = tmp_res - work(j)
-    end do
-    work(size(node_coord)) = tmp_res
-
-    do i = 1,size(node_coord)
-       ! determine the node index corresponding to the
-       ! target node number
-       if (node_num == node_numbers(i)) exit
-    end do
-    assert(i<=size(node_coord))
-    ! set the coordinates according to the permutation for this index
-    do j = 1, size(node_coord)
-       node_coord(j) = work(permutation(j,i))
-    end do
-
-  end subroutine set_spawned_lcoords
 
   subroutine multi_delete_particles(mult, node_particles, group_arrays, summed_particles, cap_percent)
     !Subroutine to call delete particles multiple times based on the mult factor
