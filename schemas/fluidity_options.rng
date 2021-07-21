@@ -501,7 +501,12 @@ The t argument is not used here. To spawn with t dependence use initialise_durin
                           <element name="per_cv">
                             <a:documentation>Spawn a number of particles at random locations within each CV. This value is
 the number of particles within each CV, not a global total.</a:documentation>
-                            <ref name="integer"/>
+                            <element name="particles_per_cv">
+                              <ref name="integer"/>
+                            </element>
+                            <element name="python">
+                              <ref name="python_code"/>
+                            </element>
                           </element>
                         </choice>
                       </element>

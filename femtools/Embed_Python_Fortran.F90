@@ -482,10 +482,36 @@ module embed_python
     & set_scalar_particles_from_python_fields, set_scalar_particles_from_python, &
     & set_vector_particles_from_python_fields, set_vector_particles_from_python, &
     & set_tensor_particles_from_python_fields, set_tensor_particles_from_python, &
-    deallocate_c_array
+    deallocate_c_array, &
+    init_cv_test_func, valid_init_cv_position, destroy_cv_test_func
 
 contains
 
+  subroutine init_cv_test_func(function, function_len, cs)
+    use iso_c_binding, only: c_ptr
+    implicit none
+
+    integer, intent(in) :: function_len
+    character(len = function_len), intent(in) :: function
+    type(c_ptr), intent(out) :: cs
+  end subroutine init_cv_test_func
+
+  subroutine destroy_cv_test_func(cs)
+    use iso_c_binding, only: c_ptr
+    implicit none
+
+    type(c_ptr), intent(in) :: cs
+  end subroutine destroy_cv_test_func
+
+  function valid_init_cv_position(cs, dim, position)
+    use iso_c_binding, only: c_ptr
+    implicit none
+
+    type(c_ptr), intent(in) :: cs
+    integer, intent(in), value :: dim
+    real(kind = c_double), dimension(dim), intent(in) :: position
+    logical :: valid_init_cv_position
+  end function valid_init_cv_position
 
   subroutine set_scalar_field_from_python_sp(function, function_len, dim, &
     & nodes, x, y, z, t, result, stat)

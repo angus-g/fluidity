@@ -45,6 +45,10 @@ USA
 #include "numpy/arrayobject.h"
 #endif
 
+struct func_ctx {
+  PyObject *pFunc, *pLocals;
+};
+
 void deallocate_c_array(void *ptr) {
   free(ptr);
 }
@@ -85,6 +89,40 @@ int eval_user_func(char *function, int function_len, PyObject *pLocals, PyObject
 
 
   return 0;
+}
+
+void init_cv_test_func(char *function, int function_len, struct func_ctx **fresult) {
+  struct func_ctx *ctx;
+  ctx = (struct func_ctx*) malloc(sizeof(struct func_ctx));
+  ctx->pLocals = PyDict_New();
+
+  eval_user_func(function, function_len, ctx->pLocals, &ctx->pFunc);
+
+  *fresult = ctx;
+}
+
+void destroy_cv_test_func(struct func_ctx **fresult) {
+  free(*fresult);
+}
+
+int valid_init_cv_position(struct func_ctx **fresult, int dim, double *position) {
+  PyObject *pArgs, *pPos, *pResult;
+  struct func_ctx *ctx;
+  int result;
+
+  pPos = PyArray_SimpleNewFromData(1, &dim, NPY_DOUBLE, position);
+  pArgs = PyTuple_New(1);
+  PyTuple_SetItem(pArgs, 0, pPos);
+
+  ctx = *fresult;
+
+  pResult = PyObject_CallObject(ctx->pFunc, pArgs);
+  result = (pResult == Py_True); // anything not True is false
+
+  Py_DECREF(pResult);
+  Py_DECREF(pArgs);
+
+  return result;
 }
 
 static inline void set_pos_tuple(int i, int dim, PyObject *pPos, double *x, double *y, double *z) {

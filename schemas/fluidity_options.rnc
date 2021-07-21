@@ -415,7 +415,12 @@ start =
 			   ## Spawn a number of particles at random locations within each CV. This value is
 			   ## the number of particles within each CV, not a global total.
 			   element per_cv {
-			       integer
+			       element particles_per_cv {
+				   integer
+			       },
+			       element python {
+				   python_code
+			       }
 			   }
                         },
                         element initialise_during_simulation {

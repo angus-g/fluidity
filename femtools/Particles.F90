@@ -694,13 +694,21 @@ contains
     !> Number of particles that were initialised
     integer, intent(out) :: n_particles
 
-    integer :: ele, node, n_per_cv, proc_num, n
+    integer :: ele, node, n_per_cv, proc_num, n, j
     real :: rand_val, max_lcoord
     integer, dimension(:), pointer :: nodes
     real, dimension(xfield%dim) :: position ! global coordinates for each particle
     real, dimension(xfield%dim + 1) :: node_coord ! local coordinates at a node
+    real, dimension(4) :: lcoords = [0.5, 0.5, 0.0, 1.0]
+    integer, dimension(4,4) :: permutation = reshape([1,2,3,4, 2,1,3,4, 2,3,1,4, 2,3,4,1], [4,4])
+    character(len=PYTHON_FUNC_LEN) :: func
+    type(c_ptr) :: test_func_cs
 
-    call get_option(trim(subgroup_path) // "/initial_position/per_cv", n_per_cv)
+    call get_option(trim(subgroup_path) // "/initial_position/per_cv/particles_per_cv", n_per_cv)
+    call get_option(trim(subgroup_path) // "/initial_position/per_cv/python", func)
+
+    call init_cv_test_func(func, len(func), test_func_cs)
+
     n_particles = 0
     proc_num = getprocno()
 
@@ -710,6 +718,17 @@ contains
 
       ! loop over all nodes within the element (to get their CVs)
       do node = 1, size(nodes)
+        ! determine whether this node should be included for initialising the particles
+        do j = 1, size(node_coord)
+          ! local coord: [0.5, 0.5, 0, 1] (permuted by current node number)
+          node_coord(j) = lcoords(permutation(j,node))
+          position = eval_field(ele, xfield, node_coord)
+        end do
+
+        ! call out to python routine to determine if this is a
+        ! valid position
+        if (.not. valid_init_cv_position(test_func_cs, xfield%dim, position)) cycle
+
         do n = 1, n_per_cv
           call random_number(rand_val)
           max_lcoord = rand_val / (1/0.49) + 0.51
@@ -724,6 +743,8 @@ contains
         end do
       end do
     end do
+
+    call destroy_cv_test_func(test_func_cs)
 
   end subroutine init_particles_per_cv
 
