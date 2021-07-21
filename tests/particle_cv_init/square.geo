@@ -1,13 +1,25 @@
-Point(1) = {0,0,0,0.03};
-Extrude {1,0,0} {
-  Point{1};
-}
-Extrude {0,1,0} {
-  Line{1};
-}
-Physical Line(8) = {2};
-Physical Line(9) = {4};
-Physical Line(10) = {3};
-Physical Line(11) = {1};
-Physical Surface(7) = {5};
-
+cl1 = 0.10;
+ar = 0.9142;
+Point(1) = {0, 0, 0, cl1};
+Point(2) = {0, 1, 0, cl1};
+Point(3) = {ar, 0, 0, cl1};
+Point(4) = {ar, 1, 0, cl1};
+Point(5) = {0, 0.2, 0, cl1};
+Point(6) = {ar, 0.2, 0, cl1};
+Line(1) = {1, 3};
+Line(2) = {3, 6};
+Line(3) = {6, 4};
+Line(4) = {4, 2};
+Line(5) = {2, 5};
+Line(6) = {5, 1};
+Line(7) = {5, 6};
+Line Loop(8) = {5, 7, 3, 4};
+Plane Surface(9) = {8};
+Line Loop(10) = {6, 1, 2, -7};
+Plane Surface(11) = {10};
+Physical Line(12) = {1};
+Physical Line(13) = {2, 3};
+Physical Line(14) = {4};
+Physical Line(15) = {5, 6};
+Physical Surface(16) = {9};
+Physical Surface(17) = {11};
