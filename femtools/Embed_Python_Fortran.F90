@@ -44,6 +44,38 @@ module embed_python
     end subroutine deallocate_c_array
   end interface deallocate_c_array
 
+  interface init_cv_test_func
+    subroutine init_cv_test_func(function, function_len, cs) bind(c)
+      use iso_c_binding, only: c_char, c_int, c_ptr
+      implicit none
+
+      character(kind=c_char), intent(in) :: function
+      integer(c_int), intent(in), value :: function_len
+      type(c_ptr), intent(out) :: cs
+    end subroutine init_cv_test_func
+  end interface init_cv_test_func
+
+  interface destroy_cv_test_func
+    subroutine destroy_cv_test_func(cs) bind(c)
+      use iso_c_binding, only: c_ptr
+      implicit none
+
+      type(c_ptr), intent(in), value :: cs
+    end subroutine destroy_cv_test_func
+  end interface destroy_cv_test_func
+
+  interface valid_init_cv_position
+    function valid_init_cv_position(cs, dim, position) bind(c)
+      use iso_c_binding, only: c_ptr, c_int, c_double, c_bool
+      implicit none
+
+      type(c_ptr), intent(in), value :: cs
+      integer(c_int), intent(in), value :: dim
+      real(c_double), dimension(dim), intent(in) :: position
+      logical(c_bool) :: valid_init_cv_position
+    end function valid_init_cv_position
+  end interface valid_init_cv_position
+
   interface set_scalar_field_from_python
     module procedure set_scalar_field_from_python_sp
 
@@ -486,32 +518,6 @@ module embed_python
     init_cv_test_func, valid_init_cv_position, destroy_cv_test_func
 
 contains
-
-  subroutine init_cv_test_func(function, function_len, cs)
-    use iso_c_binding, only: c_ptr
-    implicit none
-
-    integer, intent(in) :: function_len
-    character(len = function_len), intent(in) :: function
-    type(c_ptr), intent(out) :: cs
-  end subroutine init_cv_test_func
-
-  subroutine destroy_cv_test_func(cs)
-    use iso_c_binding, only: c_ptr
-    implicit none
-
-    type(c_ptr), intent(in) :: cs
-  end subroutine destroy_cv_test_func
-
-  function valid_init_cv_position(cs, dim, position)
-    use iso_c_binding, only: c_ptr
-    implicit none
-
-    type(c_ptr), intent(in) :: cs
-    integer, intent(in), value :: dim
-    real(kind = c_double), dimension(dim), intent(in) :: position
-    logical :: valid_init_cv_position
-  end function valid_init_cv_position
 
   subroutine set_scalar_field_from_python_sp(function, function_len, dim, &
     & nodes, x, y, z, t, result, stat)

@@ -27,6 +27,7 @@ USA
 */
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "confdefs.h"
 #include "string.h"
@@ -97,27 +98,35 @@ void init_cv_test_func(char *function, int function_len, struct func_ctx **fresu
   ctx->pLocals = PyDict_New();
 
   eval_user_func(function, function_len, ctx->pLocals, &ctx->pFunc);
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    return;
+  }
 
   *fresult = ctx;
 }
 
-void destroy_cv_test_func(struct func_ctx **fresult) {
-  free(*fresult);
+void destroy_cv_test_func(struct func_ctx *ctx) {
+  free(ctx);
 }
 
-int valid_init_cv_position(struct func_ctx **fresult, int dim, double *position) {
+bool valid_init_cv_position(struct func_ctx *ctx, int dim, double *position) {
   PyObject *pArgs, *pPos, *pResult;
-  struct func_ctx *ctx;
-  int result;
+  bool result;
+  npy_intp dims[] = {dim};
 
-  pPos = PyArray_SimpleNewFromData(1, &dim, NPY_DOUBLE, position);
+  import_array();
+
+  pPos = PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE, position);
   pArgs = PyTuple_New(1);
   PyTuple_SetItem(pArgs, 0, pPos);
 
-  ctx = *fresult;
-
   pResult = PyObject_CallObject(ctx->pFunc, pArgs);
-  result = (pResult == Py_True); // anything not True is false
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    return false;
+  }
+  result = PyObject_IsTrue(pResult);
 
   Py_DECREF(pResult);
   Py_DECREF(pArgs);
