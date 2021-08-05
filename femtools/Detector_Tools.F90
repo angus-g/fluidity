@@ -661,7 +661,7 @@ contains
     !Subroutine to randomly set spawned particle local coordinates based off
     !the maximum local coordinate given
 
-    real, intent(inout) :: max_lcoord
+    real, intent(in) :: max_lcoord
     real, dimension(:), intent(inout) :: node_coord
     integer, intent(in) :: node_num
     integer, dimension(:), intent(in) :: node_numbers
@@ -671,12 +671,12 @@ contains
     real :: tmp_res, rand_val
     integer :: i, j
 
-    max_lcoord = max(0.51, min(max_lcoord, 0.999))
     ! set up the node coordinates to be permuted
     ! looks like: [x, (1 - x) * rand(), (1 - x - y) * rand(), 1 - x - y - z]
     ! depending on the number of coordinates
-    work(1) = max_lcoord
-    tmp_res = 1 - max_lcoord
+    call random_number(work(1))
+    work(1) = 1.0 - max_lcoord * sqrt(work(1))
+    tmp_res = 1 - work(1)
     do j = 2, size(node_coord) - 1
        call random_number(rand_val)
        work(j) = tmp_res * rand_val

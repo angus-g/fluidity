@@ -693,7 +693,7 @@ module particle_diagnostics
     integer :: id, group_spawn, ele_spawn, proc_num
     integer :: j, i, k, l, m, dim
     logical :: spawn_group, coords_set, rand_set
-    real :: max_lcoord, rand_lcoord, sum_coords, rand_val
+    real :: rand_lcoord, sum_coords, rand_val
     real, dimension(:), allocatable :: rand_lcoords
 
     proc_num = getprocno()
@@ -838,9 +838,7 @@ module particle_diagnostics
              ele_spawn = minloc(ele_num_part, DIM=1)
              temp_part%element = ele_nums(ele_spawn)
              node_numbers(:) = ele_nodes(xfield, ele_nums(ele_spawn))
-             call random_number(rand_val)
-             max_lcoord = rand_val/(1/0.49)+0.51!lcoords for cv range from 0.51<x<1
-             call set_spawned_lcoords(max_lcoord, node_coord, node_num, node_numbers)
+             call set_spawned_lcoords(0.5, node_coord, node_num, node_numbers)
              temp_part%local_coords = node_coord
              ele_num_part(ele_spawn) = ele_num_part(ele_spawn) + 1
           end if
@@ -916,7 +914,7 @@ module particle_diagnostics
     !> Arrays for coordinates of nodes and distance from nodes
     real, dimension(:), allocatable :: node_coord, node_loc, distance
     real, dimension(:,:,:), allocatable :: ele_val
-    real :: max_lcoord, ratio, rand_val
+    real :: ratio
 
     integer :: id
     integer :: i, j, k, l, m, proc_num
@@ -1042,12 +1040,10 @@ module particle_diagnostics
                 temp_part%proc_id = proc_num
                 temp_part%element=ele_nums(j)
                 !randomly select local coords within the element, ensuring coords are within cv
-                call random_number(rand_val)
-                max_lcoord=rand_val/(1/0.49)+0.51!lcoords for cv range from 0.51<x<1
                 node_coord(:)=1
                 node_coord(k)=0
                 do while (minloc(node_coord,DIM=1)==k)
-                   call set_spawned_lcoords(max_lcoord, node_coord, node_num, node_numbers(j,:))
+                   call set_spawned_lcoords(0.5, node_coord, node_num, node_numbers(j,:))
                 end do
                 temp_part%local_coords = node_coord
 

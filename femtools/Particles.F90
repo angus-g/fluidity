@@ -695,7 +695,6 @@ contains
     integer, intent(out) :: n_particles
 
     integer :: ele, node, n_per_cv, proc_num, n, j
-    real :: rand_val, max_lcoord
     integer, dimension(:), pointer :: nodes
     real, dimension(xfield%dim) :: position ! global coordinates for each particle
     real, dimension(xfield%dim + 1) :: node_coord ! local coordinates at a node
@@ -730,9 +729,7 @@ contains
         if (.not. valid_init_cv_position(test_func_cs, xfield%dim, position)) cycle
 
         do n = 1, n_per_cv
-          call random_number(rand_val)
-          max_lcoord = rand_val / (1/0.49) + 0.51
-          call set_spawned_lcoords(max_lcoord, node_coord, nodes(node), nodes)
+          call set_spawned_lcoords(0.5, node_coord, nodes(node), nodes)
 
           ! convert local position to global
           position = eval_field(ele, xfield, node_coord)
