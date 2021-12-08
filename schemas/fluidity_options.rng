@@ -535,6 +535,12 @@ This function will only be called after simulation start. To initialise starting
                                   <empty/>
                                 </element>
                               </optional>
+                              <optional>
+                                <element name="initial">
+                                  <a:documentation>Attribute value on particle spawn (at the beginning of, or during the simulation)</a:documentation>
+                                  <ref name="generic_scalar_particle_attribute_choice"/>
+                                </element>
+                              </optional>
                               <ref name="generic_scalar_particle_attribute_choice"/>
                             </element>
                             <element name="scalar_attribute_array">
@@ -551,6 +557,12 @@ This function will only be called after simulation start. To initialise starting
                                   <empty/>
                                 </element>
                               </optional>
+                              <optional>
+                                <element name="initial">
+                                  <a:documentation>Attribute value on particle spawn (at the beginning of, or during the simulation)</a:documentation>
+                                  <ref name="generic_scalar_particle_attribute_array"/>
+                                </element>
+                              </optional>
                               <ref name="generic_scalar_particle_attribute_array"/>
                             </element>
                             <element name="vector_attribute">
@@ -562,6 +574,12 @@ This function will only be called after simulation start. To initialise starting
                                 <element name="exclude_from_output">
                                   <a:documentation>Do not output this attribute to file</a:documentation>
                                   <empty/>
+                                </element>
+                              </optional>
+                              <optional>
+                                <element name="initial">
+                                  <a:documentation>Attribute value on particle spawn (at the beginning of, or during the simulation)</a:documentation>
+                                  <ref name="generic_vector_particle_attribute_choice"/>
                                 </element>
                               </optional>
                               <ref name="generic_vector_particle_attribute_choice"/>
@@ -580,6 +598,12 @@ This function will only be called after simulation start. To initialise starting
                                   <empty/>
                                 </element>
                               </optional>
+                              <optional>
+                                <element name="initial">
+                                  <a:documentation>Attribute value on particle spawn (at the beginning of, or during the simulation)</a:documentation>
+                                  <ref name="generic_vector_particle_attribute_array"/>
+                                </element>
+                              </optional>
                               <ref name="generic_vector_particle_attribute_array"/>
                             </element>
                             <element name="tensor_attribute">
@@ -591,6 +615,12 @@ This function will only be called after simulation start. To initialise starting
                                 <element name="exclude_from_output">
                                   <a:documentation>Do not output this attribute to file</a:documentation>
                                   <empty/>
+                                </element>
+                              </optional>
+                              <optional>
+                                <element name="initial">
+                                  <a:documentation>Attribute value on particle spawn (at the beginning of, or during the simulation)</a:documentation>
+                                  <ref name="generic_tensor_particle_attribute_choice"/>
                                 </element>
                               </optional>
                               <ref name="generic_tensor_particle_attribute_choice"/>
@@ -607,6 +637,12 @@ This function will only be called after simulation start. To initialise starting
                                 <element name="exclude_from_output">
                                   <a:documentation>Do not output this attribute to file</a:documentation>
                                   <empty/>
+                                </element>
+                              </optional>
+                              <optional>
+                                <element name="initial">
+                                  <a:documentation>Attribute value on particle spawn (at the beginning of, or during the simulation)</a:documentation>
+                                  <ref name="generic_tensor_particle_attribute_array"/>
                                 </element>
                               </optional>
                               <ref name="generic_tensor_particle_attribute_array"/>

@@ -440,7 +440,11 @@ start =
                                  ## Do not output this attribute to file
                                  element exclude_from_output {
                                     empty
-                                  }?,
+                                 }?,
+				 ## Attribute value on particle spawn (at the beginning of, or during the simulation)
+				 element initial {
+				     generic_scalar_particle_attribute_choice
+				 }?,
                                  generic_scalar_particle_attribute_choice
                               }|
                               ##Scalar particle attribute array.
@@ -452,7 +456,11 @@ start =
                                  ## Do not output this attribute to file
                                  element exclude_from_output {
                                     empty
-                                  }?,
+                                 }?,
+				 ## Attribute value on particle spawn (at the beginning of, or during the simulation)
+				 element initial {
+				     generic_scalar_particle_attribute_array
+				 }?,
                                  generic_scalar_particle_attribute_array
                               }|
                               ##Vector particle attribute.
@@ -462,6 +470,10 @@ start =
                                  element exclude_from_output {
                                     empty
                                  }?,
+				 ## Attribute value on particle spawn (at the beginning of, or during the simulation)
+				 element initial {
+				     generic_vector_particle_attribute_choice
+				 }?,
                                  generic_vector_particle_attribute_choice
                               }|
                               ##Vector particle attribute array.
@@ -474,6 +486,10 @@ start =
                                  element exclude_from_output {
                                     empty
                                  }?,
+				 ## Attribute value on particle spawn (at the beginning of, or during the simulation)
+				 element initial {
+				     generic_vector_particle_attribute_array
+				 }?,
                                  generic_vector_particle_attribute_array
                               }|
                               ##Tensor particle attribute.
@@ -483,6 +499,10 @@ start =
                                  element exclude_from_output {
                                     empty
                                  }?,
+				 ## Attribute value on particle spawn (at the beginning of, or during the simulation)
+				 element initial {
+				     generic_tensor_particle_attribute_choice
+				 }?,
                                  generic_tensor_particle_attribute_choice
                               }|
                               ##Tensor particle attribute array.
@@ -495,6 +515,10 @@ start =
                                  element exclude_from_output {
                                     empty
                                  }?,
+				 ## Attribute value on particle spawn (at the beginning of, or during the simulation)
+				 element initial {
+				     generic_tensor_particle_attribute_array
+				 }?,
                                  generic_tensor_particle_attribute_array
                               }
                            )+
