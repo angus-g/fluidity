@@ -344,15 +344,15 @@ contains
     ! Initialise MVF fields based on particles:
     call initialise_constant_particle_diagnostics(state)
     call calculate_particle_material_fields(state)
-    
+
     ! Calculate diagnostic variables:
     call calculate_diagnostic_variables(state)
     call calculate_diagnostic_variables_new(state)
 
     ! Initialise particle attributes and dependent fields
-    call update_particle_attributes_and_fields(state, current_time, dt)
+    call update_particle_attributes_and_fields(state, current_time, dt, initial=.true.)
     call calculate_diagnostic_fields_from_particles(state)
-    
+
     ! This is mostly to ensure that the photosynthetic radiation
     ! has a non-zero value before the first adapt.
     if (have_option("/ocean_biology")) then

@@ -1156,10 +1156,11 @@ contains
   end subroutine initialise_constant_particle_attributes
 
   !> Update attributes and fields for every subgroup of every particle group
-  subroutine update_particle_attributes_and_fields(state, time, dt)
+  subroutine update_particle_attributes_and_fields(state, time, dt, initial)
     type(state_type), dimension(:), intent(in) :: state
     real, intent(in) :: time
     real, intent(in) :: dt
+    logical, intent(in), optional :: initial
     character(len = OPTION_PATH_LEN) :: group_path, subgroup_path
 
     integer :: i, k
@@ -1184,7 +1185,7 @@ contains
            cycle
          end if
 
-         call update_particle_subgroup_attributes_and_fields(state, time, dt, subgroup_path, particle_lists(list_counter))
+         call update_particle_subgroup_attributes_and_fields(state, time, dt, subgroup_path, particle_lists(list_counter), initial)
          list_counter = list_counter + 1
        end do
     end do
@@ -1278,7 +1279,7 @@ contains
   end subroutine copy_names_to_array
 
   !> Set particle attributes for a single subgroup
-  subroutine update_particle_subgroup_attributes_and_fields(state, time, dt, subgroup_path, p_list)
+  subroutine update_particle_subgroup_attributes_and_fields(state, time, dt, subgroup_path, p_list, initial)
     !> Model state structure
     type(state_type), dimension(:), intent(in) :: state
     !> Current model time
@@ -1289,6 +1290,8 @@ contains
     character(len=OPTION_PATH_LEN), intent(in) :: subgroup_path
     !> Subgroup particle list
     type(detector_linked_list), intent(in) :: p_list
+    !> Whether this is the first time attributes are having values filled
+    logical, intent(in), optional :: initial
 
     character(len=PYTHON_FUNC_LEN) :: func
     type(detector_type), pointer :: particle
@@ -1314,6 +1317,7 @@ contains
     integer :: nscalar, nvector, ntensor
     integer, dimension(3) :: old_attr_counts, field_counts, old_field_counts
     logical :: is_array
+    character, len(8) :: init_str
 
     nparticles = p_list%length
     ! return if no particles
@@ -1382,28 +1386,44 @@ contains
         is_array = .true.
       end if
 
-      if (have_option(trim(attr_key)//'/constant')) then
-        call get_option(trim(attr_key)//'/constant', constant)
-        attribute_array(attr_idx:attr_idx+n-1,:) = constant
+      do i = 1, 2
+        ! first time around, we look for any "initial" functions, and only use them if we're meant to
+        if (i == 1) then
+          if (.not. present(initial)) cycle
+          if (.not. initial) cycle
 
-      else if (have_option(trim(attr_key)//'/python')) then
-        call get_option(trim(attr_key)//'/python', func)
-        call set_particle_scalar_attribute_from_python( &
-             attribute_array(attr_idx:attr_idx+n-1,:), &
-             positions(:,:), n, func, time, dt, is_array)
+          init_str = "/initial"
+        else
+          init_str = ""
+        end if
 
-      else if (have_option(trim(attr_key)//'/python_fields')) then
-        call get_option(trim(attr_key)//'/python_fields', func)
-        call set_particle_scalar_attribute_from_python_fields( &
-             p_list, state, positions(:,:), lcoords(:,:), ele(:), n, &
-             attribute_array(attr_idx:attr_idx+n-1,:), &
-             old_attr_names, old_attr_counts, old_attr_dims, old_attributes, &
-             field_names, field_counts, old_field_names, old_field_counts, &
-             func, time, dt, is_array)
+        if (have_option(trim(attr_key)//trim(init_str)//'/constant')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/constant', constant)
+          attribute_array(attr_idx:attr_idx+n-1,:) = constant
+          exit
 
-      else if (have_option(trim(attr_key)//'/from_checkpoint_file')) then
-        ! don't do anything, the attribute was already loaded from file
-      end if
+        else if (have_option(trim(attr_key)//trim(init_str)//'/python')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/python', func)
+          call set_particle_scalar_attribute_from_python( &
+               attribute_array(attr_idx:attr_idx+n-1,:), &
+               positions(:,:), n, func, time, dt, is_array)
+          exit
+
+        else if (have_option(trim(attr_key)//trim(init_str)//'/python_fields')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/python_fields', func)
+          call set_particle_scalar_attribute_from_python_fields( &
+               p_list, state, positions(:,:), lcoords(:,:), ele(:), n, &
+               attribute_array(attr_idx:attr_idx+n-1,:), &
+               old_attr_names, old_attr_counts, old_attr_dims, old_attributes, &
+               field_names, field_counts, old_field_names, old_field_counts, &
+               func, time, dt, is_array)
+          exit
+
+        else if (have_option(trim(attr_key)//trim(init_str)//'/from_checkpoint_file')) then
+          ! don't do anything, the attribute was already loaded from file
+          exit
+        end if
+      end do
 
       attr_idx = attr_idx + n
     end do
@@ -1426,29 +1446,44 @@ contains
         is_array = .true.
       end if
 
-      if (have_option(trim(attr_key)//'/constant')) then
-        call get_option(trim(attr_key)//'/constant', vconstant)
-        ! broadcast vector constant out to all particles
-        attribute_array(attr_idx:attr_idx+n*dim-1,:) = spread(vconstant, 2, nparticles)
+      do i = 1, 2
+        if (i == 1) then
+          if (.not. present(initial)) cycle
+          if (.not. initial) cycle
 
-      else if (have_option(trim(attr_key)//'/python')) then
-        call get_option(trim(attr_key)//'/python', func)
-        call set_particle_vector_attribute_from_python( &
-             attribute_array(attr_idx:attr_idx+n*dim-1,:), &
-             positions(:,:), n, func, time, dt, is_array)
+          init_str = "/initial"
+        else
+          init_str = ""
+        end if
 
-      else if (have_option(trim(attr_key)//'/python_fields')) then
-        call get_option(trim(attr_key)//'/python_fields', func)
-        call set_particle_vector_attribute_from_python_fields( &
-             p_list, state, positions(:,:), lcoords(:,:), ele(:), n, &
-             attribute_array(attr_idx:attr_idx+n*dim-1,:), &
-             old_attr_names, old_attr_counts, old_attr_dims, old_attributes, &
-             field_names, field_counts, old_field_names, old_field_counts, &
-             func, time, dt, is_array)
+        if (have_option(trim(attr_key)//trim(init_str)//'/constant')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/constant', vconstant)
+          ! broadcast vector constant out to all particles
+          attribute_array(attr_idx:attr_idx+n*dim-1,:) = spread(vconstant, 2, nparticles)
+          exit
 
-      else if (have_option(trim(attr_key)//'/from_checkpoint_file')) then
-        ! don't do anything, the attribute was already loaded from file
-      end if
+        else if (have_option(trim(attr_key)//trim(init_str)//'/python')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/python', func)
+          call set_particle_vector_attribute_from_python( &
+               attribute_array(attr_idx:attr_idx+n*dim-1,:), &
+               positions(:,:), n, func, time, dt, is_array)
+          exit
+
+        else if (have_option(trim(attr_key)//trim(init_str)//'/python_fields')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/python_fields', func)
+          call set_particle_vector_attribute_from_python_fields( &
+               p_list, state, positions(:,:), lcoords(:,:), ele(:), n, &
+               attribute_array(attr_idx:attr_idx+n*dim-1,:), &
+               old_attr_names, old_attr_counts, old_attr_dims, old_attributes, &
+               field_names, field_counts, old_field_names, old_field_counts, &
+               func, time, dt, is_array)
+          exit
+
+        else if (have_option(trim(attr_key)//trim(init_str)//'/from_checkpoint_file')) then
+          ! don't do anything, the attribute was already loaded from file
+          exit
+        end if
+      end do
 
       attr_idx = attr_idx + n*dim
     end do
@@ -1471,29 +1506,44 @@ contains
         is_array = .true.
       end if
 
-      if (have_option(trim(attr_key)//'/constant')) then
-        call get_option(trim(attr_key)//'/constant', tconstant)
-        ! flatten tensor, then broadcast out to all particles
-        attribute_array(attr_idx:attr_idx+n*dim**2-1,:) = spread(reshape(tconstant, [dim**2]), 2, nparticles)
+      do i = 1, 2
+        if (i == 1) then
+          if (.not. present(initial)) cycle
+          if (.not. initial) cycle
 
-       else if (have_option(trim(attr_key)//'/python')) then
-         call get_option(trim(attr_key)//'/python', func)
-         call set_particle_tensor_attribute_from_python( &
-              attribute_array(attr_idx:attr_idx + n*dim**2 - 1,:), &
-              positions(:,:), n, func, time, dt, is_array)
+          init_str = "/initial"
+        else
+          init_str = ""
+        end if
 
-       else if (have_option(trim(attr_key)//'/python_fields')) then
-         call get_option(trim(attr_key)//'/python_fields', func)
-         call set_particle_tensor_attribute_from_python_fields( &
-              p_list, state, positions(:,:), lcoords(:,:), ele(:), n, &
-              attribute_array(attr_idx:attr_idx + n*dim**2 - 1,:), &
-              old_attr_names, old_attr_counts, old_attr_dims, old_attributes, &
-              field_names, field_counts, old_field_names, old_field_counts, &
-              func, time, dt, is_array)
+        if (have_option(trim(attr_key)//trim(init_str)//'/constant')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/constant', tconstant)
+          ! flatten tensor, then broadcast out to all particles
+          attribute_array(attr_idx:attr_idx+n*dim**2-1,:) = spread(reshape(tconstant, [dim**2]), 2, nparticles)
+          exit
 
-       else if (have_option(trim(attr_key)//'/from_checkpoint_file')) then
-        ! don't do anything, the attribute was already loaded from file
-       end if
+        else if (have_option(trim(attr_key)//trim(init_str)//'/python')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/python', func)
+          call set_particle_tensor_attribute_from_python( &
+               attribute_array(attr_idx:attr_idx + n*dim**2 - 1,:), &
+               positions(:,:), n, func, time, dt, is_array)
+          exit
+
+        else if (have_option(trim(attr_key)//trim(init_str)//'/python_fields')) then
+          call get_option(trim(attr_key)//trim(init_str)//'/python_fields', func)
+          call set_particle_tensor_attribute_from_python_fields( &
+               p_list, state, positions(:,:), lcoords(:,:), ele(:), n, &
+               attribute_array(attr_idx:attr_idx + n*dim**2 - 1,:), &
+               old_attr_names, old_attr_counts, old_attr_dims, old_attributes, &
+               field_names, field_counts, old_field_names, old_field_counts, &
+               func, time, dt, is_array)
+          exit
+
+        else if (have_option(trim(attr_key)//trim(init_str)//'/from_checkpoint_file')) then
+          ! don't do anything, the attribute was already loaded from file
+          exit
+        end if
+      end do
 
        attr_idx = attr_idx + n*dim**2
      end do
