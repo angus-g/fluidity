@@ -426,11 +426,13 @@ contains
   end subroutine initialise_particles
 
   !> Initialise particles for times greater than 0
-  subroutine initialise_particles_during_simulation(state, current_time)
+  subroutine initialise_particles_during_simulation(state, current_time, dt)
     !> Model state structure
     type(state_type), dimension(:), intent(in) :: state
     !> Current simulation time
     real, intent(in) :: current_time
+    !> Current model timestep
+    real, intent(in) :: dt
 
     integer :: i, k, j, dim, id_number
     integer :: particle_groups, particle_subgroups, list_counter, sub_particles
@@ -440,7 +442,7 @@ contains
     type(attr_counts_type) :: attr_counts
     type(attr_names_type) :: attr_names, old_attr_names, field_names, old_field_names
     type(attr_write_type) :: attr_write
-    type(detector_type), pointer :: particle
+    type(detector_type), pointer :: first_particle
     integer, dimension(3) :: field_counts, old_field_counts
 
     character(len=OPTION_PATH_LEN) :: group_path, subgroup_path
@@ -511,13 +513,26 @@ contains
 
              call get_option(trim(subgroup_path)//"/initialise_during_simulation/python", script)
 
+             first_particle => particle_lists(list_counter)%last
+
              id_number = particle_lists(list_counter)%proc_part_count
              call get_option(trim(subgroup_path) // "/name", subname)
              call read_particles_from_python(subname, subgroup_path, particle_lists(list_counter), xfield, dim, &
                   current_time, state, attr_counts, global, sub_particles, id_number=id_number, script=script)
 
+             if (.not. associated(first_particle)) then
+               first_particle => particle_lists(list_counter)%first
+             else
+               ! was originally pointing at the last particle before spawning new ones
+               first_particle => first_particle%next
+             end if
+
              particle_lists(list_counter)%total_num_det = particle_lists(list_counter)%total_num_det + sub_particles
 
+             if (sub_particles > 0) then
+               call update_particle_subgroup_attributes_and_fields(state, current_time, dt, subgroup_path, &
+                    particle_lists(list_counter), initial=.true., first_particle=first_particle, subset_particles=sub_particles)
+             end if
           end if
           list_counter = list_counter + 1
        end do
@@ -1279,7 +1294,8 @@ contains
   end subroutine copy_names_to_array
 
   !> Set particle attributes for a single subgroup
-  subroutine update_particle_subgroup_attributes_and_fields(state, time, dt, subgroup_path, p_list, initial)
+  subroutine update_particle_subgroup_attributes_and_fields(state, time, dt, subgroup_path, p_list, initial, &
+       first_particle, subset_particles)
     !> Model state structure
     type(state_type), dimension(:), intent(in) :: state
     !> Current model time
@@ -1292,6 +1308,10 @@ contains
     type(detector_linked_list), intent(in) :: p_list
     !> Whether this is the first time attributes are having values filled
     logical, intent(in), optional :: initial
+    ! XXX take two more parameters: the first particle to start updating,
+    ! and the number of particles to update
+    type(detector_type), pointer, optional :: first_particle
+    integer, intent(in), optional :: subset_particles
 
     character(len=PYTHON_FUNC_LEN) :: func
     type(detector_type), pointer :: particle
@@ -1313,13 +1333,17 @@ contains
     real :: constant
     real, allocatable, dimension(:) :: vconstant
     real, allocatable, dimension(:,:) :: tconstant
-    integer :: i, j, nparticles, l, m, n, dim, attr_idx, i_single, i_array
+    integer :: i, j, nparticles, l, m, n, dim, attr_idx, i_single, i_array, i_test
     integer :: nscalar, nvector, ntensor
     integer, dimension(3) :: old_attr_counts, field_counts, old_field_counts
     logical :: is_array
-    character, len(8) :: init_str
+    character(len=8) :: init_str
 
-    nparticles = p_list%length
+    if (present(subset_particles)) then
+      nparticles = subset_particles
+    else
+      nparticles = p_list%length
+    end if
     ! return if no particles
     if (nparticles == 0) then
        return
@@ -1347,7 +1371,12 @@ contains
     allocate(tconstant(dim, dim))
 
     ! allocate space to hold data for all particles in the group
-    particle => p_list%first
+    if (present(first_particle)) then
+      particle => first_particle
+    else
+      particle => p_list%first
+    end if
+
     allocate(positions(size(particle%position), nparticles))
     allocate(attribute_array(size(particle%attributes), nparticles))
     allocate(lcoords(size(particle%local_coords), nparticles))
@@ -1386,7 +1415,7 @@ contains
         is_array = .true.
       end if
 
-      do i = 1, 2
+      do i_test = 1, 2
         ! first time around, we look for any "initial" functions, and only use them if we're meant to
         if (i == 1) then
           if (.not. present(initial)) cycle
@@ -1446,7 +1475,7 @@ contains
         is_array = .true.
       end if
 
-      do i = 1, 2
+      do i_test = 1, 2
         if (i == 1) then
           if (.not. present(initial)) cycle
           if (.not. initial) cycle
@@ -1506,7 +1535,7 @@ contains
         is_array = .true.
       end if
 
-      do i = 1, 2
+      do i_test = 1, 2
         if (i == 1) then
           if (.not. present(initial)) cycle
           if (.not. initial) cycle
@@ -1548,8 +1577,13 @@ contains
        attr_idx = attr_idx + n*dim**2
      end do
 
-    ! Set attribute values and old_attribute values
-    particle => p_list%first
+     ! Set attribute values and old_attribute values
+     if (present(first_particle)) then
+       particle => first_particle
+     else
+       particle => p_list%first
+     end if
+
     if (size(particle%old_attributes) == 0) then
       ! no old attributes to store; only store current attributes
       do j = 1, nparticles

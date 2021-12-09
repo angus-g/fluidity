@@ -746,17 +746,17 @@ contains
 
        ! Call move and write particles
        call move_particles(state, dt)
-       call initialise_particles_during_simulation(state, current_time)
        call particle_cv_check(state)
        call update_particle_attributes_and_fields(state, current_time, dt)
+       call initialise_particles_during_simulation(state, current_time, dt) ! XXX update only these particles with initial attributes
        call calculate_particle_material_fields(state)
        call calculate_diagnostic_fields_from_particles(state)
        call write_particles_loop(state, timestep, current_time)
-       
+
        ! calculate and write diagnostics before the timestep gets changed
        call calculate_diagnostic_variables(State, exclude_nonrecalculated=.true.)
        call calculate_diagnostic_variables_new(state, exclude_nonrecalculated = .true.)
-          
+
        ! Call the modern and significantly less satanic version of study
        call write_diagnostics(state, current_time, dt, timestep)
        ! Work out the domain volume by integrating the water depth function over the surface if using wetting and drying
