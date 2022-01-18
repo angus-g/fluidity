@@ -199,7 +199,6 @@ subroutine calculate_tidal_harmonics(state, s_field)
    logical :: ignoretimestep
    real, dimension(:), allocatable :: saved_snapshots_times
    integer :: i, current_snapshot_index
-   integer :: when_to_calculate
    
 
    ! Check dump period - if we're about to dump output, calculate, regardless of
@@ -517,4 +516,3 @@ end subroutine save_harmonic_x_in_fields
   end subroutine harmonic_analysis_at_single_node
 
 end module tidal_diagnostics
-

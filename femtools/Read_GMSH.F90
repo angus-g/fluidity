@@ -590,7 +590,7 @@ contains
 
     character(len=longStringLen) :: charBuf
     character :: newlineChar
-    integer :: i, j, numNodes
+    integer :: i, numNodes
 
 
     read(fd, *) charBuf
@@ -653,8 +653,7 @@ contains
     type(GMSHnode), pointer :: nodes(:)
 
     character(len=longStringLen) :: charBuf
-    character :: newlineChar
-    integer :: i, j, k,  numEntities, numNodes, numEntityNodes, stat, minN, maxN, meta(3)
+    integer :: i, j, k,  numEntities, numNodes, numEntityNodes, minN, maxN, meta(3)
 
     read(fd, *, pos=beforeHeaderPos) charBuf
     if( trim(charBuf) /= "$Nodes" ) then
@@ -719,7 +718,7 @@ contains
     character(len=longStringLen) :: charBuf
     character :: newlineChar
     integer(kind=c_long) :: numEntities, numNodes, numEntityNodes, minN, maxN
-    integer :: i, j, k, stat,  meta(3)
+    integer :: i, j, k, meta(3)
     integer(kind=c_long)  :: ltmp
 
     read(fd, *, pos=beforeHeaderPos) charBuf
@@ -896,9 +895,8 @@ contains
 
     integer :: numEntities, numAllElements, minEle, maxEle, numTags
     character(len=longStringLen) :: charBuf
-    character :: newlineChar
-    integer :: numFaces, faceType, numElements, elementType
-    integer :: e, i, j, k, numLocNodes, tmp1, tmp2, tmp3
+    integer :: elementType
+    integer :: e, j, k, numLocNodes
     integer :: entityDim, entityTag, tag_index
     integer :: numentityelements
 
@@ -1070,10 +1068,10 @@ contains
     integer(kind=c_long) :: numEntities, numAllElements, minEle, maxEle, numTags
     character(len=longStringLen) :: charBuf
     character :: newlineChar
-    integer :: numFaces, faceType, numElements, elementType
-    integer :: e, i, j, k, numLocNodes, tmp1, tmp2, tmp3
+    integer :: elementType
+    integer :: e, j, k, numLocNodes
     integer :: entityDim, entityTag, tag_index
-    integer(kind=c_long) ::  ltmp, numentityelements
+    integer(kind=c_long) ::  numentityelements
 
     integer(kind=c_long), allocatable :: vltmp(:)
 

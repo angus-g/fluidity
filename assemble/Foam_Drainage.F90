@@ -49,7 +49,7 @@ contains
 
     type(state_type), intent(inout) :: state
 
-    integer :: i, stat
+    integer :: i
     type(vector_field), pointer :: K1, foamvel, liquidvelocity, liqcontentvel, source, absor
     type(scalar_field), pointer :: p, liquidcontent, K2
 
@@ -146,7 +146,3 @@ contains
   end subroutine calculate_drainage_source_absor
 
 end module foam_drainage
-
-
-
-

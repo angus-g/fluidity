@@ -45,7 +45,7 @@ module metric_tools
 
   private
   public :: edge_length_from_eigenvalue, eigenvalue_from_edge_length,&
-            aspect_ratio, metric_isotropic,  metric_spheroid, metric_ellipsoid,&
+      aspect_ratio, metric_isotropic,  metric_spheroid, metric_ellipsoid,&
 	    get_adapt_opt, check_metric, check_basis, get_spheroid_index,&
 	    get_polar_index, norm, get_real_angle, get_angle_2d,&
 	    get_rotation_matrix, get_rotation_matrix_cross,&

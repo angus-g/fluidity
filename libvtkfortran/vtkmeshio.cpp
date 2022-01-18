@@ -1251,7 +1251,7 @@ int fgetvtksizes(char *fortname, int *namelen,
                   int *NDIM, int *maxlen )
 {
   int status=0;
-  int *ENLBAS=NULL, *ENLIST=NULL, *SNLIST=NULL;
+  int *ENLBAS=NULL, *ENLIST=NULL;
   REAL *X=NULL, *Y=NULL, *Z=NULL, *F=NULL, *P=NULL;
   
   // the filename string passed down from Fortan needs terminating,

@@ -631,15 +631,15 @@ contains
           column = column + 1
           buffer = field_tag(name = memory_type_names(i), column = column,&
                & statistic = "current", material_phase_name="Memory")
-          write(default_stat%diag_unit, "(a)"), trim(buffer)         
+          write(default_stat%diag_unit, "(a)") trim(buffer)
           column = column + 1
           buffer = field_tag(name = memory_type_names(i), column = column,&
                & statistic = "min", material_phase_name="Memory")
-          write(default_stat%diag_unit, "(a)"), trim(buffer)         
+          write(default_stat%diag_unit, "(a)") trim(buffer)
           column = column + 1
           buffer = field_tag(name = memory_type_names(i), column = column,&
                & statistic = "max", material_phase_name="Memory")
-          write(default_stat%diag_unit, "(a)"), trim(buffer)         
+          write(default_stat%diag_unit, "(a)") trim(buffer)
       end do
 #endif
       
@@ -1008,7 +1008,6 @@ contains
     character(len=*), intent(in) :: name, statistic 
     character(len=*), intent(in), optional ::  material_phase
     real, dimension(:), pointer :: value
-    integer :: i
     
     type(registered_diagnostic_item), pointer :: iterator
 
@@ -1483,7 +1482,7 @@ contains
     character(len=FIELD_NAME_LEN) ::funcnam, temp_name, detector_name
     character(len=PYTHON_FUNC_LEN) :: func
 
-    integer :: column, i, j, k, phase, m, IERROR, field_count, totaldet_global
+    integer :: i, j, k, phase, m, field_count, totaldet_global
     integer :: static_dete, python_functions_or_files, total_dete, total_dete_groups
     integer :: python_dete, ndete, dim, group_size, proc_num
     integer(kind=8) :: h5_ierror
@@ -1496,7 +1495,6 @@ contains
     real:: current_time
     character(len = OPTION_PATH_LEN) :: detectors_cp_filename, detector_file_filename
 
-    type(detector_type), pointer :: detector
     type(element_type), pointer :: shape
 
     ! Idempotency check
@@ -2556,9 +2554,8 @@ contains
     type(detector_linked_list), intent(inout) :: detector_list
     real, intent(in) :: time, dt
 
-    character(len=10) :: format_buffer
     character(len=FIELD_NAME_LEN) :: vfield_name
-    integer :: i, j, k, phase, ele, check_no_det, totaldet_global, dim
+    integer :: i, j, phase, check_no_det, totaldet_global, dim
     integer(kind=8) :: h5_ierror
     real :: value
     integer, dimension(:), allocatable :: detector_ids
@@ -2744,7 +2741,6 @@ contains
     integer, dimension(:), allocatable:: detector_count ! detectors per element
     integer, dimension(:), pointer:: detectors
     type(detector_type), pointer :: node
-    type(vector_field), pointer :: vfield, xfield
     integer :: dim, i, ele, no_rows, entries, row, pos
 
     if (detector_list%length/=0) then
@@ -2823,7 +2819,7 @@ contains
     !! Closes .stat, .convergence and .detector file (if openened)
     !! Gives a warning for iostat/=0, no point to flabort though.
 
-    integer:: stat, IERROR
+    integer:: stat
     integer(kind=8) :: h5_ierror
 
     if (default_stat%diag_unit/=0) then

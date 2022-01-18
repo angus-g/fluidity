@@ -1245,7 +1245,6 @@ contains
     character(len=OPTION_PATH_LEN) :: field_name, absolute_path
     integer :: i, istate ! counters
     integer :: nstates ! number of states
-    character(len=255) :: tmp ! temporary string to make life a little easier
     type(scalar_field), pointer :: fshistory_sfield
     integer :: fshistory_levels 
     
@@ -1464,7 +1463,6 @@ contains
 
     character(len=OPTION_PATH_LEN) :: path
     character(len=OPTION_PATH_LEN) :: state_name, aliased_field_name, field_name
-    integer :: stat
     integer :: i, j, k ! counters
     integer :: nstates ! number of states
     integer :: nfields ! number of fields

@@ -62,7 +62,7 @@ contains
     integer, intent(in) :: ntsol
 
     logical, save:: initialised=.false.
-    integer :: nsol, nphases,nfields,ncars,p,f,i, tmpint
+    integer :: nsol, nphases, nfields, p, f, tmpint
     character(len=FIELD_NAME_LEN) :: tmpstring
     logical :: aliased, pressure
 
