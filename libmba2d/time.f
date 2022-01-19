@@ -10,11 +10,10 @@ C *** Remarks:
 C        1. the user may set tmdata(1) = tmdata(2) = 0.0 and
 C           ANItime = 0.0 without breaking the code.
 C ==========================================================
-      Real etime, tmdata(2)
+      Real tmdata(2)
 
       ANItime = 0.0
       tmdata = 0.0
 
       Return
       End
-

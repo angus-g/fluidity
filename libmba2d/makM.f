@@ -490,7 +490,8 @@ c ... fill in holes in edges
          End do
 
          IPF(1, kF) = 0
- 200     nF = nF - 1
+         nF = nF - 1
+ 200     End do
 
       icnt = 0
       Do n = 1, nF
@@ -543,7 +544,8 @@ c  ...   update auxiliary structures
 
 
          IPE(1, kE) = 0
- 300     nE = nE - 1
+         nE = nE - 1
+ 300     End do
 
       Return
       End
@@ -1033,6 +1035,3 @@ c (Local variables)
       domainPerimetr = s 
       Return
       End
-
-
-

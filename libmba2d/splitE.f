@@ -63,7 +63,7 @@ C group (Local variables)
 
       Integer ip(4)
       Integer minClr
-      Logical flagFirst, ifXnode
+      Logical ifXnode
 
 C ====================================================
       flag = .FALSE.
@@ -169,5 +169,3 @@ C!!!     3 next lines simulate lstAdd
 
  9000 Call errMes(1007, 'splitE', 'local parameter MaxS is small')
       End
-
-

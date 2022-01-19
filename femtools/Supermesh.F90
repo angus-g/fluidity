@@ -188,7 +188,7 @@ module supermesh_construction
     real(kind = c_double), dimension(size(nodes)) :: lnodes
     
     call cintersector_get_output(nonods, totele, ndim, loc, lnodes, enlist)
-    nodes = lnodes
+    nodes = transfer(lnodes, nodes)
     
   end subroutine intersector_get_output_sp
 
@@ -363,7 +363,7 @@ module supermesh_construction
     integer :: ele_C
     real, dimension(ele_ngi(supermesh, 1)) :: detwei_C
     integer, dimension(:), pointer :: nodes
-    integer :: node_C, i, j
+    integer :: node_C, i
 
     integer :: ele_A
     real, dimension(ele_loc(new_positions, ele_B)) :: local_coords

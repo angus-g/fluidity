@@ -74,13 +74,13 @@ subroutine differentiate_vtu(input_filename_, input_filename_len, output_filenam
 
   ewrite(1, *) "In differentiate_vtu"
   
-  do i=1, input_filename_len
+  do i=1, transfer(input_filename_len, i)
     input_filename(i:i)=input_filename_(i)
   end do
-  do i=1, output_filename_len
+  do i=1, transfer(output_filename_len, i)
     output_filename(i:i)=output_filename_(i)
   end do
-  do i=1, input_fieldname_len
+  do i=1, transfer(input_fieldname_len, i)
     input_fieldname(i:i)=input_fieldname_(i)
   end do
 

@@ -26,7 +26,6 @@ module meshmovement
   use sparsity_patterns_meshes
 
   implicit none
-  integer,save :: MeshCount=0
 
   interface
 
@@ -153,5 +152,3 @@ contains
   end subroutine move_mesh_pseudo_lagrangian
 
 end module meshmovement
-
-
