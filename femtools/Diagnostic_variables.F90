@@ -66,7 +66,6 @@ module diagnostic_variables
   use halos_registration
   use field_derivatives
   use field_options
-  use c_interfaces
   use fefields
   use meshdiagnostics
   use sparsity_patterns
@@ -1163,7 +1162,8 @@ contains
     integer, intent(in) :: unit
     !! If present and .true., indicates binary output format
     logical, optional, intent(in) :: binary_format
-    
+    integer :: stat
+
     character(len=254) :: buffer, value_buffer
 
 #ifdef __FLUIDITY_VERSION__
@@ -1181,8 +1181,11 @@ contains
     value_buffer=date_and_time_string()
     buffer=constant_tag(name="StartTime", type="string", value=trim(value_buffer))
     write(unit, '(a)') trim(buffer)
-    
-    call get_environment_variable("HOSTNAME", value_buffer, default = "Unknown")
+
+    call get_environment_variable(name="HOSTNAME", value=value_buffer, status=stat)
+    if (stat /= 0) then
+      ewrite(-1, *) "GET_ENVIRONMENT_VARIABLE('HOSTNAME') returned no-zero status: ", stat
+    end if
     buffer=constant_tag(name="HostName", type="string", value=trim(value_buffer))
     write(unit, '(a)') trim(buffer)
     
