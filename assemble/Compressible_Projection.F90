@@ -657,4 +657,3 @@ module compressible_projection
   end subroutine compressible_projection_check_options
 
 end module compressible_projection
-
