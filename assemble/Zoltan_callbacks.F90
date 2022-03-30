@@ -1027,7 +1027,7 @@ contains
     integer :: old_universal_element_number, old_local_element_number, dataSize
     integer, dimension(3) :: attribute_size !buffer containing the size of particle attributes
     integer :: total_attributes !total number of attributes carried by a particle
-    integer(kind=8) :: current_idx
+    integer :: current_idx
 
     type(detector_type), pointer :: detector => null(), detector_to_delete => null()
 
@@ -1037,7 +1037,10 @@ contains
     do i=1,num_ids
       if (i == 1) then
         current_idx = idx(1)
+      else if (idx(i) < idx(i-1)) then
+        current_idx = current_idx + (huge(idx) / 4 - idx(i-1)) + (idx(i) + huge(idx) / 4 + 2)
       else
+        ! no overflow, just use difference
         current_idx = current_idx + (idx(i) - idx(i-1))
       end if
        ! work back number of scalar values 'sz' from the formula above in zoltan_cb_pack_field_sizes
