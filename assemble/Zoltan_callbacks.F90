@@ -1027,14 +1027,19 @@ contains
     integer :: old_universal_element_number, old_local_element_number, dataSize
     integer, dimension(3) :: attribute_size !buffer containing the size of particle attributes
     integer :: total_attributes !total number of attributes carried by a particle
+    integer(kind=8) :: current_idx
 
-    type(detector_type), pointer :: detector => null(), detector_to_delete => null()    
+    type(detector_type), pointer :: detector => null(), detector_to_delete => null()
 
     ewrite(1,*) "In zoltan_cb_pack_fields"
 
     total_det_packed=0
     do i=1,num_ids
-       
+      if (i == 1) then
+        current_idx = idx(1)
+      else
+        current_idx = current_idx + (idx(i) - idx(i-1))
+      end if
        ! work back number of scalar values 'sz' from the formula above in zoltan_cb_pack_field_sizes
        sz = (sizes(i) - ele_loc(zoltan_global_zz_mesh, old_local_element_number) * integer_size) / real_size
        allocate(rbuf(sz))
@@ -1111,14 +1116,14 @@ contains
        
        ! At the start, write the old unns of this element
        loc = ele_loc(zoltan_global_zz_mesh, old_local_element_number)
-       buf(idx(i):idx(i) + loc -1) = halo_universal_number(zoltan_global_zz_halo, ele_nodes(zoltan_global_zz_mesh, old_local_element_number))
-       
+       buf(current_idx:current_idx + loc -1) = halo_universal_number(zoltan_global_zz_halo, ele_nodes(zoltan_global_zz_mesh, old_local_element_number))
+
        ! Determine the size of the real data in integer_size units
        dataSize = sz * real_size / integer_size
-       assert( dataSize==size(transfer(rbuf, buf(idx(i):idx(i)+1))) )
+       assert( dataSize==size(transfer(rbuf, buf(current_idx:current_idx+1))) )
        ! Now we know the size, we can copy in the right amount of data.
-       buf(idx(i) + loc:idx(i) + loc + dataSize - 1) = transfer(rbuf, buf(idx(i):idx(i)+1))
-       
+       buf(current_idx + loc:current_idx + loc + dataSize - 1) = transfer(rbuf, buf(current_idx:current_idx+1))
+
        deallocate(rbuf)
 
        assert(zoltan_global_to_pack_detectors_list(i)%length == 0)
