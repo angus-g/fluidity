@@ -690,7 +690,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -715,9 +714,7 @@ ac_user_opts='
 enable_option_checking
 enable_debugging
 with_blas
-with_blas_dir
 with_lapack
-with_lapack_dir
 enable_vtk
 enable_shared
 enable_verbose
@@ -780,7 +777,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1033,15 +1029,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1179,7 +1166,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1332,7 +1319,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1378,9 +1364,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-blas=<lib>       use BLAS library <lib>
-  --with-blas-dir=<dir>   look for BLAS library in <dir>
   --with-lapack=<lib>     use LAPACK library <lib>
-  --with-lapack-dir=<dir> look for LAPACK library in <dir>
 
 Some influential environment variables:
   F77         Fortran 77 compiler command
@@ -2061,6 +2045,37 @@ fi
   as_fn_set_status $ac_retval
 
 } # ac_fn_f77_try_link
+
+# ac_fn_f77_check_func LINENO FUNC VAR
+# ------------------------------------
+# Tests whether FUNC exists, setting the cache variable VAR accordingly
+ac_fn_f77_check_func ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $2
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  eval "$3=yes"
+else
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} # ac_fn_f77_check_func
 
 # ac_fn_cxx_try_cpp LINENO
 # ------------------------
@@ -6191,328 +6206,12 @@ $as_echo "$as_me: Will look in $i for MKL." >&6;}
       LAPACK_LIBS="-L$i $LAPACK_LIBS"
       fi
     done
-    ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for dummy main to link with Fortran libraries" >&5
-$as_echo_n "checking for dummy main to link with Fortran libraries... " >&6; }
-if ${ac_cv_fc_dummy_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_fc_dm_save_LIBS=$LIBS
- LIBS="$LIBS $FCLIBS"
- ac_fortran_dm_var=FC_DUMMY_MAIN
- ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
- # First, try linking without a dummy main:
- cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_fortran_dummy_main=none
-else
-  ac_cv_fortran_dummy_main=unknown
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-
- if test $ac_cv_fortran_dummy_main = unknown; then
-   for ac_func in MAIN__ MAIN_ __main MAIN _MAIN __MAIN main_ main__ _main; do
-     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#define $ac_fortran_dm_var $ac_func
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_fortran_dummy_main=$ac_func; break
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-   done
- fi
- ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
- ac_cv_fc_dummy_main=$ac_cv_fortran_dummy_main
- rm -rf conftest*
- LIBS=$ac_fc_dm_save_LIBS
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_fc_dummy_main" >&5
-$as_echo "$ac_cv_fc_dummy_main" >&6; }
-FC_DUMMY_MAIN=$ac_cv_fc_dummy_main
-if test "$FC_DUMMY_MAIN" != unknown; then :
-  if test $FC_DUMMY_MAIN != none; then
-
-cat >>confdefs.h <<_ACEOF
-#define FC_DUMMY_MAIN $FC_DUMMY_MAIN
-_ACEOF
-
-  if test "x$ac_cv_fc_dummy_main" = "x$ac_cv_f77_dummy_main"; then
-
-$as_echo "#define FC_DUMMY_MAIN_EQ_F77 1" >>confdefs.h
-
-  fi
-fi
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "linking to Fortran libraries from C fails
-See \`config.log' for more details" "$LINENO" 5; }
-fi
-
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Fortran name-mangling scheme" >&5
-$as_echo_n "checking for Fortran name-mangling scheme... " >&6; }
-if ${ac_cv_fc_mangling+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat > conftest.$ac_ext <<_ACEOF
-      subroutine foobar()
-      return
-      end
-      subroutine foo_bar()
-      return
-      end
-_ACEOF
-if ac_fn_fc_try_compile "$LINENO"; then :
-  mv conftest.$ac_objext cfortran_test.$ac_objext
-
-  ac_save_LIBS=$LIBS
-  LIBS="cfortran_test.$ac_objext $LIBS $FCLIBS"
-
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-  ac_success=no
-  for ac_foobar in foobar FOOBAR; do
-    for ac_underscore in "" "_"; do
-      ac_func="$ac_foobar$ac_underscore"
-      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $ac_func ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $ac_func ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_success=yes; break 2
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-    done
-  done
-  ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-
-  if test "$ac_success" = "yes"; then
-     case $ac_foobar in
-	foobar)
-	   ac_case=lower
-	   ac_foo_bar=foo_bar
-	   ;;
-	FOOBAR)
-	   ac_case=upper
-	   ac_foo_bar=FOO_BAR
-	   ;;
-     esac
-
-     ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-     ac_success_extra=no
-     for ac_extra in "" "_"; do
-	ac_func="$ac_foo_bar$ac_underscore$ac_extra"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $ac_func ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $ac_func ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_success_extra=yes; break
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-     done
-     ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-
-     if test "$ac_success_extra" = "yes"; then
-	ac_cv_fc_mangling="$ac_case case"
-	if test -z "$ac_underscore"; then
-	   ac_cv_fc_mangling="$ac_cv_fc_mangling, no underscore"
-	else
-	   ac_cv_fc_mangling="$ac_cv_fc_mangling, underscore"
-	fi
-	if test -z "$ac_extra"; then
-	   ac_cv_fc_mangling="$ac_cv_fc_mangling, no extra underscore"
-	else
-	   ac_cv_fc_mangling="$ac_cv_fc_mangling, extra underscore"
-	fi
-      else
-	ac_cv_fc_mangling="unknown"
-      fi
-  else
-     ac_cv_fc_mangling="unknown"
-  fi
-
-  LIBS=$ac_save_LIBS
-  rm -rf conftest*
-  rm -f cfortran_test*
-else
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "cannot compile a simple Fortran program
-See \`config.log' for more details" "$LINENO" 5; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_fc_mangling" >&5
-$as_echo "$ac_cv_fc_mangling" >&6; }
-
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
 
 
-acx_blas_ok=no
-acx_blas_save_LIBS="$LIBS"
-acx_blas_save_LDFLAGS="$LDFLAGS"
-acx_blas_save_FFLAGS="$FFLAGS"
-acx_blas_libs=""
-acx_blas_dir=""
+ax_blas_ok=no
 
 
 # Check whether --with-blas was given.
@@ -6520,43 +6219,32 @@ if test "${with_blas+set}" = set; then :
   withval=$with_blas;
 fi
 
-
 case $with_blas in
 	yes | "") ;;
-	no) acx_blas_ok=disable ;;
-	-l* | */* | *.a | *.so | *.so.* | *.o) acx_blas_libs="$with_blas" ;;
-	*) acx_blas_libs="-l$with_blas" ;;
+	no) ax_blas_ok=disable ;;
+	-* | */* | *.a | *.so | *.so.* | *.dylib | *.dylib.* | *.o)
+		BLAS_LIBS="$with_blas"
+	;;
+	*) BLAS_LIBS="-l$with_blas" ;;
 esac
 
-
-# Check whether --with-blas_dir was given.
-if test "${with_blas_dir+set}" = set; then :
-  withval=$with_blas_dir;
-fi
-
-
-case $with_blas_dir in
-      yes | no | "") ;;
-     -L*) LDFLAGS="$LDFLAGS $with_blas_dir"
-	      acx_blas_dir="$with_blas_dir" ;;
-      *) LDFLAGS="$LDFLAGS -L$with_blas_dir"
-	      acx_blas_dir="-L$with_blas_dir" ;;
-esac
-
-# Are we linking from C?
+# Get fortran linker names of BLAS functions to check for.
 case "$ac_ext" in
-  f*|F*) sgemm="sgemm" ;;
+  f*|F*)
+    sgemm="sgemm"
+    dgemm="dgemm"
+    ;;
   *)
-   ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-case $ac_cv_fc_mangling in
+    ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+case $ac_cv_f77_mangling in
   upper*) ac_val="SGEMM" ;;
   lower*) ac_val="sgemm" ;;
   *)      ac_val="unknown" ;;
 esac
-case $ac_cv_fc_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
+case $ac_cv_f77_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
 
 sgemm="$ac_val"
 
@@ -6566,66 +6254,34 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-   LIBS="$LIBS $FCLIBS"
-   ;;
+    ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+case $ac_cv_f77_mangling in
+  upper*) ac_val="DGEMM" ;;
+  lower*) ac_val="dgemm" ;;
+  *)      ac_val="unknown" ;;
+esac
+case $ac_cv_f77_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
+
+dgemm="$ac_val"
+
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+    LIBS="$LIBS $FCLIBS"
+    ;;
 esac
 
-# If --with-blas is defined, then look for THIS AND ONLY THIS blas lib
-if test $acx_blas_ok = no; then
-case $with_blas in
-    ""|yes) ;;
-	*) save_LIBS="$LIBS"; LIBS="$acx_blas_libs $LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in $acx_blas_libs" >&5
-$as_echo_n "checking for $sgemm in $acx_blas_libs... " >&6; }
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  acx_blas_ok=yes
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
-	LIBS="$save_LIBS"
-	acx_blas_ok=specific
-	;;
-esac
-fi
+ax_blas_save_LIBS="$LIBS"
+LIBS="$LIBS $FLIBS"
 
 # First, check BLAS_LIBS environment variable
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 if test "x$BLAS_LIBS" != x; then
 	save_LIBS="$LIBS"; LIBS="$BLAS_LIBS $LIBS"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in $BLAS_LIBS" >&5
@@ -6648,14 +6304,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -6665,20 +6313,23 @@ return $sgemm ();
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  acx_blas_ok=yes; acx_blas_libs=$BLAS_LIBS
+  ax_blas_ok=yes
+else
+  BLAS_LIBS=""
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_blas_ok" >&5
+$as_echo "$ax_blas_ok" >&6; }
 	LIBS="$save_LIBS"
 fi
 fi
 
 # BLAS linked to by default?  (happens on some supercomputers)
-if test $acx_blas_ok = no; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for builtin $sgemm" >&5
-$as_echo_n "checking for builtin $sgemm... " >&6; }
+if test $ax_blas_ok = no; then
+	save_LIBS="$LIBS"; LIBS="$LIBS"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $sgemm is being linked in already" >&5
+$as_echo_n "checking if $sgemm is being linked in already... " >&6; }
 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -6697,14 +6348,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -6714,25 +6357,25 @@ return $sgemm ();
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  acx_blas_ok=yes
+  ax_blas_ok=yes
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_blas_ok" >&5
+$as_echo "$ax_blas_ok" >&6; }
+	LIBS="$save_LIBS"
 fi
 
-# Intel mkl BLAS. Unfortunately some of Intel's blas routines are
-# in their lapack library...
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_def_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_def" >&5
-$as_echo_n "checking for $sgemm in -lmkl_def... " >&6; }
+# BLAS in OpenBLAS library? (http://xianyi.github.com/OpenBLAS/)
+if test $ax_blas_ok = no; then
+	as_ac_Lib=`$as_echo "ac_cv_lib_openblas_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lopenblas" >&5
+$as_echo_n "checking for $sgemm in -lopenblas... " >&6; }
 if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_def -lm $LIBS"
+LIBS="-lopenblas  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -6750,14 +6393,6 @@ char $sgemm ();
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -6780,322 +6415,60 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lmkl_def -lm"
-fi
-
-fi
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_ipf_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_ipf" >&5
-$as_echo_n "checking for $sgemm in -lmkl_ipf... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_ipf -lguide -lm $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lmkl_ipf -lguide -lm"
-fi
-
-fi
-if test $acx_blas_ok = no; then
-        as_ac_Lib=`$as_echo "ac_cv_lib_mkl_em64t_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_em64t" >&5
-$as_echo_n "checking for $sgemm in -lmkl_em64t... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_em64t -lguide -liomp5 $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lmkl_em64t -lguide -liomp5"
-fi
-
-fi
-# check for older mkl
-if test $acx_blas_ok = no; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: trying Intel MKL < 7:" >&5
-$as_echo "$as_me: trying Intel MKL < 7:" >&6;}
-	unset ac_cv_lib_mkl_def_sgemm
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lsame in -lmkl_lapack" >&5
-$as_echo_n "checking for lsame in -lmkl_lapack... " >&6; }
-if ${ac_cv_lib_mkl_lapack_lsame+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_lapack  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char lsame ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return lsame ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_mkl_lapack_lsame=yes
-else
-  ac_cv_lib_mkl_lapack_lsame=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mkl_lapack_lsame" >&5
-$as_echo "$ac_cv_lib_mkl_lapack_lsame" >&6; }
-if test "x$ac_cv_lib_mkl_lapack_lsame" = xyes; then :
-
-	    acx_lapack_ok=yes;
-		as_ac_Lib=`$as_echo "ac_cv_lib_mkl_def_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_def" >&5
-$as_echo_n "checking for $sgemm in -lmkl_def... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_def -lm -lpthread
-		 $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes;
-			acx_blas_libs="-lmkl_def -lmkl_lapack -lm -lpthread"
-fi
-
-
-fi
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: Intel MKL < 7... $acx_blas_ok" >&5
-$as_echo "$as_me: Intel MKL < 7... $acx_blas_ok" >&6;}
-fi
-
-# BLAS in ACML (pgi)
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_acml_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lacml" >&5
-$as_echo_n "checking for $sgemm in -lacml... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lacml  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lacml"
+  ax_blas_ok=yes
+			                BLAS_LIBS="-lopenblas"
 fi
 
 fi
 
 # BLAS in ATLAS library? (http://math-atlas.sourceforge.net/)
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_f77blas_$sgemm" | $as_tr_sh`
+if test $ax_blas_ok = no; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ATL_xerbla in -latlas" >&5
+$as_echo_n "checking for ATL_xerbla in -latlas... " >&6; }
+if ${ac_cv_lib_atlas_ATL_xerbla+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-latlas  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char ATL_xerbla ();
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+return ATL_xerbla ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_atlas_ATL_xerbla=yes
+else
+  ac_cv_lib_atlas_ATL_xerbla=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_atlas_ATL_xerbla" >&5
+$as_echo "$ac_cv_lib_atlas_ATL_xerbla" >&6; }
+if test "x$ac_cv_lib_atlas_ATL_xerbla" = xyes; then :
+  as_ac_Lib=`$as_echo "ac_cv_lib_f77blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lf77blas" >&5
 $as_echo_n "checking for $sgemm in -lf77blas... " >&6; }
 if eval \${$as_ac_Lib+:} false; then :
@@ -7121,14 +6494,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7150,21 +6515,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lf77blas -latlas"
-fi
-
-fi
-
-# ia64-hp-hpux11.22 BLAS library?
-if test $acx_blas_ok = no; then
-        as_ac_Lib=`$as_echo "ac_cv_lib_veclib_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lveclib" >&5
-$as_echo_n "checking for $sgemm in -lveclib... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cblas_dgemm in -lcblas" >&5
+$as_echo_n "checking for cblas_dgemm in -lcblas... " >&6; }
+if ${ac_cv_lib_cblas_cblas_dgemm+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lveclib  $LIBS"
+LIBS="-lcblas -lf77blas -latlas $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -7174,7 +6531,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char $sgemm ();
+char cblas_dgemm ();
 #ifdef F77_DUMMY_MAIN
 
 #  ifdef __cplusplus
@@ -7183,44 +6540,38 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
-return $sgemm ();
+return cblas_dgemm ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
+  ac_cv_lib_cblas_cblas_dgemm=yes
 else
-  eval "$as_ac_Lib=no"
+  ac_cv_lib_cblas_cblas_dgemm=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lveclib8"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cblas_cblas_dgemm" >&5
+$as_echo "$ac_cv_lib_cblas_cblas_dgemm" >&6; }
+if test "x$ac_cv_lib_cblas_cblas_dgemm" = xyes; then :
+  ax_blas_ok=yes
+			 BLAS_LIBS="-lcblas -lf77blas -latlas"
+fi
+
+fi
+
 fi
 
 fi
 
 # BLAS in PhiPACK libraries? (requires generic BLAS lib, too)
-if test $acx_blas_ok = no; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: trying PhiPACK:" >&5
-$as_echo "$as_me: trying PhiPACK:" >&6;}
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
 $as_echo_n "checking for $sgemm in -lblas... " >&6; }
@@ -7247,14 +6598,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7276,9 +6619,10 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dgemm in -ldgemm" >&5
-$as_echo_n "checking for dgemm in -ldgemm... " >&6; }
-if ${ac_cv_lib_dgemm_dgemm+:} false; then :
+  as_ac_Lib=`$as_echo "ac_cv_lib_dgemm_$dgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dgemm in -ldgemm" >&5
+$as_echo_n "checking for $dgemm in -ldgemm... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -7292,7 +6636,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char dgemm ();
+char $dgemm ();
 #ifdef F77_DUMMY_MAIN
 
 #  ifdef __cplusplus
@@ -7301,34 +6645,27 @@ char dgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
-return dgemm ();
+return $dgemm ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_dgemm_dgemm=yes
+  eval "$as_ac_Lib=yes"
 else
-  ac_cv_lib_dgemm_dgemm=no
+  eval "$as_ac_Lib=no"
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_dgemm_dgemm" >&5
-$as_echo "$ac_cv_lib_dgemm_dgemm" >&6; }
-if test "x$ac_cv_lib_dgemm_dgemm" = xyes; then :
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
   as_ac_Lib=`$as_echo "ac_cv_lib_sgemm_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lsgemm" >&5
 $as_echo_n "checking for $sgemm in -lsgemm... " >&6; }
@@ -7355,13 +6692,67 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
+int
+main ()
+{
+return $sgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes; BLAS_LIBS="-lsgemm -ldgemm -lblas"
+fi
+
+fi
+
+fi
+
+fi
+
+# BLAS in Intel MKL library?
+if test $ax_blas_ok = no; then
+	# MKL for gfortran
+	if test x"$ac_cv_fc_compiler_gnu" = xyes; then
+		# 64 bit
+		if test $host_cpu = x86_64; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_gf_lp64_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_gf_lp64" >&5
+$as_echo_n "checking for $sgemm in -lmkl_gf_lp64... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_gf_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char $sgemm ();
+#ifdef F77_DUMMY_MAIN
+
 #  ifdef __cplusplus
      extern "C"
 #  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
+   int F77_DUMMY_MAIN() { return 1; }
+
 #endif
 int
 main ()
@@ -7384,20 +6775,268 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lsgemm -ldgemm -lblas"
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		# 32 bit
+		elif test $host_cpu = i686; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_gf_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_gf" >&5
+$as_echo_n "checking for $sgemm in -lmkl_gf... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_gf -lmkl_gf -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char $sgemm ();
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+return $sgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		fi
+	# MKL for other compilers (Intel, PGI, ...?)
+	else
+		# 64-bit
+		if test $host_cpu = x86_64; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_intel_lp64_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_intel_lp64" >&5
+$as_echo_n "checking for $sgemm in -lmkl_intel_lp64... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_intel_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char $sgemm ();
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+return $sgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		# 32-bit
+		elif test $host_cpu = i686; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_intel_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_intel" >&5
+$as_echo_n "checking for $sgemm in -lmkl_intel... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_intel -lmkl_intel -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char $sgemm ();
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+return $sgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		fi
+	fi
+fi
+# Old versions of MKL
+if test $ax_blas_ok = no; then
+	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl" >&5
+$as_echo_n "checking for $sgemm in -lmkl... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl -lguide -lpthread $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char $sgemm ();
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+return $sgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl -lguide -lpthread"
 fi
 
 fi
 
+# BLAS in Apple vecLib library?
+if test $ax_blas_ok = no; then
+	save_LIBS="$LIBS"; LIBS="-framework vecLib $LIBS"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -framework vecLib" >&5
+$as_echo_n "checking for $sgemm in -framework vecLib... " >&6; }
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
 
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char $sgemm ();
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+return $sgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-framework vecLib"
 fi
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: PhiPACK... $acx_blas_ok" >&5
-$as_echo "$as_me: PhiPACK... $acx_blas_ok" >&6;}
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_blas_ok" >&5
+$as_echo "$ax_blas_ok" >&6; }
+	LIBS="$save_LIBS"
 fi
 
 # BLAS in Alpha CXML library?
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_cxml_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lcxml" >&5
 $as_echo_n "checking for $sgemm in -lcxml... " >&6; }
@@ -7424,14 +7063,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7453,13 +7084,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes;acx_blas_libs="-lcxml"
+  ax_blas_ok=yes;BLAS_LIBS="-lcxml"
 fi
 
 fi
 
 # BLAS in Alpha DXML library? (now called CXML, see above)
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_dxml_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -ldxml" >&5
 $as_echo_n "checking for $sgemm in -ldxml... " >&6; }
@@ -7486,14 +7117,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7515,13 +7138,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes;acx_blas_libs="-ldxml"
+  ax_blas_ok=yes;BLAS_LIBS="-ldxml"
 fi
 
 fi
 
 # BLAS in Sun Performance library?
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	if test "x$GCC" != xyes; then # only works with Sun CC
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for acosp in -lsunmath" >&5
 $as_echo_n "checking for acosp in -lsunmath... " >&6; }
@@ -7547,14 +7170,6 @@ char acosp ();
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -7602,14 +7217,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7631,10 +7238,9 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_libs="-xlic_lib=sunperf -lsunmath"
-                    acx_blas_ok=yes
+  BLAS_LIBS="-xlic_lib=sunperf -lsunmath"
+                                 ax_blas_ok=yes
 fi
-
 
 fi
 
@@ -7642,7 +7248,7 @@ fi
 fi
 
 # BLAS in SCSL library?  (SGI/Cray Scientific Library)
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_scs_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lscs" >&5
 $as_echo_n "checking for $sgemm in -lscs... " >&6; }
@@ -7669,14 +7275,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7698,13 +7296,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lscs"
+  ax_blas_ok=yes; BLAS_LIBS="-lscs"
 fi
 
 fi
 
 # BLAS in SGIMATH library?
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_complib.sgimath_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lcomplib.sgimath" >&5
 $as_echo_n "checking for $sgemm in -lcomplib.sgimath... " >&6; }
@@ -7731,14 +7329,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7760,16 +7350,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lcomplib.sgimath"
+  ax_blas_ok=yes; BLAS_LIBS="-lcomplib.sgimath"
 fi
 
 fi
 
 # BLAS in IBM ESSL library? (requires generic BLAS lib, too)
-if test $acx_blas_ok = no; then
-    unset ac_cv_lib_blas_sgemm
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: trying IBM ESSL:" >&5
-$as_echo "$as_me: trying IBM ESSL:" >&6;}
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
 $as_echo_n "checking for $sgemm in -lblas... " >&6; }
@@ -7795,14 +7382,6 @@ char $sgemm ();
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -7832,7 +7411,7 @@ if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lessl -lblas $LIBS"
+LIBS="-lessl -lblas $FLIBS $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -7850,14 +7429,6 @@ char $sgemm ();
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -7880,19 +7451,15 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lessl -lblas"
+  ax_blas_ok=yes; BLAS_LIBS="-lessl -lblas"
 fi
 
-
 fi
 
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: IBM ESSL... $acx_blas_ok" >&5
-$as_echo "$as_me: IBM ESSL... $acx_blas_ok" >&6;}
 fi
 
 # Generic BLAS library?
-if test $acx_blas_ok = no; then
-    unset ac_cv_lib_blas_sgemm
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
 $as_echo_n "checking for $sgemm in -lblas... " >&6; }
@@ -7919,14 +7486,6 @@ char $sgemm ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -7948,136 +7507,21 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lblas"
+  ax_blas_ok=yes; BLAS_LIBS="-lblas"
 fi
 
 fi
 
-# blas on SGI/CRAY
-if test $acx_blas_ok = no; then
-    unset ac_cv_lib_blas_sgemm
-	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
-$as_echo_n "checking for $sgemm in -lblas... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lblas -lcraylibs $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lblas -lcraylibs"
-fi
-
-fi
-
-# Check for vecLib framework (Darwin)
-if test $acx_blas_ok = no; then
-	save_LIBS="$LIBS"; LIBS="-framework vecLib $LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in vecLib" >&5
-$as_echo_n "checking for $sgemm in vecLib... " >&6; }
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $sgemm ();
-#ifdef F77_DUMMY_MAIN
-
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
-int
-main ()
-{
-return $sgemm ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  acx_blas_ok=yes; acx_blas_libs="-framework vecLib"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
-	LIBS="$save_LIBS"
-fi
-
-BLAS_LIBS="$acx_blas_libs"
 
 
-LIBS="$acx_blas_save_LIBS"
-LDFLAGS="$acx_blas_save_LDFLAGS $acx_blas_dir"
+LIBS="$ax_blas_save_LIBS"
 
-test x"$acx_blas_ok" = xspecific && acx_blas_ok=yes
 # Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
-if test x"$acx_blas_ok" = xyes; then
+if test x"$ax_blas_ok" = xyes; then
         found_blas="yes"
         :
 else
-        acx_blas_ok=no
+        ax_blas_ok=no
         found_blas="no"
 fi
 
@@ -8109,14 +7553,6 @@ char dgesv ();
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -8174,14 +7610,6 @@ char dgesv ();
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -8221,12 +7649,8 @@ $as_echo "$as_me: checking the position of the stars to help find a versions of 
 
 
 
-acx_blas_ok=no
-acx_blas_save_LIBS="$LIBS"
-acx_blas_save_LDFLAGS="$LDFLAGS"
-acx_blas_save_FFLAGS="$FFLAGS"
-acx_blas_libs=""
-acx_blas_dir=""
+
+ax_blas_ok=no
 
 
 # Check whether --with-blas was given.
@@ -8234,43 +7658,32 @@ if test "${with_blas+set}" = set; then :
   withval=$with_blas;
 fi
 
-
 case $with_blas in
 	yes | "") ;;
-	no) acx_blas_ok=disable ;;
-	-l* | */* | *.a | *.so | *.so.* | *.o) acx_blas_libs="$with_blas" ;;
-	*) acx_blas_libs="-l$with_blas" ;;
+	no) ax_blas_ok=disable ;;
+	-* | */* | *.a | *.so | *.so.* | *.dylib | *.dylib.* | *.o)
+		BLAS_LIBS="$with_blas"
+	;;
+	*) BLAS_LIBS="-l$with_blas" ;;
 esac
 
-
-# Check whether --with-blas_dir was given.
-if test "${with_blas_dir+set}" = set; then :
-  withval=$with_blas_dir;
-fi
-
-
-case $with_blas_dir in
-      yes | no | "") ;;
-     -L*) LDFLAGS="$LDFLAGS $with_blas_dir"
-	      acx_blas_dir="$with_blas_dir" ;;
-      *) LDFLAGS="$LDFLAGS -L$with_blas_dir"
-	      acx_blas_dir="-L$with_blas_dir" ;;
-esac
-
-# Are we linking from C?
+# Get fortran linker names of BLAS functions to check for.
 case "$ac_ext" in
-  f*|F*) sgemm="sgemm" ;;
+  f*|F*)
+    sgemm="sgemm"
+    dgemm="dgemm"
+    ;;
   *)
-   ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-case $ac_cv_fc_mangling in
+    ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+case $ac_cv_f77_mangling in
   upper*) ac_val="SGEMM" ;;
   lower*) ac_val="sgemm" ;;
   *)      ac_val="unknown" ;;
 esac
-case $ac_cv_fc_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
+case $ac_cv_f77_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
 
 sgemm="$ac_val"
 
@@ -8279,37 +7692,33 @@ ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
-   LIBS="$LIBS $FCLIBS"
-   ;;
+    ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+case $ac_cv_f77_mangling in
+  upper*) ac_val="DGEMM" ;;
+  lower*) ac_val="dgemm" ;;
+  *)      ac_val="unknown" ;;
+esac
+case $ac_cv_f77_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
+
+dgemm="$ac_val"
+
+ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+
+    LIBS="$LIBS $FCLIBS"
+    ;;
 esac
 
-# If --with-blas is defined, then look for THIS AND ONLY THIS blas lib
-if test $acx_blas_ok = no; then
-case $with_blas in
-    ""|yes) ;;
-	*) save_LIBS="$LIBS"; LIBS="$acx_blas_libs $LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in $acx_blas_libs" >&5
-$as_echo_n "checking for $sgemm in $acx_blas_libs... " >&6; }
-	cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  acx_blas_ok=yes
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
-	LIBS="$save_LIBS"
-	acx_blas_ok=specific
-	;;
-esac
-fi
+ax_blas_save_LIBS="$LIBS"
+LIBS="$LIBS $FLIBS"
 
 # First, check BLAS_LIBS environment variable
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 if test "x$BLAS_LIBS" != x; then
 	save_LIBS="$LIBS"; LIBS="$BLAS_LIBS $LIBS"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in $BLAS_LIBS" >&5
@@ -8320,45 +7729,48 @@ $as_echo_n "checking for $sgemm in $BLAS_LIBS... " >&6; }
       end
 _ACEOF
 if ac_fn_f77_try_link "$LINENO"; then :
-  acx_blas_ok=yes; acx_blas_libs=$BLAS_LIBS
+  ax_blas_ok=yes
+else
+  BLAS_LIBS=""
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_blas_ok" >&5
+$as_echo "$ax_blas_ok" >&6; }
 	LIBS="$save_LIBS"
 fi
 fi
 
 # BLAS linked to by default?  (happens on some supercomputers)
-if test $acx_blas_ok = no; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for builtin $sgemm" >&5
-$as_echo_n "checking for builtin $sgemm... " >&6; }
+if test $ax_blas_ok = no; then
+	save_LIBS="$LIBS"; LIBS="$LIBS"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $sgemm is being linked in already" >&5
+$as_echo_n "checking if $sgemm is being linked in already... " >&6; }
 	cat > conftest.$ac_ext <<_ACEOF
       program main
       call $sgemm
       end
 _ACEOF
 if ac_fn_f77_try_link "$LINENO"; then :
-  acx_blas_ok=yes
+  ax_blas_ok=yes
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_blas_ok" >&5
+$as_echo "$ax_blas_ok" >&6; }
+	LIBS="$save_LIBS"
 fi
 
-# Intel mkl BLAS. Unfortunately some of Intel's blas routines are
-# in their lapack library...
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_def_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_def" >&5
-$as_echo_n "checking for $sgemm in -lmkl_def... " >&6; }
+# BLAS in OpenBLAS library? (http://xianyi.github.com/OpenBLAS/)
+if test $ax_blas_ok = no; then
+	as_ac_Lib=`$as_echo "ac_cv_lib_openblas_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lopenblas" >&5
+$as_echo_n "checking for $sgemm in -lopenblas... " >&6; }
 if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_def -lm $LIBS"
+LIBS="-lopenblas  $LIBS"
 cat > conftest.$ac_ext <<_ACEOF
       program main
       call $sgemm
@@ -8377,177 +7789,39 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lmkl_def -lm"
-fi
-
-fi
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_ipf_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_ipf" >&5
-$as_echo_n "checking for $sgemm in -lmkl_ipf... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_ipf -lguide -lm $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lmkl_ipf -lguide -lm"
-fi
-
-fi
-if test $acx_blas_ok = no; then
-        as_ac_Lib=`$as_echo "ac_cv_lib_mkl_em64t_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_em64t" >&5
-$as_echo_n "checking for $sgemm in -lmkl_em64t... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_em64t -lguide -liomp5 $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lmkl_em64t -lguide -liomp5"
-fi
-
-fi
-# check for older mkl
-if test $acx_blas_ok = no; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: trying Intel MKL < 7:" >&5
-$as_echo "$as_me: trying Intel MKL < 7:" >&6;}
-	unset ac_cv_lib_mkl_def_sgemm
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for lsame in -lmkl_lapack" >&5
-$as_echo_n "checking for lsame in -lmkl_lapack... " >&6; }
-if ${ac_cv_lib_mkl_lapack_lsame+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_lapack  $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call lsame
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  ac_cv_lib_mkl_lapack_lsame=yes
-else
-  ac_cv_lib_mkl_lapack_lsame=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mkl_lapack_lsame" >&5
-$as_echo "$ac_cv_lib_mkl_lapack_lsame" >&6; }
-if test "x$ac_cv_lib_mkl_lapack_lsame" = xyes; then :
-
-	    acx_lapack_ok=yes;
-		as_ac_Lib=`$as_echo "ac_cv_lib_mkl_def_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_def" >&5
-$as_echo_n "checking for $sgemm in -lmkl_def... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_def -lm -lpthread
-		 $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes;
-			acx_blas_libs="-lmkl_def -lmkl_lapack -lm -lpthread"
-fi
-
-
-fi
-
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: Intel MKL < 7... $acx_blas_ok" >&5
-$as_echo "$as_me: Intel MKL < 7... $acx_blas_ok" >&6;}
-fi
-
-# BLAS in ACML (pgi)
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_acml_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lacml" >&5
-$as_echo_n "checking for $sgemm in -lacml... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lacml  $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lacml"
+  ax_blas_ok=yes
+			                BLAS_LIBS="-lopenblas"
 fi
 
 fi
 
 # BLAS in ATLAS library? (http://math-atlas.sourceforge.net/)
-if test $acx_blas_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_f77blas_$sgemm" | $as_tr_sh`
+if test $ax_blas_ok = no; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ATL_xerbla in -latlas" >&5
+$as_echo_n "checking for ATL_xerbla in -latlas... " >&6; }
+if ${ac_cv_lib_atlas_ATL_xerbla+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-latlas  $LIBS"
+cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call ATL_xerbla
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  ac_cv_lib_atlas_ATL_xerbla=yes
+else
+  ac_cv_lib_atlas_ATL_xerbla=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_atlas_ATL_xerbla" >&5
+$as_echo "$ac_cv_lib_atlas_ATL_xerbla" >&6; }
+if test "x$ac_cv_lib_atlas_ATL_xerbla" = xyes; then :
+  as_ac_Lib=`$as_echo "ac_cv_lib_f77blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lf77blas" >&5
 $as_echo_n "checking for $sgemm in -lf77blas... " >&6; }
 if eval \${$as_ac_Lib+:} false; then :
@@ -8573,48 +7847,42 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lf77blas -latlas"
-fi
-
-fi
-
-# ia64-hp-hpux11.22 BLAS library?
-if test $acx_blas_ok = no; then
-        as_ac_Lib=`$as_echo "ac_cv_lib_veclib_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lveclib" >&5
-$as_echo_n "checking for $sgemm in -lveclib... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cblas_dgemm in -lcblas" >&5
+$as_echo_n "checking for cblas_dgemm in -lcblas... " >&6; }
+if ${ac_cv_lib_cblas_cblas_dgemm+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lveclib  $LIBS"
+LIBS="-lcblas -lf77blas -latlas $LIBS"
 cat > conftest.$ac_ext <<_ACEOF
       program main
-      call $sgemm
+      call cblas_dgemm
       end
 _ACEOF
 if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
+  ac_cv_lib_cblas_cblas_dgemm=yes
 else
-  eval "$as_ac_Lib=no"
+  ac_cv_lib_cblas_cblas_dgemm=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lveclib8"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cblas_cblas_dgemm" >&5
+$as_echo "$ac_cv_lib_cblas_cblas_dgemm" >&6; }
+if test "x$ac_cv_lib_cblas_cblas_dgemm" = xyes; then :
+  ax_blas_ok=yes
+			 BLAS_LIBS="-lcblas -lf77blas -latlas"
+fi
+
+fi
+
 fi
 
 fi
 
 # BLAS in PhiPACK libraries? (requires generic BLAS lib, too)
-if test $acx_blas_ok = no; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: trying PhiPACK:" >&5
-$as_echo "$as_me: trying PhiPACK:" >&6;}
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
 $as_echo_n "checking for $sgemm in -lblas... " >&6; }
@@ -8641,30 +7909,32 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dgemm in -ldgemm" >&5
-$as_echo_n "checking for dgemm in -ldgemm... " >&6; }
-if ${ac_cv_lib_dgemm_dgemm+:} false; then :
+  as_ac_Lib=`$as_echo "ac_cv_lib_dgemm_$dgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dgemm in -ldgemm" >&5
+$as_echo_n "checking for $dgemm in -ldgemm... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-ldgemm -lblas $LIBS"
 cat > conftest.$ac_ext <<_ACEOF
       program main
-      call dgemm
+      call $dgemm
       end
 _ACEOF
 if ac_fn_f77_try_link "$LINENO"; then :
-  ac_cv_lib_dgemm_dgemm=yes
+  eval "$as_ac_Lib=yes"
 else
-  ac_cv_lib_dgemm_dgemm=no
+  eval "$as_ac_Lib=no"
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_dgemm_dgemm" >&5
-$as_echo "$ac_cv_lib_dgemm_dgemm" >&6; }
-if test "x$ac_cv_lib_dgemm_dgemm" = xyes; then :
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
   as_ac_Lib=`$as_echo "ac_cv_lib_sgemm_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lsgemm" >&5
 $as_echo_n "checking for $sgemm in -lsgemm... " >&6; }
@@ -8691,20 +7961,204 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lsgemm -ldgemm -lblas"
+  ax_blas_ok=yes; BLAS_LIBS="-lsgemm -ldgemm -lblas"
 fi
 
 fi
 
+fi
 
 fi
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: PhiPACK... $acx_blas_ok" >&5
-$as_echo "$as_me: PhiPACK... $acx_blas_ok" >&6;}
+# BLAS in Intel MKL library?
+if test $ax_blas_ok = no; then
+	# MKL for gfortran
+	if test x"$ac_cv_fc_compiler_gnu" = xyes; then
+		# 64 bit
+		if test $host_cpu = x86_64; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_gf_lp64_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_gf_lp64" >&5
+$as_echo_n "checking for $sgemm in -lmkl_gf_lp64... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_gf_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $sgemm
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		# 32 bit
+		elif test $host_cpu = i686; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_gf_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_gf" >&5
+$as_echo_n "checking for $sgemm in -lmkl_gf... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_gf -lmkl_gf -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $sgemm
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		fi
+	# MKL for other compilers (Intel, PGI, ...?)
+	else
+		# 64-bit
+		if test $host_cpu = x86_64; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_intel_lp64_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_intel_lp64" >&5
+$as_echo_n "checking for $sgemm in -lmkl_intel_lp64... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_intel_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $sgemm
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		# 32-bit
+		elif test $host_cpu = i686; then
+			as_ac_Lib=`$as_echo "ac_cv_lib_mkl_intel_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl_intel" >&5
+$as_echo_n "checking for $sgemm in -lmkl_intel... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl_intel -lmkl_intel -lmkl_sequential -lmkl_core -lpthread $LIBS"
+cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $sgemm
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel -lmkl_sequential -lmkl_core -lpthread"
+fi
+
+		fi
+	fi
+fi
+# Old versions of MKL
+if test $ax_blas_ok = no; then
+	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_$sgemm" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lmkl" >&5
+$as_echo_n "checking for $sgemm in -lmkl... " >&6; }
+if eval \${$as_ac_Lib+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmkl -lguide -lpthread $LIBS"
+cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $sgemm
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  eval "$as_ac_Lib=yes"
+else
+  eval "$as_ac_Lib=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+eval ac_res=\$$as_ac_Lib
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-lmkl -lguide -lpthread"
+fi
+
+fi
+
+# BLAS in Apple vecLib library?
+if test $ax_blas_ok = no; then
+	save_LIBS="$LIBS"; LIBS="-framework vecLib $LIBS"
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -framework vecLib" >&5
+$as_echo_n "checking for $sgemm in -framework vecLib... " >&6; }
+	cat > conftest.$ac_ext <<_ACEOF
+      program main
+      call $sgemm
+      end
+_ACEOF
+if ac_fn_f77_try_link "$LINENO"; then :
+  ax_blas_ok=yes;BLAS_LIBS="-framework vecLib"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_blas_ok" >&5
+$as_echo "$ax_blas_ok" >&6; }
+	LIBS="$save_LIBS"
 fi
 
 # BLAS in Alpha CXML library?
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_cxml_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lcxml" >&5
 $as_echo_n "checking for $sgemm in -lcxml... " >&6; }
@@ -8731,13 +8185,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes;acx_blas_libs="-lcxml"
+  ax_blas_ok=yes;BLAS_LIBS="-lcxml"
 fi
 
 fi
 
 # BLAS in Alpha DXML library? (now called CXML, see above)
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_dxml_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -ldxml" >&5
 $as_echo_n "checking for $sgemm in -ldxml... " >&6; }
@@ -8764,13 +8218,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes;acx_blas_libs="-ldxml"
+  ax_blas_ok=yes;BLAS_LIBS="-ldxml"
 fi
 
 fi
 
 # BLAS in Sun Performance library?
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	if test "x$GCC" != xyes; then # only works with Sun CC
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for acosp in -lsunmath" >&5
 $as_echo_n "checking for acosp in -lsunmath... " >&6; }
@@ -8822,10 +8276,9 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_libs="-xlic_lib=sunperf -lsunmath"
-                    acx_blas_ok=yes
+  BLAS_LIBS="-xlic_lib=sunperf -lsunmath"
+                                 ax_blas_ok=yes
 fi
-
 
 fi
 
@@ -8833,7 +8286,7 @@ fi
 fi
 
 # BLAS in SCSL library?  (SGI/Cray Scientific Library)
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_scs_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lscs" >&5
 $as_echo_n "checking for $sgemm in -lscs... " >&6; }
@@ -8860,13 +8313,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lscs"
+  ax_blas_ok=yes; BLAS_LIBS="-lscs"
 fi
 
 fi
 
 # BLAS in SGIMATH library?
-if test $acx_blas_ok = no; then
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_complib.sgimath_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lcomplib.sgimath" >&5
 $as_echo_n "checking for $sgemm in -lcomplib.sgimath... " >&6; }
@@ -8893,16 +8346,13 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lcomplib.sgimath"
+  ax_blas_ok=yes; BLAS_LIBS="-lcomplib.sgimath"
 fi
 
 fi
 
 # BLAS in IBM ESSL library? (requires generic BLAS lib, too)
-if test $acx_blas_ok = no; then
-    unset ac_cv_lib_blas_sgemm
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: trying IBM ESSL:" >&5
-$as_echo "$as_me: trying IBM ESSL:" >&6;}
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
 $as_echo_n "checking for $sgemm in -lblas... " >&6; }
@@ -8936,7 +8386,7 @@ if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lessl -lblas $LIBS"
+LIBS="-lessl -lblas $FLIBS $LIBS"
 cat > conftest.$ac_ext <<_ACEOF
       program main
       call $sgemm
@@ -8955,19 +8405,15 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lessl -lblas"
+  ax_blas_ok=yes; BLAS_LIBS="-lessl -lblas"
 fi
 
-
 fi
 
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: IBM ESSL... $acx_blas_ok" >&5
-$as_echo "$as_me: IBM ESSL... $acx_blas_ok" >&6;}
 fi
 
 # Generic BLAS library?
-if test $acx_blas_ok = no; then
-    unset ac_cv_lib_blas_sgemm
+if test $ax_blas_ok = no; then
 	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
 $as_echo_n "checking for $sgemm in -lblas... " >&6; }
@@ -8994,80 +8440,23 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lblas"
+  ax_blas_ok=yes; BLAS_LIBS="-lblas"
 fi
 
 fi
 
-# blas on SGI/CRAY
-if test $acx_blas_ok = no; then
-    unset ac_cv_lib_blas_sgemm
-	as_ac_Lib=`$as_echo "ac_cv_lib_blas_$sgemm" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in -lblas" >&5
-$as_echo_n "checking for $sgemm in -lblas... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lblas -lcraylibs $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_blas_ok=yes; acx_blas_libs="-lblas -lcraylibs"
-fi
-
-fi
-
-# Check for vecLib framework (Darwin)
-if test $acx_blas_ok = no; then
-	save_LIBS="$LIBS"; LIBS="-framework vecLib $LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $sgemm in vecLib" >&5
-$as_echo_n "checking for $sgemm in vecLib... " >&6; }
-	cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $sgemm
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  acx_blas_ok=yes; acx_blas_libs="-framework vecLib"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_blas_ok" >&5
-$as_echo "$acx_blas_ok" >&6; }
-	LIBS="$save_LIBS"
-fi
-
-BLAS_LIBS="$acx_blas_libs"
 
 
-LIBS="$acx_blas_save_LIBS"
-LDFLAGS="$acx_blas_save_LDFLAGS $acx_blas_dir"
+LIBS="$ax_blas_save_LIBS"
 
-test x"$acx_blas_ok" = xspecific && acx_blas_ok=yes
 # Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
-if test x"$acx_blas_ok" = xyes; then
+if test x"$ax_blas_ok" = xyes; then
 
 $as_echo "#define HAVE_BLAS 1" >>confdefs.h
 
         :
 else
-        acx_blas_ok=no
+        ax_blas_ok=no
         as_fn_error $? "\"Cannot identify BLAS. Check that it is installed.\"" "$LINENO" 5
 fi
 
@@ -9079,12 +8468,7 @@ ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
 
 
-acx_lapack_ok=no
-acx_lapack_save_LIBS="$LIBS"
-acx_lapack_save_LDFLAGS="$LDFLAGS"
-acx_lapack_save_FFLAGS="$FFLAGS"
-acx_lapack_libs=""
-acx_lapack_dir=""
+ax_lapack_ok=no
 
 
 # Check whether --with-lapack was given.
@@ -9092,208 +8476,99 @@ if test "${with_lapack+set}" = set; then :
   withval=$with_lapack;
 fi
 
-
 case $with_lapack in
-	yes | "") ;;
-	no) acx_lapack_ok=disable ;;
-	-l* | */* | *.a | *.so | *.so.* | *.o) acx_lapack_libs="$with_lapack" ;;
-	*) acx_lapack_libs="-l$with_lapack" ;;
+        yes | "") ;;
+        no) ax_lapack_ok=disable ;;
+        -* | */* | *.a | *.so | *.so.* | *.dylib | *.dylib.* | *.o)
+                 LAPACK_LIBS="$with_lapack"
+        ;;
+        *) LAPACK_LIBS="-l$with_lapack" ;;
 esac
 
-
-# Check whether --with-lapack_dir was given.
-if test "${with_lapack_dir+set}" = set; then :
-  withval=$with_lapack_dir;
-fi
-
-
-case $with_lapack_dir in
-      yes | no | "") ;;
-     -L*) LDFLAGS="$LDFLAGS $with_lapack_dir"
-	      acx_lapack_dir="$with_lapack_dir" ;;
-      *) LDFLAGS="$LDFLAGS -L$with_lapack_dir"
-	      acx_lapack_dir="-L$with_lapack_dir" ;;
-esac
-
-# We cannot use LAPACK if BLAS is not found
-if test "x$acx_blas_ok" != xyes; then
-	acx_lapack_ok=noblas
-fi
-
-# add BLAS to libs
-LIBS="$BLAS_LIBS $LIBS"
-
-# Are we linking from C?
+# Get fortran linker name of LAPACK function to check for.
 case "$ac_ext" in
-  f*|F*) dsyev="dsyev" ;;
+  f*|F*) cheev="cheev" ;;
   *)
-   ac_ext=${ac_fc_srcext-f}
-ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
-ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_fc_compiler_gnu
-case $ac_cv_fc_mangling in
-  upper*) ac_val="DSYEV" ;;
-  lower*) ac_val="dsyev" ;;
+    ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+case $ac_cv_f77_mangling in
+  upper*) ac_val="CHEEV" ;;
+  lower*) ac_val="cheev" ;;
   *)      ac_val="unknown" ;;
 esac
-case $ac_cv_fc_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
+case $ac_cv_f77_mangling in *," underscore"*) ac_val="$ac_val"_ ;; esac
 
-dsyev="$ac_val"
+cheev="$ac_val"
 
 ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
-   LIBS="$LIBS $FCLIBS"
-   ;;
+    LIBS="$LIBS $FCLIBS"
+    ;;
 esac
 
-# If --with-lapack is defined, then look for THIS AND ONLY THIS lapack lib
-if test $acx_lapack_ok = no; then
-case $with_lapack in
-    ""|yes) ;;
-	*) save_LIBS="$LIBS"; LIBS="$acx_lapack_libs $LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dsyev in $acx_lapack_libs" >&5
-$as_echo_n "checking for $dsyev in $acx_lapack_libs... " >&6; }
-	cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $dsyev
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  acx_lapack_ok=yes
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_lapack_ok" >&5
-$as_echo "$acx_lapack_ok" >&6; }
-	LIBS="$save_LIBS"
-	acx_lapack_ok=yes
-	;;
-esac
+# We cannot use LAPACK if BLAS is not found
+if test "x$ax_blas_ok" != xyes; then
+        ax_lapack_ok=noblas
+        LAPACK_LIBS=""
 fi
 
 # First, check LAPACK_LIBS environment variable
-if test $acx_lapack_ok = no; then
 if test "x$LAPACK_LIBS" != x; then
-	save_LIBS="$LIBS"; LIBS="$LAPACK_LIBS $LIBS"
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dsyev in $LAPACK_LIBS" >&5
-$as_echo_n "checking for $dsyev in $LAPACK_LIBS... " >&6; }
-	cat > conftest.$ac_ext <<_ACEOF
+        save_LIBS="$LIBS"; LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS $FLIBS"
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $cheev in $LAPACK_LIBS" >&5
+$as_echo_n "checking for $cheev in $LAPACK_LIBS... " >&6; }
+        cat > conftest.$ac_ext <<_ACEOF
       program main
-      call $dsyev
+      call $cheev
       end
 _ACEOF
 if ac_fn_f77_try_link "$LINENO"; then :
-  acx_lapack_ok=yes;
-	     acx_lapack_libs=$LAPACK_LIBS
+  ax_lapack_ok=yes
+else
+  LAPACK_LIBS=""
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_lapack_ok" >&5
-$as_echo "$acx_lapack_ok" >&6; }
-	LIBS="$save_LIBS"
-fi
-fi
-
-# Intel MKL LAPACK?
-if test $acx_lapack_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_mkl_lapack_$dsyev" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dsyev in -lmkl_lapack" >&5
-$as_echo_n "checking for $dsyev in -lmkl_lapack... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmkl_lapack  $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $dsyev
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_lapack_ok=yes; acx_lapack_libs="-lmkl_lapack -lguide"
-fi
-
-fi
-
-# Sun sunperf?
-if test $acx_lapack_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_sunperf_$dsyev" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dsyev in -lsunperf" >&5
-$as_echo_n "checking for $dsyev in -lsunperf... " >&6; }
-if eval \${$as_ac_Lib+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsunperf  $LIBS"
-cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $dsyev
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  eval "$as_ac_Lib=yes"
-else
-  eval "$as_ac_Lib=no"
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-eval ac_res=\$$as_ac_Lib
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_lapack_ok=yes; acx_lapack_libs="-lsunperf"
-fi
-
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_lapack_ok" >&5
+$as_echo "$ax_lapack_ok" >&6; }
+        LIBS="$save_LIBS"
+        if test $ax_lapack_ok = no; then
+                LAPACK_LIBS=""
+        fi
 fi
 
 # LAPACK linked to by default?  (is sometimes included in BLAS lib)
-if test $acx_lapack_ok = no; then
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dsyev in BLAS library" >&5
-$as_echo_n "checking for $dsyev in BLAS library... " >&6; }
-	cat > conftest.$ac_ext <<_ACEOF
-      program main
-      call $dsyev
-      end
-_ACEOF
-if ac_fn_f77_try_link "$LINENO"; then :
-  acx_lapack_ok=yes; acx_lapack_libs=""
+if test $ax_lapack_ok = no; then
+        save_LIBS="$LIBS"; LIBS="$LIBS $BLAS_LIBS $FLIBS"
+        as_ac_var=`$as_echo "ac_cv_func_$cheev" | $as_tr_sh`
+ac_fn_f77_check_func "$LINENO" "$cheev" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  ax_lapack_ok=yes
 fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $acx_lapack_ok" >&5
-$as_echo "$acx_lapack_ok" >&6; }
+
+        LIBS="$save_LIBS"
 fi
 
 # Generic LAPACK library?
-if test $acx_lapack_ok = no; then
-	as_ac_Lib=`$as_echo "ac_cv_lib_lapack_$dsyev" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $dsyev in -llapack" >&5
-$as_echo_n "checking for $dsyev in -llapack... " >&6; }
+for lapack in lapack lapack_rs6k; do
+        if test $ax_lapack_ok = no; then
+                save_LIBS="$LIBS"; LIBS="$BLAS_LIBS $LIBS"
+                as_ac_Lib=`$as_echo "ac_cv_lib_$lapack''_$cheev" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $cheev in -l$lapack" >&5
+$as_echo_n "checking for $cheev in -l$lapack... " >&6; }
 if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-llapack  $LIBS"
+LIBS="-l$lapack $FLIBS $LIBS"
 cat > conftest.$ac_ext <<_ACEOF
       program main
-      call $dsyev
+      call $cheev
       end
 _ACEOF
 if ac_fn_f77_try_link "$LINENO"; then :
@@ -9309,25 +8584,23 @@ eval ac_res=\$$as_ac_Lib
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
-  acx_lapack_ok=yes; acx_lapack_libs="-llapack"
+  ax_lapack_ok=yes; LAPACK_LIBS="-l$lapack"
 fi
 
-fi
-
-LAPACK_LIBS="$LAPACK_LIBS $acx_lapack_libs"
-LIBS="$acx_lapack_save_LIBS"
-LDFLAGS="$acx_lapack_save_LDFLAGS $acx_lapack_dir"
+                LIBS="$save_LIBS"
+        fi
+done
 
 
 
 # Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
-if test x"$acx_lapack_ok" = xyes; then
+if test x"$ax_lapack_ok" = xyes; then
 
 $as_echo "#define HAVE_LAPACK 1" >>confdefs.h
 
         :
 else
-        acx_lapack_ok=no
+        ax_lapack_ok=no
         as_fn_error $? "\"Cannot identify LAPACK. Check that it is installed.\"" "$LINENO" 5
 fi
 
@@ -9359,14 +8632,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -9415,14 +8680,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -9469,14 +8726,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -9684,14 +8933,6 @@ $as_echo "$as_me: Checking for VTK automagic." >&6;}
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -9803,14 +9044,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -9857,14 +9090,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -9914,14 +9139,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -9982,14 +9199,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -10036,14 +9245,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -10092,14 +9293,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -10147,14 +9340,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -10201,14 +9386,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -10292,14 +9469,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -10348,14 +9517,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -10416,14 +9577,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -10470,14 +9623,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -10526,14 +9671,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -10580,14 +9717,6 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
@@ -11535,14 +10664,6 @@ $as_echo_n "checking if we can compile and link without using -lmpi... " >&6; }
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -11598,14 +10719,6 @@ $as_echo_n "checking if we can compile and link using -lmpi... " >&6; }
    int F77_DUMMY_MAIN() { return 1; }
 
 #endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
-#endif
 int
 main ()
 {
@@ -11657,14 +10770,6 @@ $as_echo_n "checking if we can compile and link using mpich libs... " >&6; }
 #  endif
    int F77_DUMMY_MAIN() { return 1; }
 
-#endif
-#ifdef FC_DUMMY_MAIN
-#ifndef FC_DUMMY_MAIN_EQ_F77
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int FC_DUMMY_MAIN() { return 1; }
-#endif
 #endif
 int
 main ()
