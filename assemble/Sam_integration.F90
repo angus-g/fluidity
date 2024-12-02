@@ -36,7 +36,7 @@ module sam_integration
   use quadrature
   use elements
   use spud
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use memory_diagnostics
   use data_structures
@@ -1455,7 +1455,8 @@ module sam_integration
     type(real_vector), dimension(:), allocatable :: rreceive_data
 
     integer :: ierr, tag
-    integer, dimension(:), allocatable :: requests, statuses
+    integer, dimension(:), allocatable :: requests
+    integer, dimension(:,:), allocatable :: statuses
 
     nhalos = halo_count(old_mesh)
     if(nhalos == 0) return
@@ -1552,7 +1553,7 @@ module sam_integration
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)

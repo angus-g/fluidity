@@ -32,7 +32,7 @@ module parallel_fields
 
   use fldebug
   use futils
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use elements
   use halo_data_types

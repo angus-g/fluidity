@@ -31,7 +31,7 @@ module halos_registration
 
   use fldebug
   use futils
-  use mpi_interfaces
+  use mpi
   use halo_data_types
   use parallel_tools
   use halos_base

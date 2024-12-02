@@ -37,6 +37,7 @@ Profiler::~Profiler(){}
 
 double Profiler::get(const std::string &key) const{
   double time = timings.find(key)->second.second;
+#ifdef HAVE_MPI
   int init_flag;
   MPI_Initialized(&init_flag);
   if(init_flag){
@@ -44,17 +45,20 @@ double Profiler::get(const std::string &key) const{
     MPI_Reduce(&time, &gtime, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     return gtime;
   }
+#endif
 
   return time;
 }
 
 void Profiler::print() const{
-  bool print;
+  bool print = true;
   double val;
+#ifdef HAVE_MPI
   int MyRank, init_flag;
   MPI_Comm_rank(MPI_COMM_WORLD, &MyRank);
   MPI_Initialized(&init_flag);
   print = !init_flag || MyRank == 0;
+#endif
   for(map< string, pair<double, double> >::const_iterator it=timings.begin();it!=timings.end();++it){
     val = get(it->first);
     if ( print ) {

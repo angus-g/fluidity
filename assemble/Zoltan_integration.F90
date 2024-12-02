@@ -12,7 +12,7 @@ module zoltan_integration
   use quadrature
   use element_numbering, only: ele_local_num
   use elements
-  use mpi_interfaces
+  use mpi
   use data_structures
   use parallel_tools
   use memory_diagnostics

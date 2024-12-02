@@ -31,7 +31,7 @@ module halos_derivation
    use futils, only: present_and_false
    use data_structures
    use elements, only: boundary_numbering
-   use mpi_interfaces
+   use mpi
    use halo_data_types
    use parallel_tools
    use halos_base
@@ -663,7 +663,8 @@ contains
     integer :: loc
     integer :: communicator, ele, i, ierr, j, nprocs, rank
     integer, dimension(ele_loc(mesh, 1)) :: nodes
-    integer, dimension(:), allocatable :: nreceives, nsends, requests, statuses
+    integer, dimension(:), allocatable :: nreceives, nsends, requests
+    integer, dimension(:,:), allocatable :: statuses
     type(integer_hash_table) :: gnns
     type(integer_vector), dimension(:), allocatable :: receives_uenlist, sends_uenlist
     integer tag
@@ -723,7 +724,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)
@@ -761,7 +762,8 @@ contains
 
 #ifdef HAVE_MPI
     integer :: communicator, ele, face, i, ierr, j, lface, nprocs, rank
-    integer, dimension(:), allocatable :: nreceives, nsends, requests, statuses
+    integer, dimension(:), allocatable :: nreceives, nsends, requests
+    integer, dimension(:,:), allocatable :: statuses
     integer, dimension(:), pointer :: faces
     type(integer_hash_table) :: gnns
     type(integer_vector), dimension(:), allocatable :: receives_uenlist, sends_uenlist
@@ -822,7 +824,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)
@@ -1126,7 +1128,7 @@ contains
     integer, dimension(:), allocatable:: full_nsends, full_nreceives
     integer, dimension(:), allocatable:: sub_nsends, sub_nreceives
     integer, dimension(:), allocatable:: send_requests
-    integer, dimension(:), allocatable:: statuses
+    integer, dimension(:,:), allocatable:: statuses
     integer, dimension(MPI_STATUS_SIZE):: status
     integer:: nprocs, tag, communicator, ierr
     integer:: start, full_node, sub_node, no_sends, no_recvs, nowned_nodes
@@ -1273,7 +1275,7 @@ contains
     end do
 
     ! we have to wait here till all isends have finished, so we can safely deallocate the sub_receives_indices
-    allocate(statuses(MPI_STATUS_SIZE*no_sends))
+    allocate(statuses(MPI_STATUS_SIZE, no_sends))
     call mpi_waitall(no_sends, send_requests, statuses, ierr)
     deallocate(statuses)
 
@@ -1480,7 +1482,7 @@ contains
     integer, dimension(:), allocatable :: send_request
     integer, dimension(:), pointer :: neigh, nodes, facets
     integer, dimension(:), allocatable :: sndgln, boundary_ids, element_owners
-    integer, dimension(:), allocatable :: statuses
+    integer, dimension(:,:), allocatable :: statuses
     integer, dimension(MPI_STATUS_SIZE) :: status
     integer :: comm, tag, ierr, nprocs
     integer :: new_node_count, new_element_count, new_surface_element_count
@@ -1658,7 +1660,7 @@ contains
     end do
 
     ! make sure all sends are dealt with
-    allocate(statuses(1:MPI_STATUS_SIZE*nprocs))
+    allocate(statuses(MPI_STATUS_SIZE, nprocs))
     call MPI_WaitAll(nprocs, send_request, statuses, ierr)
     assert(ierr==MPI_SUCCESS)
     deallocate(statuses)
@@ -1790,7 +1792,7 @@ contains
     type(integer_set), dimension(:), allocatable :: new_halo_recvs
     integer, dimension(:), allocatable :: adjacency_count
     integer, dimension(:), allocatable :: buffer
-    integer, dimension(:), allocatable :: statuses
+    integer, dimension(:,:), allocatable :: statuses
     integer, dimension(:), pointer :: nodes
     integer :: send_count, recv_count, nprocs, nnodes, new_node_count, new_recv_count
     integer, dimension(MPI_STATUS_SIZE) :: status
@@ -1902,7 +1904,7 @@ contains
 
     ! before we move on to the next stage, make sure all our sends are done
     ! so we don't mix anything up and we can reuse our buffers
-    allocate(statuses(1:MPI_STATUS_SIZE*nprocs))
+    allocate(statuses(MPI_STATUS_SIZE, nprocs))
     call MPI_WaitAll(nprocs, send_request, statuses, ierr)
     assert(ierr==MPI_SUCCESS)
     do proc=1, nprocs

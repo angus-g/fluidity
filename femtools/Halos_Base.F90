@@ -30,7 +30,7 @@
 module halos_base
 
   use fldebug
-  use mpi_interfaces
+  use mpi
   use halo_data_types
   use quicksort
   use parallel_tools

@@ -31,7 +31,7 @@ module halos_repair
 
   use fldebug
   use futils
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use halo_data_types
   use quicksort
@@ -360,7 +360,8 @@ contains
     integer :: p, nloc, nprocs, communicator, rank, ierr, pos, n, e, stat, i
     integer :: current_unn, new_unn, total_halo, sends, receives
     integer, dimension(:), pointer :: nodes
-    integer, dimension(:), allocatable :: requests, statuses
+    integer, dimension(:), allocatable :: requests
+    integer, dimension(:,:), allocatable :: statuses
     integer tag(2)
 
     nprocs = halo_proc_count(node_halo)
@@ -428,7 +429,7 @@ contains
        end do
 
        ! Wait for all non-blocking communications to complete
-       allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+       allocate(statuses(MPI_STATUS_SIZE, size(requests)))
        call mpi_waitall(size(requests), requests, statuses, ierr)
        assert(ierr == MPI_SUCCESS)
        deallocate(statuses)
@@ -630,8 +631,9 @@ contains
 #ifdef HAVE_MPI
     integer :: communicator, i, ierr, j, nprocs, nsends, rank, receives_count
     integer, dimension(:), allocatable :: receives, requests, &
-      & send_types, start_indices, statuses, permutation, &
+      & send_types, start_indices, permutation, &
       & permutation_inverse
+    integer, dimension(:,:), allocatable :: statuses
     real, dimension(:, :), allocatable :: current_receive_data, correct_receive_data
     integer tag
 
@@ -700,7 +702,7 @@ contains
     deallocate(start_indices)
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)

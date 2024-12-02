@@ -36,7 +36,7 @@ module vtk_interfaces
   use futils, only: present_and_true, int2str
   use quadrature
   use elements
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use spud
   use data_structures

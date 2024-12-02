@@ -33,7 +33,7 @@ module global_numbering
   use fldebug
   use element_numbering
   use elements
-  use mpi_interfaces
+  use mpi
   use halo_data_types
   use parallel_tools
   use halos_base

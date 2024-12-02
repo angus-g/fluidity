@@ -34,7 +34,7 @@ module node_owner_finder
   use futils, only: present_and_false
   use data_structures
   use element_numbering, only: FAMILY_SIMPLEX
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use parallel_fields
   use transform_elements

@@ -33,7 +33,7 @@ module particles
 & PYTHON_FUNC_LEN, integer_size, real_size, is_active_process
   use futils, only: int2str, free_unit
   use elements
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use spud
   use embed_python, only: set_detectors_from_python, deallocate_c_array

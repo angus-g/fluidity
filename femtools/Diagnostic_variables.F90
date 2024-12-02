@@ -38,7 +38,7 @@ module diagnostic_variables
   use futils
   use elements
   use spud
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use memory_diagnostics
   use integer_hash_table_module

@@ -32,7 +32,7 @@ module detector_parallel
   use fldebug
   use futils, only: int2str, present_and_true
   use integer_hash_table_module
-  use mpi_interfaces
+  use mpi
   use elements
   use parallel_tools
   use parallel_fields

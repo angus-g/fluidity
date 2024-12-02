@@ -30,7 +30,7 @@
 module tictoc
 
   use fldebug
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use timers
 

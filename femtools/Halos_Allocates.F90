@@ -31,7 +31,7 @@ module halos_allocates
 
   use fldebug
   use global_parameters, only : empty_name
-  use mpi_interfaces
+  use mpi
   use reference_counting
   use halo_data_types
   use parallel_tools

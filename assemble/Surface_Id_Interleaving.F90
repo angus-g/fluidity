@@ -30,7 +30,7 @@
 module surface_id_interleaving
 
   use fldebug
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use fields
 

@@ -31,7 +31,7 @@ module halos_communications
 
   use fldebug
   use futils
-  use mpi_interfaces
+  use mpi
   use halo_data_types
   use parallel_tools
   use quicksort
@@ -194,7 +194,8 @@ contains
 
 #ifdef HAVE_MPI
     integer :: communicator, i, ierr, nprocs, nreceives, nsends, rank
-    integer, dimension(:), allocatable :: receive_types, requests, send_types, statuses
+    integer, dimension(:), allocatable :: receive_types, requests, send_types
+    integer, dimension(:,:), allocatable :: statuses
     integer tag
     assert(halo_valid_for_communication(halo))
     assert(.not. pending_communication(halo))
@@ -250,7 +251,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE,size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)
@@ -326,7 +327,8 @@ contains
 
 #ifdef HAVE_MPI
     integer :: communicator, i, ierr, nprocs, nreceives, nsends, rank
-    integer, dimension(:), allocatable :: receive_types, requests, send_types, statuses
+    integer, dimension(:), allocatable :: receive_types, requests, send_types
+    integer, dimension(:,:), allocatable :: statuses
     integer tag
 
     assert(halo_valid_for_communication(halo))
@@ -383,7 +385,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)
@@ -578,7 +580,8 @@ contains
 #ifdef HAVE_MPI
     integer :: communicator, ierr, nprocs, nrecvs, nsends
     type(real_vector), dimension(:), allocatable :: send_buffer, recv_buffer
-    integer, dimension(:), allocatable :: requests, statuses
+    integer, dimension(:), allocatable :: requests
+    integer, dimension(:,:), allocatable :: statuses
     integer tag
     integer i, j, k
 
@@ -587,7 +590,7 @@ contains
 
     nprocs = halo_proc_count(halo)
     communicator = halo_communicator(halo)
-    allocate(requests(1:2*nprocs), statuses(1:2*nprocs*MPI_STATUS_SIZE))
+    allocate(requests(1:2*nprocs), statuses(MPI_STATUS_SIZE,1:2*nprocs))
     allocate(recv_buffer(1:nprocs), send_buffer(1:nprocs))
 
     tag = next_mpi_tag()
@@ -667,7 +670,8 @@ contains
 
 #ifdef HAVE_MPI
     integer :: communicator, i, ierr, nprocs, nsends, nreceives, rank
-    integer, dimension(:), allocatable :: requests, receive_types, send_types, statuses
+    integer, dimension(:), allocatable :: requests, receive_types, send_types
+    integer, dimension(:,:), allocatable :: statuses
     type(real_vector), dimension(:), allocatable :: receive_real_array
     integer tag
 
@@ -745,7 +749,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)

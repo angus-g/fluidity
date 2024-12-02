@@ -32,7 +32,7 @@ module timers
 
   use iso_c_binding, only: c_double
   use fldebug
-  use mpi_interfaces
+  use mpi
 
   implicit none
 

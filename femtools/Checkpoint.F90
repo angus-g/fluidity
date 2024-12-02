@@ -33,7 +33,7 @@ module checkpoint
   use fldebug
   use global_parameters, only : FIELD_NAME_LEN, OPTION_PATH_LEN, simulation_start_time
   use futils
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use spud
   use fields

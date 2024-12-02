@@ -4,7 +4,7 @@ module fefields
 
   use fldebug
   use data_structures
-  use mpi_interfaces
+  use mpi
   use element_numbering
   use elements, only: element_type
   use parallel_tools

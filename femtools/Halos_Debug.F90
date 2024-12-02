@@ -30,7 +30,7 @@
 module halos_debug
 
   use fldebug
-  use mpi_interfaces
+  use mpi
   use halo_data_types
   use parallel_tools
   use halos_base

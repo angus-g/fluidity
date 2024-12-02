@@ -6,7 +6,7 @@ module geometric_constraints_metric
 
   use spud
   use fldebug
-  use mpi_interfaces, only: mpi_allreduce
+  use mpi
   use parallel_tools
   use metric_tools
   use fields

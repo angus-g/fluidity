@@ -10,7 +10,7 @@ module zoltan_callbacks
   use global_parameters, only: real_size, OPTION_PATH_LEN
   use fldebug
   use data_structures
-  use mpi_interfaces
+  use mpi
   use parallel_tools, only: getrank, getnprocs, getprocno, MPI_COMM_FEMTOOLS
   use sparse_tools
   use element_numbering

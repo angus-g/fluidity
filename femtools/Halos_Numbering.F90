@@ -32,7 +32,7 @@ module halos_numbering
   use fldebug
   use data_structures
   use futils
-  use mpi_interfaces
+  use mpi
   use halo_data_types
   use parallel_tools
   use quicksort
@@ -103,7 +103,8 @@ contains
     integer :: communicator, i, ierr, nowned_nodes, nprocs, nreceives, nsends, &
       & rank, count, nnodes
     integer, dimension(:), allocatable :: receive_types, requests,&
-         & send_types, statuses
+         & send_types
+    integer, dimension(:,:), allocatable :: statuses
     logical, dimension(:), allocatable :: local_nodes
     integer tag
 
@@ -203,7 +204,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
     deallocate(statuses)
@@ -244,7 +245,8 @@ contains
 
 #ifdef HAVE_MPI
     integer :: communicator, i, ierr, nowned_nodes, nprocs, rank
-    integer, dimension(:), allocatable :: requests, statuses
+    integer, dimension(:), allocatable :: requests
+    integer, dimension(:,:), allocatable :: statuses
     type(integer_vector), dimension(:), allocatable :: receives_unn, sends_unn
     integer tag
 
@@ -317,7 +319,7 @@ contains
     end do
 
     ! Wait for all non-blocking communications to complete
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     call mpi_waitall(size(requests), requests, statuses, ierr)
     assert(ierr == MPI_SUCCESS)
 

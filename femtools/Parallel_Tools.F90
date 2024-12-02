@@ -30,7 +30,7 @@
 module parallel_tools
 
   use fldebug
-  use mpi_interfaces
+  use mpi
   use iso_c_binding
   use global_parameters, only: is_active_process, no_active_processes
 #ifdef _OPENMP
@@ -537,7 +537,7 @@ contains
     integer :: lcommunicator
 
 #ifdef HAVE_MPI
-    integer :: ierr, ipending
+    integer :: ierr
 
     if(present(communicator)) then
       lcommunicator = communicator
@@ -545,10 +545,9 @@ contains
       lcommunicator = MPI_COMM_FEMTOOLS
     end if
 
-    call mpi_iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, lcommunicator, ipending, MPI_STATUS_IGNORE, ierr)
+    call mpi_iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, lcommunicator, pending, MPI_STATUS_IGNORE, ierr)
     assert(ierr == MPI_SUCCESS)
 
-    pending = (ipending /= 0)
 
     ! Note - removing this mpi_barrier could result in a false
     ! positive on another process.

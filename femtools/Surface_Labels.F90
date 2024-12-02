@@ -34,7 +34,7 @@ module SurfaceLabels
   use fldebug
   use vector_tools
   use linked_lists
-  use mpi_interfaces
+  use mpi
   use parallel_tools
   use data_structures
   use sparse_tools
@@ -431,7 +431,8 @@ contains
 #ifdef HAVE_MPI
     integer :: comm, communicator, face, i, id_base, ierr, j, lmax_id, new_id, &
       & nhalos, nprocs, nsele, old_id, procno
-    integer, dimension(:), allocatable :: requests, statuses
+    integer, dimension(:), allocatable :: requests
+    integer, dimension(:,:), allocatable :: statuses
     integer, parameter :: max_comm_count = 100
     logical :: complete
     type(integer_hash_table) :: id_map
@@ -477,7 +478,7 @@ contains
       allocate(receive_buffer(i)%ptr(halo_receive_count(sele_halo, i)))
     end do
     allocate(requests(nprocs * 2))
-    allocate(statuses(MPI_STATUS_SIZE * size(requests)))
+    allocate(statuses(MPI_STATUS_SIZE, size(requests)))
     comm = 0
     comm_loop: do
       ! We loop until all new surface IDs match the incoming old surface IDs.
