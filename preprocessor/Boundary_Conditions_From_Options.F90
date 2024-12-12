@@ -82,23 +82,24 @@ current_debug_level, FIELD_NAME_LEN
 !!    ocean_forcing/forcingERA40.cpp
      subroutine get_era40_fluxes( time, X, Y, Z, temp,&
           Vx, Vy, Vz, sal,F_as, Q_as, Tau_u, Tau_v, Q_s, &
-          NNodes, on_sphere, bulk_formula)
-
-       real :: time
-       real, dimension(*) :: X, Y, Z, temp, Vx, Vy, Vz, sal, F_as,&
+          NNodes, on_sphere, bulk_formula) bind(c)
+       use, intrinsic :: iso_c_binding
+       implicit none
+       real(c_double) :: time
+       real(c_double), dimension(*) :: X, Y, Z, temp, Vx, Vy, Vz, sal, F_as,&
             Q_as, Tau_u, Tau_v, Q_s
-       integer :: NNodes, bulk_formula
-       logical*1 :: on_sphere
-
+       integer(c_int) :: NNodes, bulk_formula
+       logical(c_bool) :: on_sphere
      end subroutine get_era40_fluxes
   end interface
 
   interface
 !! Explicit interface for projections_spherical_cartesion function as defined in
 !!    femtools/projections.cpp
-     subroutine projections_spherical_cartesian(n, x, y, z)
-       integer :: n
-       real, dimension(:) :: x,y,z
+     subroutine projections_spherical_cartesian(n, x, y, z) bind(c)
+       use, intrinsic :: iso_c_binding
+       integer(c_int), intent(in), value :: n
+       real(c_double), intent(inout), dimension(:) :: x, y, z
      end subroutine projections_spherical_cartesian
 
   end interface
@@ -1991,7 +1992,7 @@ contains
        end do
        ! Function head -> outflow
        call get_option(trim(turbine_path)//"/dirichlet/head_flux", func)
-       call real_from_python(func, fs_val(1)-fs_val(2), flux)
+       call real_from_python(trim(func), len_trim(func), fs_val(1)-fs_val(2), flux, stat)
 
        ! Get surface areas of the boundaries
        ! This could be done only once if no free surface mesh movement is performed.
@@ -2048,6 +2049,7 @@ contains
     character(len=PYTHON_FUNC_LEN) :: func
     real :: flux, h
     logical :: active
+    integer :: stat
 
     ewrite(1,*) "In flux turbine model"
     vel_field => extract_vector_field(state, "Velocity")
@@ -2069,7 +2071,7 @@ contains
        ! TODO: Set h to pressure jump or free surface jump?
        h=1.0
        call get_option(trim(turbine_path)//"/flux/"//trim(turbine_type)//"/factor", func)
-       call real_from_python(func, h, flux)
+       call real_from_python(trim(func), len_trim(func), h, flux, stat)
 
        ! Set the turbine dg fluxes
        do j=1,2

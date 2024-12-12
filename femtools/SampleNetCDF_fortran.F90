@@ -27,6 +27,7 @@
 
 module SampleNetCDF
   use FLDebug
+  use, intrinsic :: iso_c_binding, only : c_null_char
 
   implicit none
 
@@ -37,26 +38,28 @@ module SampleNetCDF
 
   interface
 
-     subroutine samplenetcdf_open_c(name, n, id)
-       character (len=*) :: name
-       integer, intent(in)  :: n
-       integer, intent(out) :: id
+     subroutine samplenetcdf_open_c(name, id) bind(c)
+       use, intrinsic :: iso_c_binding
+       character(kind=c_char), dimension(*) :: name
+       integer(c_int), intent(out) :: id
      end subroutine samplenetcdf_open_c
 
-     subroutine samplenetcdf_setvariable_c(id, varname, n)
-       integer, intent(out) :: id
-       character (len=*) :: varname
-       integer, intent(in)  :: n
+     subroutine samplenetcdf_setvariable_c(id, varname) bind(c)
+       use, intrinsic :: iso_c_binding
+       integer(c_int), value, intent(in) :: id
+       character(kind=c_char), dimension(*) :: varname
      end subroutine samplenetcdf_setvariable_c
 
-     subroutine samplenetcdf_close_c(id)
-       integer, intent(out) ::id
+     subroutine samplenetcdf_close_c(id) bind(c)
+       use, intrinsic :: iso_c_binding
+       integer(c_int), value, intent(in) :: id
      end subroutine samplenetcdf_close_c
 
-     subroutine samplenetcdf_getvalue_c(id, longitude, latitude, val)
-       integer, intent(out)::id
-       real, intent(out)::longitude, latitude
-       real, intent(out)::val
+     subroutine samplenetcdf_getvalue_c(id, longitude, latitude, val) bind(c)
+       use, intrinsic :: iso_c_binding
+       integer(c_int), value, intent(in) :: id
+       real(c_double), intent(in) :: longitude, latitude
+       real(c_double), intent(out) :: val
      end subroutine Samplenetcdf_getvalue_c
 
   end interface
@@ -67,14 +70,14 @@ contains
     character(len=*), intent(in)::name
     integer, intent(out)::id
 
-    call samplenetcdf_open_c(name, len_trim(name), id)
+    call samplenetcdf_open_c(trim(name) // c_null_char, id)
   end subroutine SampleNetCDF_Open
 
   subroutine SampleNetCDF_SetVariable(id, varname)
     character(len=*), intent(in)::varname
     integer, intent(out)::id
 
-    call samplenetcdf_setvariable_c(id, varname, len_trim(varname))
+    call samplenetcdf_setvariable_c(id, trim(varname) // c_null_char)
   end subroutine SampleNetCDF_SetVariable
 
   subroutine SampleNetCDF_GetValue(id, longitude, latitude, val)

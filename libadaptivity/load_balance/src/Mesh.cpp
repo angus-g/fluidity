@@ -566,7 +566,7 @@ unsigned Mesh::min_node_owner(const unsigned elem){
 
 #define ALPHA_CONST 0.20412414523193154
 
-#define mtetin_fc F77_FUNC(mtetin, MTETIN)
+#define mtetin_fc mtetin
 #ifdef __cplusplus
 extern "C"  /* prevent C++ name mangling */
 #endif

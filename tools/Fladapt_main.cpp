@@ -30,8 +30,6 @@
 #include <map>
 #include <stdlib.h>
 
-#include "confdefs.h"
-
 #include "flmpi.h"
 
 #include "Usage.h"
@@ -71,7 +69,7 @@ int main(int argc, char** argv){
   PetscInit(argc, argv);
 #ifdef HAVE_PYTHON
   // Initialize the Python Interpreter
-  python_init_();
+  python_init();
 #endif
 
   // Modified version of flredecomp argument parsing
@@ -109,7 +107,7 @@ int main(int argc, char** argv){
   if(args.count('v') > 0){
     verbosity = 3;
   }
-  set_global_debug_level_fc(&verbosity);
+  set_global_debug_level(verbosity);
 
   // Input and output base names
   string input_basename, output_basename;
@@ -132,7 +130,7 @@ int main(int argc, char** argv){
 
 #ifdef HAVE_PYTHON
   // Finalize the Python Interpreter
-  python_end_();
+  python_end();
 #endif
 
 #ifdef HAVE_PETSC

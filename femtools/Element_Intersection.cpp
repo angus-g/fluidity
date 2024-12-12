@@ -1052,11 +1052,11 @@ extern "C"
     return elementIntersector->GetDim();
   }
 
-  void cIntersectorSetDimension(const int* dim)
+  void cIntersectorSetDimension(int dim)
   {
     if(elementIntersector)
     {
-      if((int) elementIntersector->GetDim() == *dim)
+      if((int) elementIntersector->GetDim() == dim)
       {
         return;
       }
@@ -1068,7 +1068,7 @@ extern "C"
     ElementIntersector1D* intersector_1;
     ElementIntersector2D* intersector_2;
     WmElementIntersector3D* intersector_3;
-    switch(*dim)
+    switch(dim)
     {
       case 1:
         intersector_1 = new ElementIntersector1D();
@@ -1090,7 +1090,7 @@ extern "C"
     return;
   }
 
-  void cIntersectorSetExactness(const int* exact)
+  void cIntersectorSetExactness(int exact)
   {
     /*Sets the exactness (whether we're using cgal or not)
     exact = 0 means inexact (not using cgal)
@@ -1100,7 +1100,7 @@ extern "C"
 
     assert(elementIntersector);
     dim = elementIntersector->GetDim();
-    if((int) elementIntersector->GetExactness() == *exact)
+    if((int) elementIntersector->GetExactness() == exact)
     {
       return;
     }
@@ -1118,7 +1118,7 @@ extern "C"
     switch(dim)
     {
       case 1:
-        if (*exact == 0)
+        if (exact == 0)
         {
           intersector_1_inexact = new ElementIntersector1D();
           elementIntersector = (ElementIntersector*)intersector_1_inexact;
@@ -1129,7 +1129,7 @@ extern "C"
         }
         break;
       case 2:
-        if (*exact == 0)
+        if (exact == 0)
         {
           intersector_2_inexact = new ElementIntersector2D();
           elementIntersector = (ElementIntersector*)intersector_2_inexact;
@@ -1141,7 +1141,7 @@ extern "C"
         }
         break;
       case 3:
-        if (*exact == 0)
+        if (exact == 0)
         {
           intersector_3_inexact = new WmElementIntersector3D();
           elementIntersector = (ElementIntersector*)intersector_3_inexact;
@@ -1160,13 +1160,13 @@ extern "C"
     return;
   }
 
-  void cIntersectorSetInput(double* positionsA, double* positionsB, const int* dim, const int* loc)
+  void cIntersectorSetInput(double* positionsA, double* positionsB, int dim, int loc)
   {
     assert(elementIntersector);
-    assert(*dim >= 0);
-    assert(*loc >= 0);
+    assert(dim >= 0);
+    assert(loc >= 0);
 
-    elementIntersector->SetInput(positionsA, positionsB, *dim, *loc);
+    elementIntersector->SetInput(positionsA, positionsB, dim, loc);
 
     return;
   }
@@ -1189,28 +1189,28 @@ extern "C"
     return;
   }
 
-  void cIntersectorGetOutput(const int* nnodes, const int* nelms, const int* dim, const int* loc, double* positions, int* enlist)
+  void cIntersectorGetOutput(int nnodes, int nelms, int dim, int loc, double* positions, int* enlist)
   {
     assert(elementIntersector);
 
 #ifdef DDEBUG
     int nnodesQuery, nelmsQuery;
     elementIntersector->QueryOutput(nnodesQuery, nelmsQuery);
-    assert(*nnodes == nnodesQuery);
-    assert(*nelms == nelmsQuery);
+    assert(nnodes == nnodesQuery);
+    assert(nelms == nelmsQuery);
     switch(elementIntersector->GetDim())
     {
       case 1:
-        assert(*dim == 1);
-        assert(*loc == 2);
+        assert(dim == 1);
+        assert(loc == 2);
         break;
       case 2:
-        assert(*dim == 2);
-        assert(*loc == 3 || *loc == 4);
+        assert(dim == 2);
+        assert(loc == 3 || loc == 4);
         break;
       case 3:
-        assert(*dim == 3);
-        assert(*loc == 4);
+        assert(dim == 3);
+        assert(loc == 4);
         break;
       default:
         cerr << "Invalid intersector dimension" << endl;
@@ -1230,24 +1230,24 @@ extern "C"
     return;
   }
 
-  void cIntersectionFinderSetInput(const double* positions, const int* enlist, const int* dim, const int* loc, const int* nnodes, const int* nelements)
+  void cIntersectionFinderSetInput(const double* positions, const int* enlist, int dim, int loc, int nnodes, int nelements)
   {
-    assert(*dim >= 0);
-    assert(*loc >= 0);
-    assert(*nnodes >= 0);
-    assert(*nelements >= 0);
+    assert(dim >= 0);
+    assert(loc >= 0);
+    assert(nnodes >= 0);
+    assert(nelements >= 0);
 
-    elementIntersectionFinder.SetInput(positions, *nnodes, *dim, enlist, *nelements, *loc);
+    elementIntersectionFinder.SetInput(positions, nnodes, dim, enlist, nelements, loc);
 
     return;
   }
 
-  void cIntersectionFinderFind(const double* positions, const int* dim, const int* loc)
+  void cIntersectionFinderFind(const double* positions, int dim, int loc)
   {
-    assert(*dim >= 0);
-    assert(*loc >= 0);
+    assert(dim >= 0);
+    assert(loc >= 0);
 
-    elementIntersectionFinder.SetTestElement(positions, *dim, *loc);
+    elementIntersectionFinder.SetTestElement(positions, dim, loc);
 
     return;
   }
@@ -1259,9 +1259,9 @@ extern "C"
     return;
   }
 
-  void cIntersectionFinderGetOutput(int* id, const int* index)
+  void cIntersectionFinderGetOutput(int* id, int index)
   {
-    elementIntersectionFinder.GetOutput(*id, *index);
+    elementIntersectionFinder.GetOutput(*id, index);
 
     return;
   }

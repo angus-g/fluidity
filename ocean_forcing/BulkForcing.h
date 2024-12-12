@@ -39,29 +39,25 @@
 
 
 extern "C" {
-#define ncar_forcing_c_fc F77_FUNC(ncar_forcing_c, NCAR_FORCING_C)
-  extern void ncar_forcing_c_fc(const int *points, double *speed, double *air_temp,
+  extern void ncar_forcing_c(const int *points, double *speed, double *air_temp,
                               double *sst, double *spec_humidity, double *sea_surface_humidity,
                               double *U, double *V, double *ppt, double *runoff, double *salinity,
                               double *solar, double *thermal, double *Q_solar, double *Q, double *F,
                               double *tau_u, double *tau_v);
 
-#define coare_forcing_c_fc F77_FUNC(coare_forcing_c, COARE_FORCING_C)
-  extern void coare_forcing_c_fc(const int *points, double *speed, double *air_temp,
+  extern void coare_forcing_c(const int *points, double *speed, double *air_temp,
                               double *sst, double *spec_humidity, double *sea_surface_humidity,
                               double *U, double *V, double *ppt, double *runoff, double *salinity,
                               double *solar, double *thermal, double *Q_solar, double *Q, double *F,
                               double *tau_u, double *tau_v);
 
-#define kara_forcing_c_fc F77_FUNC(kara_forcing_c, KARA_FORCING_C)
-  extern void kara_forcing_c_fc(const int *points, double *speed, double *air_temp,
+  extern void kara_forcing_c(const int *points, double *speed, double *air_temp,
                               double *sst, double *spec_humidity, double *sea_surface_humidity,
                               double *U, double *V, double *ppt, double *runoff, double *salinity,
                               double *solar, double *thermal, double *Q_solar, double *Q, double *F,
                               double *tau_u, double *tau_v);
 
-#define get_era40_fluxes_fc F77_FUNC(get_era40_fluxes, GET_ERA40_FLUXES)
-    void get_era40_fluxes_fc(double *time, const double *X, const double *Y, const double *Z,
+    void get_era40_fluxes(double *time, const double *X, const double *Y, const double *Z,
                      double *T, const double *Vx, const double *Vy, const double *Vz, double *Sal,
                      double *F_as, double *Q_as, double *tau_u, double *tau_v, double *Q_solar,
                      const int *NNodes, bool rotate, int *bulk_formula);

@@ -28,8 +28,6 @@
 #ifndef CALENDAR_H
 #define CALENDAR_H
 
-#include "confdefs.h"
-
 #include "c++debug.h"
 
 #include <cassert>

@@ -25,9 +25,8 @@
 !    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 !    USA
 
-! This file is an exception to the rule that all Fortran code should be in
-! modules because these routines are designed to be callable from C.
-
+module diagnostic_output
+contains
 subroutine set_debug_level(level)
   ! Temporarily set the verbosity of the program.
   use fldebug_parameters
@@ -38,15 +37,15 @@ subroutine set_debug_level(level)
 
 end subroutine set_debug_level
 
-subroutine set_global_debug_level(level)
+subroutine set_global_debug_level(level) bind(c)
   ! Set the global verbosity of the program.
+  use, intrinsic :: iso_c_binding, only : c_int
   use fldebug_parameters
   implicit none
-  integer, intent(in) :: level
+  integer(c_int), intent(in), value :: level
 
-  global_debug_level=level
-  current_debug_level=global_debug_level
-
+  global_debug_level = level
+  current_debug_level = global_debug_level
 end subroutine set_global_debug_level
 
 subroutine reset_debug_level
@@ -69,13 +68,14 @@ function debug_level()
 
 end function debug_level
 
-function get_global_debug_level()
+function get_global_debug_level() bind(c)
   ! Simply return the global debug level. This makes the debug level
   ! effectively global.
+  use, intrinsic :: iso_c_binding, only : c_int
   use fldebug_parameters
   implicit none
-  integer :: get_global_debug_level
+  integer(c_int) :: get_global_debug_level
 
-  get_global_debug_level=global_debug_level
-
+  get_global_debug_level = global_debug_level
 end function get_global_debug_level
+end module diagnostic_output

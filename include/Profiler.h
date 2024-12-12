@@ -30,12 +30,11 @@
 #include <string>
 #include <iostream>
 
-#include "confdefs.h"
-
 #ifdef HAVE_LIBNUMA
 #include <numa.h>
 #include <numaif.h>
 #include <sys/resource.h>
+#include <unistd.h>
 #endif
 
 #include "flmpi.h"

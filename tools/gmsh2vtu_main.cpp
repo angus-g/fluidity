@@ -31,8 +31,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "confdefs.h"
-
 #include "flmpi.h"
 
 using namespace std;

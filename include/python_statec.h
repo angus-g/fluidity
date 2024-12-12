@@ -1,4 +1,3 @@
-#include "confdefs.h"
 #include "spud.h"
 
 #ifdef HAVE_PYTHON
@@ -14,41 +13,41 @@
 #include "numpy/arrayobject.h"
 #endif
 
-void python_init_(void);  // Initialize
-void python_end_(void);   // Finalize
-void python_reset_(void); // Clear the dictionary
+void python_init(void);  // Initialize
+void python_end(void);   // Finalize
+void python_reset(void); // Clear the dictionary
 void init_vars(void);
 
-void python_add_statec_(char *name,int *len); // Add a new state object to the Python environment, if a state with the same name already exists it will overwrite that state; also the last added state will be accessible as 'state', all others in the 'states' dictionary
+void python_add_state_c(char *name,int len); // Add a new state object to the Python environment, if a state with the same name already exists it will overwrite that state; also the last added state will be accessible as 'state', all others in the 'states' dictionary
 
-void python_add_scalar_(int *sx,double x[],char *name,int *nlen, int *field_type, char *option_path, int *oplen, char *state,int *slen,char*,int*);  // Add a new scalar field to the state with name *state
-void python_add_vector_(int *num_dim, int *s,
+void python_add_scalar(int *sx,double x[],char *name,int *nlen, int *field_type, char *option_path, int *oplen, char *state,int *slen,char*,int*);  // Add a new scalar field to the state with name *state
+void python_add_vector(int *num_dim, int *s,
   double x[],
   char *name,int *nlen, int *field_type, char *option_path, int *oplen, char *state,int *slen,char*,int*); // Add a new vector field to the state with name *state
-void python_add_tensor_(int *sx,int *sy,int *sz, double *x, int *num_dim,
+void python_add_tensor(int *sx,int *sy,int *sz, double *x, int *num_dim,
   char *name,int *nlen, int *field_type, char *option_path, int *oplen, char *state,int *slen,char*,int*); // Add a new tensor field to the state with name *state
 
-void python_add_mesh_(int*,int*,int*,int*,
+void python_add_mesh(int*,int*,int*,int*,
   char*,int*,char*,int*,int*,int*,int*,char*,int*);
 
 // Procedures to add an element
-void python_add_element_(int *dim, int *loc, int *ngi, int *degree,
+void python_add_element(int *dim, int *loc, int *ngi, int *degree,
   char *state_name, int *state_name_len, char *mesh_name, int *mesh_name_len,
   double *n,int *nx, int *ny, double *dn, int *dnx, int *dny, int *dnz,
   int *size_spoly_x,int *size_spoly_y,int *size_dspoly_x,int *size_dspoly_y,
   char* family_name, int* family_name_len,
   char* type_name, int* type_name_len,
   double* coords, int* size_coords_x, int* size_coords_y);
-void python_add_quadrature_(int *dim,int *degree,int *loc, int *ngi,
+void python_add_quadrature(int *dim,int *degree,int *loc, int *ngi,
   double *weight, int *weight_size, double *locations, int *l_size, int *is_surfacequadr);
-void python_add_superconvergence_(int *nsp, double *l, int *lx, int *ly,
+void python_add_superconvergence(int *nsp, double *l, int *lx, int *ly,
   double *n, int *nx, int *ny,
   double *dn, int *dnx, int *dny, int *dnz);
-void python_add_polynomial_(double*,int*,int*,int*,int*,int*);
+void python_add_polynomial(double*,int*,int*,int*,int*,int*);
 
 char* fix_string(char*,int);
-void python_run_stringc_(char* s, int *slen, int *stat); // Run an arbitrary string in the Python interpreter
-void python_run_filec_(char *f,int *flen, int *stat);  // Run a file in the Python interpreter
+void python_run_string_c(char* s, int slen, int *stat); // Run an arbitrary string in the Python interpreter
+void python_run_file_c(char *f,int flen, int *stat);  // Run a file in the Python interpreter
 
 void python_add_array_double_1d(double *arr, int *size, char *name);
 void python_add_array_double_2d(double *arr, int *sizex, int *sizey, char *name);
@@ -58,4 +57,4 @@ void python_add_array_integer_1d(int *arr, int *size, char *name);
 void python_add_array_integer_2d(int *arr, int *sizex, int *sizey, char *name);
 void python_add_array_integer_3d(int *arr, int *sizex, int *sizey, int *sizez, char *name);
 
-int get_global_debug_level_(void);
+int get_global_debug_level(void);

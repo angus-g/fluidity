@@ -45,7 +45,6 @@ USA
 //              3 // calculate edge weights based on curvature of fields
 // options[5]:  1 // simple mesh
 //              2 // mixed formulation
-#include "confdefs.h"
 
 #include <map>
 #include <string>
@@ -58,17 +57,17 @@ USA
 
 using namespace std;
 
-#define sam_fc F77_FUNC(sam, SAM)
-#define sam_init_fc F77_FUNC(sam_init_c, SAM_INIT_C)
-#define sam_migrate_fc F77_FUNC(sam_migrate_c, SAM_MIGRATE_C)
-#define sam_query_fc F77_FUNC(sam_query_c, SAM_QUERY_C)
-#define sam_export_mesh_fc F77_FUNC(sam_export_mesh_c, SAM_EXPORT_MESH_C)
-#define sam_export_halo_fc F77_FUNC(sam_export_halo_c, SAM_EXPORT_HALO_C)
-#define sam_export_phalo_fc F77_FUNC(sam_export_phalo_c, SAM_EXPORT_PHALO_C)
-#define sam_cleanup_fc F77_FUNC(sam_cleanup_c, SAM_CLEANUP_C)
-#define sam_add_field_fc F77_FUNC(sam_add_field_c, SAM_ADD_FIELD_C)
-#define sam_pop_field_fc F77_FUNC(sam_pop_field_c, SAM_POP_FIELD_C)
-#define sam_export_node_ownership_fc F77_FUNC(sam_export_node_ownership_c, SAM_EXPORT_NODE_OWNERSHIP_C)
+#define sam_fc sam
+#define sam_init_fc sam_init_c
+#define sam_migrate_fc sam_migrate_c
+#define sam_query_fc sam_query_c
+#define sam_export_mesh_fc sam_export_mesh_c
+#define sam_export_halo_fc sam_export_halo_c
+#define sam_export_phalo_fc sam_export_phalo_c
+#define sam_cleanup_fc sam_cleanup_c
+#define sam_add_field_fc sam_add_field_c
+#define sam_pop_field_fc sam_pop_field_c
+#define sam_export_node_ownership_fc sam_export_node_ownership_c
 
 // "Mesh" is the principle object that does everything for SAM.
 Mesh *mesh = NULL;

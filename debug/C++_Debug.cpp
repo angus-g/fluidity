@@ -25,11 +25,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
     USA
 */
-#include "confdefs.h"
 
 #include "flmpi.h"
 
-#include "fmangle.h"
 #include "c++debug.h"
 
 #include <algorithm>
@@ -98,7 +96,7 @@ void FLExit(const char *ErrorStr, const char *FromFile, int LineNumber){
 }
 
 extern "C"{
-  void fprint_backtrace_fc(){
+  void fprint_backtrace(){
 #ifdef _GNU_SOURCE
     void *bt[40];
     size_t btsize = backtrace(bt, 40);

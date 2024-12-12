@@ -1,5 +1,3 @@
-#include <confdefs.h>
-
 #include <vector>
 #include <set>
 #include <list>
@@ -10,20 +8,20 @@ intveclist IVS;
 
 extern "C"
 {
-  void F77_FUNC_(intvec_create_set,INTVEC_CREATE_SET)(int* idx);
-  void F77_FUNC_(intvec_is_present,INTVEC_IS_PRESENT)(int* idx, int* arr, int* size, int* success);
-  void F77_FUNC_(intvec_clear_set,INTVEC_CLEAR_SET)(int* idx);
-  void F77_FUNC_(intvec_destroy_set,INTVEC_DESTROY_SET)(unsigned int* idx);
+  void intvec_create_set(int* idx);
+  void intvec_is_present(int* idx, int* arr, int* size, int* success);
+  void intvec_clear_set(int* idx);
+  void intvec_destroy_set(unsigned int* idx);
 }
 
-void F77_FUNC_(intvec_create_set,INTVEC_CREATE_SET)(int* idx)
+void intvec_create_set(int* idx)
 {
   intvecset S;
   IVS.push_back(S);
   *idx = IVS.size();
 }
 
-void F77_FUNC_(intvec_is_present,INTVEC_IS_PRESENT)(int* idx, int* arr, int* size, int* success)
+void intvec_is_present(int* idx, int* arr, int* size, int* success)
 {
   std::vector<int> v(*size);
   std::pair<intvecset::iterator,bool> stat;
@@ -44,7 +42,7 @@ void F77_FUNC_(intvec_is_present,INTVEC_IS_PRESENT)(int* idx, int* arr, int* siz
   *success = stat.second;
 }
 
-void F77_FUNC_(intvec_clear_set,INTVEC_CLEAR_SET)(int* idx)
+void intvec_clear_set(int* idx)
 {
   intvecset S;
   intveclist::iterator j;
@@ -56,7 +54,7 @@ void F77_FUNC_(intvec_clear_set,INTVEC_CLEAR_SET)(int* idx)
   S.clear();
 }
 
-void F77_FUNC_(intvec_destroy_set,INTVEC_DESTROY_SET)(unsigned int* idx)
+void intvec_destroy_set(unsigned int* idx)
 {
   intvecset S;
   intveclist::iterator j;

@@ -1,4 +1,3 @@
-#include "confdefs.h"
 #include "fdebug.h"
 
 module zoltan_detectors

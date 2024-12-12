@@ -25,9 +25,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
     USA
 */
-#include "fmangle.h"
 #include "Usage.h"
-
 #include "flmpi.h"
 
 extern "C" {
@@ -114,7 +112,7 @@ int main(int argc, char **argv){
   int val=3;
   if(args.count('v')==0)
     val = 0;
-  set_global_debug_level_fc(&val);
+  set_global_debug_level(val);
 
   string input_filename = argv[optind];
   size_t input_filename_len = input_filename.size();

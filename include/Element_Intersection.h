@@ -29,7 +29,6 @@
 #ifndef ELEMENT_INTERSECTION_H
 #define ELEMENT_INTERSECTION_H
 
-#include "confdefs.h"
 
 #include "Wm4Intersector.h"
 #include "Wm4IntrTriangle2Triangle2.h"
@@ -394,41 +393,41 @@ extern Fluidity::ElementIntersectionFinder elementIntersectionFinder;
 
 extern "C"
 {
-#define cIntersectorGetDimension F77_FUNC(cintersector_get_dimension, CINTERSECTOR_GET_DIMENSION)
+  #define cIntersectorGetDimension cintersector_get_dimension
   int cIntersectorGetDimension();
 
-#define cIntersectorSetDimension F77_FUNC(cintersector_set_dimension, CINTERSECTOR_SET_DIMENSION)
-  void cIntersectorSetDimension(const int* dim);
+  #define cIntersectorSetDimension cintersector_set_dimension
+  void cIntersectorSetDimension(int dim);
 
-#define cIntersectorSetExactness F77_FUNC(cintersector_set_exactness, CINTERSECTOR_SET_EXACTNESS)
-  void cIntersectorSetExactness(const int* exact);
+  #define cIntersectorSetExactness cintersector_set_exactness
+  void cIntersectorSetExactness(int exact);
 
-#define cIntersectorSetInput F77_FUNC(cintersector_set_input, CINTERSECTOR_SET_INPUT)
-  void cIntersectorSetInput(double* positionsA, double* positionsB, const int* dim, const int* loc);
+  #define cIntersectorSetInput cintersector_set_input
+  void cIntersectorSetInput(double* positionsA, double* positionsB, int dim, int loc);
 
-#define cIntersectorDrive F77_FUNC(cintersector_drive, CINTERSECTOR_DRIVE)
+  #define cIntersectorDrive cintersector_drive
   void cIntersectorDrive();
 
-#define cIntersectorQuery F77_FUNC(cintersector_query, CINTERSECTOR_QUERY)
+  #define cIntersectorQuery cintersector_query
   void cIntersectorQuery(int* nnodes, int* nelms);
 
-#define cIntersectorGetOutput F77_FUNC(cintersector_get_output, CINTERSECTOR_GET_OUTPUT)
-  void cIntersectorGetOutput(const int* nnodes, const int* nelms, const int* dim, const int* loc, double* positions, int* enlist);
+  #define cIntersectorGetOutput cintersector_get_output
+  void cIntersectorGetOutput(int nnodes, int nelms, int dim, int loc, double* positions, int* enlist);
 
-#define cIntersectionFinderReset F77_FUNC(cintersection_finder_reset, CINTERSECTION_FINDER_RESET)
+  #define cIntersectionFinderReset cintersection_finder_reset
   void cIntersectionFinderReset(int* ntests);
 
-#define cIntersectionFinderSetInput F77_FUNC(cintersection_finder_set_input, CINTSERSECTION_FINDER_SET_INPUT)
-  void cIntersectionFinderSetInput(const double* positions, const int* enlist, const int* dim, const int* loc, const int* nnodes, const int* nelements);
+  #define cIntersectionFinderSetInput cintersection_finder_set_input
+  void cIntersectionFinderSetInput(const double* positions, const int* enlist, int dim, int loc, int nnodes, int nelements);
 
-#define cIntersectionFinderFind F77_FUNC(cintersection_finder_find, CINTSERSECTION_FINDER_FIND)
-  void cIntersectionFinderFind(const double* positions, const int* dim, const int* loc);
+  #define cIntersectionFinderFind cintersection_finder_find
+  void cIntersectionFinderFind(const double* positions, int dim, int loc);
 
-#define cIntersectionFinderQueryOutput F77_FUNC(cintersection_finder_query_output, CINTSERSECTION_FINDER_QUERY_OUTPUT)
+  #define cIntersectionFinderQueryOutput cintersection_finder_query_output
   void cIntersectionFinderQueryOutput(int* nelms);
 
-#define cIntersectionFinderGetOutput F77_FUNC(cintersection_finder_get_output, CINTSERSECTION_FINDER_GET_OUTPUT)
-  void cIntersectionFinderGetOutput(int* id, const int* index);
+  #define cIntersectionFinderGetOutput cintersection_finder_get_output
+  void cIntersectionFinderGetOutput(int* id, int index);
 }
 
 #endif

@@ -8,6 +8,7 @@ use spud
 use fields
 use coordinates
 use Field_Options
+use, intrinsic :: iso_c_binding, only : c_null_char
 
 implicit none
 
@@ -16,6 +17,16 @@ private
 public :: set_scalar_field_from_netcdf
 
 logical :: on_sphere
+
+interface
+   subroutine get_field_values(filename, X, Y, Z, nodes) bind(C)
+     use, intrinsic :: iso_c_binding
+     character(kind=c_char), dimension(*) :: filename
+     real(c_double), dimension(*), intent(in) :: X, Y
+     real(c_double), dimension(*), intent(out) :: Z
+     integer(c_int), value :: nodes
+   end subroutine get_field_values
+end interface
 
 contains
 
@@ -99,7 +110,7 @@ subroutine load_netcdf_values(field,path,position)
     end if
   end if
 
-  call get_field_values(trim(filename)//char(0), X, Y, Z, NNodes)
+  call get_field_values(trim(filename)//c_null_char, X, Y, Z, NNodes)
 
   do i=1,NNodes
      call set(field,i,Z(i))

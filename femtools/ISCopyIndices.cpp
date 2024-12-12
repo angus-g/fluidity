@@ -1,4 +1,3 @@
-#include "confdefs.h"
 #include "petsc.h"
 
 #include <string.h>

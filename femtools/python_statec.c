@@ -15,7 +15,7 @@ static PyObject* PyInit_spud_manager(void)
 }
 #endif
 
-void python_init_(void){
+void python_init(void){
 #ifdef HAVE_PYTHON
   // Initialize the Python interpreter
 #if PY_MAJOR_VERSION >= 3
@@ -24,8 +24,11 @@ void python_init_(void){
   // Force the stdout and stderr streams to be unbuffered
   // This is to ensure backtrace+error actually gets printed
   // through PyErr_Print before we abort.
-  Py_UnbufferedStdioFlag = 1;
-  Py_Initialize();
+  PyConfig config;
+  PyConfig_InitPythonConfig(&config);
+  config.buffered_stdio = 0;
+
+  Py_InitializeFromConfig(&config);
   PyRun_SimpleString("import string");
 
   PyObject* m;
@@ -76,7 +79,7 @@ void init_vars(void){
     PyErr_Clear();
   }
   else{
-    if (get_global_debug_level_() > 1) {
+    if (get_global_debug_level() > 1) {
       printf("fluidity.state_types imported successfully; location: \n");
       PyRun_SimpleString("import fluidity.state_types; print(fluidity.state_types.__file__)");
     }
@@ -86,7 +89,7 @@ void init_vars(void){
 }
 
 
-void python_reset_(void){
+void python_reset(void){
 #ifdef HAVE_PYTHON
   if(Py_IsInitialized()){
     // Create a list of items to be kept
@@ -111,7 +114,7 @@ void python_reset_(void){
 }
 
 
-void python_end_(void){
+void python_end(void){
 #ifdef HAVE_PYTHON
   if(Py_IsInitialized()){
     // Garbage collection
@@ -123,13 +126,13 @@ void python_end_(void){
 }
 
 
-void python_run_stringc_(char *s,int *slen, int *stat){
+void python_run_string_c(char *s, int slen, int *stat){
 #ifdef HAVE_PYTHON
   // Run a python command from Fortran
-  char *c = fix_string(s,*slen);
-  int tlen=8+*slen;
+  char *c = fix_string(s, slen);
+  int tlen= 8 + slen;
   char t[tlen];
-  snprintf(t, tlen, "%s\n",c);
+  snprintf(t, tlen, "%s\n", c);
   *stat = PyRun_SimpleString(t);
   if(*stat != 0){
     PyErr_Print();
@@ -139,10 +142,10 @@ void python_run_stringc_(char *s,int *slen, int *stat){
 }
 
 
-void python_run_filec_(char *f,int *flen, int *stat){
+void python_run_file_c(char *f,int flen, int *stat){
 #ifdef HAVE_PYTHON
   // Run a python file from Fortran
-  char *filename = fix_string(f,*flen);
+  char *filename = fix_string(f,flen);
   FILE *pyfile;
   if ((pyfile = fopen(filename, "r")) == NULL){
     fprintf(stderr, "Error: cannot open '%s'. \n", filename);
@@ -175,11 +178,11 @@ char* fix_string(char *s,int len){
 // Functions to add a state and fields: scalar, vector, tensor, mesh, quadrature, polynomial
 
 
-void python_add_statec_(char *name,int *len){
+void python_add_state_c(char *name, int len){
 #ifdef HAVE_PYTHON
   // Add a new state object to the Python environment
-  char *n = fix_string(name,*len);
-  int tlen=23+2*(*len);
+  char *n = fix_string(name, len);
+  int tlen = 23 + 2*len;
   char t[tlen];
   // 'state' in Python will always be the last state added while the 'states' dictionary
   // includes all added states
@@ -193,7 +196,7 @@ void python_add_statec_(char *name,int *len){
 }
 
 
-void python_add_scalar_(int *sx,double x[],char *name,int *nlen, int *field_type,
+void python_add_scalar(int *sx,double x[],char *name,int *nlen, int *field_type,
   char *option_path, int *oplen, char *state,int *slen,
   char *mesh_name, int *mesh_name_len){
 #ifdef HAVE_NUMPY
@@ -240,7 +243,7 @@ void python_add_scalar_(int *sx,double x[],char *name,int *nlen, int *field_type
 #endif
 }
 
-void python_add_csr_matrix_(int *valSize, double val[], int *col_indSize, int col_ind [], int *row_ptrSize, \
+void python_add_csr_matrix(int *valSize, double val[], int *col_indSize, int col_ind [], int *row_ptrSize, \
                             int row_ptr [], char *name, int *namelen, char *state, int *statelen, int *numCols)
 {
 #ifdef HAVE_NUMPY
@@ -285,7 +288,7 @@ void python_add_csr_matrix_(int *valSize, double val[], int *col_indSize, int co
 
 
 
-void python_add_vector_(int *num_dim, int *s,
+void python_add_vector(int *num_dim, int *s,
   double x[],
   char *name,int *nlen, int *field_type, char *option_path, int *oplen, char *state,int *slen,
   char *mesh_name, int *mesh_name_len){
@@ -339,7 +342,7 @@ void python_add_vector_(int *num_dim, int *s,
 }
 
 
-void python_add_tensor_(int *sx,int *sy,int *sz, double *x, int num_dim[],
+void python_add_tensor(int *sx,int *sy,int *sz, double *x, int num_dim[],
   char *name,int *nlen, int *field_type, char *option_path, int *oplen, char *state,int *slen,
   char *mesh_name, int *mesh_name_len){
 #ifdef HAVE_NUMPY
@@ -396,7 +399,7 @@ void python_add_tensor_(int *sx,int *sy,int *sz, double *x, int num_dim[],
 }
 
 
-void python_add_mesh_(int ndglno[],int *sndglno, int *elements, int *nodes,
+void python_add_mesh(int ndglno[],int *sndglno, int *elements, int *nodes,
   char *name,int *nlen, char *option_path, int *oplen,
   int *continuity, int region_ids[], int *sregion_ids,
   char *state_name, int *state_name_len){
@@ -442,7 +445,7 @@ void python_add_mesh_(int ndglno[],int *sndglno, int *elements, int *nodes,
 }
 
 
-void python_add_element_(int *dim, int *loc, int *ngi, int *degree,
+void python_add_element(int *dim, int *loc, int *ngi, int *degree,
   char *state_name, int *state_name_len, char *mesh_name, int *mesh_name_len,
   double *n,int *nx, int *ny, double *dn, int *dnx, int *dny, int *dnz,
   int *size_spoly_x,int *size_spoly_y,int *size_dspoly_x,int *size_dspoly_y,
@@ -480,7 +483,7 @@ void python_add_element_(int *dim, int *loc, int *ngi, int *degree,
 }
 
 
-void python_add_quadrature_(int *dim,int *degree,int *loc, int *ngi,
+void python_add_quadrature(int *dim,int *degree,int *loc, int *ngi,
   double *weight, int *weight_size, double *locations, int *l_size, int *is_surfacequadr){
   // Only being called right after an element has been added
 #ifdef HAVE_NUMPY
@@ -504,7 +507,7 @@ void python_add_quadrature_(int *dim,int *degree,int *loc, int *ngi,
 }
 
 
-void python_add_polynomial_(double *coefs,int *size,int *degree, int *x,int *y, int *spoly){
+void python_add_polynomial(double *coefs,int *size,int *degree, int *x,int *y, int *spoly){
 #ifdef HAVE_NUMPY
   // Add a polynomial to the latest element
   // Set the coefs array
@@ -624,70 +627,5 @@ void python_add_array_integer_3d(int *arr, int *sizex, int *sizey, int *sizez, c
   snprintf(c, 200, "%s = numpy.transpose(%s,(2,1,0))",name,name);
   PyRun_SimpleString(c);
   Py_DECREF(a);
-#endif
-}
-
-
-
-
-// Wrapper functions
-
-void python_add_array_double_1d_(double *arr, int *size, char *name, int *name_len){
-  // Called from Fortran
-  char *namec = fix_string(name,*name_len);
-  python_add_array_double_1d(arr, size, namec);
-  free(namec);
-}
-
-void python_add_array_double_2d_(double *arr, int *sizex, int *sizey, char *name, int *name_len){
-  // Called from Fortran
-  char *namec = fix_string(name,*name_len);
-  python_add_array_double_2d(arr, sizex,sizey, namec);
-  free(namec);
-}
-
-void python_add_array_double_3d_(double *arr, int *sizex, int *sizey, int *sizez, char *name, int *name_len){
-  // Called from Fortran
-  char *namec = fix_string(name,*name_len);
-  python_add_array_double_3d(arr, sizex,sizey,sizez, namec);
-  free(namec);
-}
-void python_add_array_integer_1d_(int *arr, int *size, char *name, int *name_len){
-  // Called from Fortran
-  char *namec = fix_string(name,*name_len);
-  python_add_array_integer_1d(arr, size, namec);
-  free(namec);
-}
-
-void python_add_array_integer_2d_(int *arr, int *sizex, int *sizey, char *name, int *name_len){
-  // Called from Fortran
-  char *namec = fix_string(name,*name_len);
-  python_add_array_integer_2d(arr, sizex,sizey, namec);
-  free(namec);
-}
-
-void python_add_array_integer_3d_(int *arr, int *sizex, int *sizey, int *sizez, char *name, int *name_len){
-  // Called from Fortran
-  char *namec = fix_string(name,*name_len);
-  python_add_array_integer_3d(arr, sizex,sizey,sizez, namec);
-  free(namec);
-}
-
-#define python_fetch_real F77_FUNC(python_fetch_real_c, PYTHON_FETCH_REAL_C)
-void python_fetch_real(char* varname, int* varname_len, double* output)
-{
-#ifdef HAVE_PYTHON
-  PyObject *pMain = PyImport_AddModule("__main__");
-  PyObject *pDict = PyModule_GetDict(pMain);
-
-  char *c = fix_string(varname, *varname_len);
-  PyObject* real = PyDict_GetItemString(pDict, c);
-  if (real == NULL)
-  {
-    PyErr_Print();
-  }
-  free(c);
-
-  *output = PyFloat_AsDouble(real);
 #endif
 }

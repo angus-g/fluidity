@@ -29,7 +29,6 @@
 #ifndef NEMOREADER_H
 #define NEMOREADER_H
 
-#include "fmangle.h"
 #include "c++debug.h"
 
 #include <cassert>

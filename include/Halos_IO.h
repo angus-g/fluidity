@@ -29,7 +29,6 @@
 #ifndef HALOS_IO_H
 #define HALOS_IO_H
 
-#include "confdefs.h"
 #include "Tokenize.h"
 
 #include <algorithm>
@@ -92,31 +91,31 @@ extern Fluidity::HaloData* readHaloData;
 extern Fluidity::HaloData* writeHaloData;
 
 extern "C"{
-#define cHaloReaderReset F77_FUNC(chalo_reader_reset, CHALO_READER_RESET)
+#define cHaloReaderReset chalo_reader_reset
   void cHaloReaderReset();
 
-#define cHaloReaderSetInput F77_FUNC(chalo_reader_set_input, CHALO_READER_SET_INPUT)
-  int cHaloReaderSetInput(char* filename, int* filename_len, int* process, int* nprocs);
+#define cHaloReaderSetInput chalo_reader_set_input
+  int cHaloReaderSetInput(char* filename, int process, int nprocs);
 
-#define cHaloReaderQueryOutput F77_FUNC(chalo_reader_query_output, CHALO_READER_QUERY_OUTPUT)
-  void cHaloReaderQueryOutput(int* level, int* nprocs, int* nsends, int* nreceives);
+#define cHaloReaderQueryOutput chalo_reader_query_output
+  void cHaloReaderQueryOutput(int level, int nprocs, int* nsends, int* nreceives);
 
-#define cHaloReaderGetOutput F77_FUNC(chalo_reader_get_output, CHALO_READER_GET_OUTPUT)
-  void cHaloReaderGetOutput(int* level, int* nprocs, int* nsends, int* nreceives,
+#define cHaloReaderGetOutput chalo_reader_get_output
+  void cHaloReaderGetOutput(int level, int nprocs, int* nsends, int* nreceives,
     int* npnodes, int* send, int* recv);
 
-#define cHaloWriterReset F77_FUNC(chalo_writer_reset, CHALO_WRITER_RESET)
+#define cHaloWriterReset chalo_writer_reset
   void cHaloWriterReset();
 
-#define cHaloWriterInitialise F77_FUNC(chalo_writer_initialise, CHALO_WRITER_INITIALISE)
-  void cHaloWriterInitialise(int* process, int* nprocs);
+#define cHaloWriterInitialise chalo_writer_initialise
+  void cHaloWriterInitialise(int process, int nprocs);
 
-#define cHaloWriterSetInput F77_FUNC(chalo_writer_set_input, CHALO_WRITER_SET_INPUT)
-  void cHaloWriterSetInput(int* level, int* nprocs, int* nsends, int* nreceives,
-    int* npnodes, int* send, int* recv);
+#define cHaloWriterSetInput chalo_writer_set_input
+  void cHaloWriterSetInput(int level, int nprocs, int* nsends, int* nreceives,
+    int npnodes, int* send, int* recv);
 
-#define cHaloWriterWrite F77_FUNC(chalo_writer_write, CHALO_WRITER_WRITE)
-  int cHaloWriterWrite(char* filename, int* filename_len);
+#define cHaloWriterWrite chalo_writer_write
+  int cHaloWriterWrite(char* filename);
 }
 
 #endif

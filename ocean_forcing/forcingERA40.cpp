@@ -25,7 +25,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
     USA
 */
-#include "confdefs.h"
 #include "BulkForcing.h"
 #include "FluxesReader.h"
 #include "spud"
@@ -35,7 +34,7 @@
 using namespace std;
 using namespace Spud;
 
-void get_era40_fluxes_fc(double *time, const double *X, const double *Y, const double *Z,
+void get_era40_fluxes(double *time, const double *X, const double *Y, const double *Z,
                      double *T, const double *Vx, const double *Vy, const double *Vz, double *salinity,
                      double *F, double *Q, double *tau_u, double *tau_v, double *solar,
                      const int *n, bool rotate, int *bulk_formula ) {
@@ -171,17 +170,17 @@ void get_era40_fluxes_fc(double *time, const double *X, const double *Y, const d
     switch (*bulk_formula) {
 
         case COARE3:
-            coare_forcing_c_fc(&NNodes, speed, t_2m, SST, q, qs, delU_u, delU_v,
+            coare_forcing_c(&NNodes, speed, t_2m, SST, q, qs, delU_u, delU_v,
                     ppt, runoff, salinity, thermal, solar, Q_solar, Q, F, tau_u, tau_v);
             break;
         case KARA:
-            kara_forcing_c_fc(&NNodes, speed, t_2m, SST, q, qs, delU_u, delU_v,
+            kara_forcing_c(&NNodes, speed, t_2m, SST, q, qs, delU_u, delU_v,
                     ppt, runoff, salinity, thermal, solar, Q_solar, Q, F, tau_u, tau_v);
             break;
 
         case NCAR:
         default  :
-            ncar_forcing_c_fc(&NNodes, speed, t_2m, SST, q, qs, delU_u, delU_v,
+            ncar_forcing_c(&NNodes, speed, t_2m, SST, q, qs, delU_u, delU_v,
                     ppt, runoff, salinity, thermal,  solar, Q_solar, Q, F, tau_u, tau_v);
     }
 

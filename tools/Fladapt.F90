@@ -89,10 +89,6 @@ subroutine fladapt(input_basename_, input_basename_len, &
 
   ewrite(1, *) "In fladapt"
 
-#ifdef HAVE_PYTHON
-  call python_init()
-#endif
-
   ewrite(2, *) "Input base name: " // trim(input_basename)
   ewrite(2, *) "Output base name: " // trim(output_basename)
 

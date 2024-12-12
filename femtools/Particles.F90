@@ -669,7 +669,7 @@ contains
     end if
     call get_option("/timestepping/timestep", dt)
 
-    call set_detectors_from_python(func, len(func), dim, current_time, coord_ptr, n_particles, stat)
+    call set_detectors_from_python_unknown(trim(func), len_trim(func), dim, current_time, coord_ptr, n_particles, stat)
     call c_f_pointer(coord_ptr, coord_array_ptr, [dim, n_particles])
     allocate(coords(dim, n_particles))
     if (n_particles==0) return

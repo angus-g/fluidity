@@ -26,7 +26,6 @@
 !    USA
 
 
-#include "confdefs.h"
 #include "fdebug.h"
 
 module hydrostatic_pressure

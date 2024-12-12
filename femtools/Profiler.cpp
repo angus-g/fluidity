@@ -141,38 +141,31 @@ Profiler flprofiler;
 
 // Fortran interface
 extern "C" {
-#define cprofiler_get_fc F77_FUNC(cprofiler_get, CPROFILER_GET)
-  void cprofiler_get_fc(const char *key, const int *key_len, double *time){
-    *time = flprofiler.get(string(key, *key_len));
+  void cprofiler_get(const char *key, const int key_len, double *time){
+    *time = flprofiler.get(string(key, key_len));
   }
 
-#define cprofiler_tic_fc F77_FUNC(cprofiler_tic, CPROFILER_TIC)
-  void cprofiler_tic_fc(const char *key, const int *key_len){
-    flprofiler.tic(string(key, *key_len));
+  void cprofiler_tic(const char *key, const int key_len){
+    flprofiler.tic(string(key, key_len));
   }
 
-#define cprofiler_toc_fc F77_FUNC(cprofiler_toc, CPROFILER_TOC)
-  void cprofiler_toc_fc(const char *key, const int *key_len){
-    flprofiler.toc(string(key, *key_len));
+  void cprofiler_toc(const char *key, const int key_len){
+    flprofiler.toc(string(key, key_len));
   }
 
-#define cprofiler_zero_fc F77_FUNC(cprofiler_zero, CPROFILER_ZERO)
-  void cprofiler_zero_fc(){
+  void cprofiler_zero(){
     flprofiler.zero();
   }
 
-#define cprofiler_minorpagefaults_fc F77_FUNC(cprofiler_minorpagefaults, CPROFILER_MINORPAGEFAULTS)
-  void cprofiler_minorpagefaults_fc(int *faults){
+  void cprofiler_minorpagefaults(int *faults){
     *faults = flprofiler.minorpagefaults();
   }
 
-#define cprofiler_majorpagefaults_fc F77_FUNC(cprofiler_majorpagefaults, CPROFILER_MAJORPAGEFAULTS)
-  void cprofiler_majorpagefaults_fc(int *faults){
+  void cprofiler_majorpagefaults(int *faults){
     *faults = flprofiler.majorpagefaults();
   }
 
-#define cprofiler_getresidence_fc F77_FUNC(cprofiler_getresidence, CPROFILER_GETRESIDENCE)
-  void cprofiler_getresidence_fc(void *ptr, int *residence){
+  void cprofiler_getresidence(void *ptr, int *residence){
     *residence = flprofiler.getresidence(ptr);
   }
 }

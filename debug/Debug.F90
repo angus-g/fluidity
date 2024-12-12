@@ -36,6 +36,11 @@ module fldebug
 
   interface write_minmax
     module procedure write_minmax_real_array, write_minmax_integer_array
+  end interface write_minmax
+
+  interface
+     subroutine fprint_backtrace() bind(C)
+     end subroutine fprint_backtrace
   end interface
 
 contains

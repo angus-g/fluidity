@@ -27,8 +27,6 @@
    USA
 */
 
-#include "confdefs.h"
-
 #ifdef HAVE_VTK
 
 #include <vtk.h>
@@ -430,7 +428,6 @@ extern "C" {
     return;
   }
 
-#define vtkwritecellghostarray F77_FUNC(vtkwritecellghostarray, VTKWRITECELLGHOSTARRAY)
   /**
      Write out VTK CellGhostArray.
      @param[in] ghosts This array is 0 for owned elements, 1 otherwise.

@@ -1,6 +1,4 @@
 // wrapper for test_pressure_solve main
-#include "confdefs.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -19,7 +17,7 @@ extern "C"{
 #ifdef HAVE_PYTHON
 #include "python_statec.h"
 #endif
-void test_pressure_solve_();
+void test_pressure_solve();
 }
 
 int main(int argc, char **argv){
@@ -38,7 +36,7 @@ int main(int argc, char **argv){
 
 #ifdef HAVE_PYTHON
   // Initialize the Python Interpreter
-  python_init_();
+  python_init();
 #endif
 
 #ifdef HAVE_PETSC
@@ -48,11 +46,11 @@ int main(int argc, char **argv){
   // PetscInitializeFortran needs to be called when initialising PETSc from C, but calling it from Fortran
   ierr = PetscInitializeFortran();
 
-  test_pressure_solve_();
+  test_pressure_solve();
   PetscFinalize();
 #ifdef HAVE_PYTHON
   // Finalize the Python Interpreter
-  python_end_();
+  python_end();
 #endif
   return 0;
 #else

@@ -26,49 +26,52 @@ module supermesh_construction
   interface cintersector_set_input
     module procedure intersector_set_input_sp
 
-    subroutine cintersector_set_input(nodes_A, nodes_B, ndim, loc)
-      use iso_c_binding, only: c_double
+    subroutine cintersector_set_input(nodes_A, nodes_B, ndim, loc) bind(c)
+      use, intrinsic :: iso_c_binding, only: c_double, c_int
       implicit none
-      real(kind = c_double), dimension(ndim, loc), intent(in) :: nodes_A, nodes_B
-      integer, intent(in) :: ndim, loc
+      real(c_double), dimension(ndim, loc), intent(in) :: nodes_A, nodes_B
+      integer(c_int), value, intent(in) :: ndim, loc
     end subroutine cintersector_set_input
   end interface cintersector_set_input
 
   interface
-    subroutine cintersector_drive
+    subroutine cintersector_drive() bind(c)
     end subroutine cintersector_drive
   end interface
 
   interface
-    subroutine cintersector_query(nonods, totele)
+     subroutine cintersector_query(nonods, totele) bind(c)
+       use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(out) :: nonods, totele
+      integer(c_int), intent(out) :: nonods, totele
     end subroutine cintersector_query
   end interface
 
   interface cintersector_get_output
     module procedure intersector_get_output_sp
 
-    subroutine cintersector_get_output(nonods, totele, ndim, loc, nodes, enlist)
-      use iso_c_binding, only: c_double
+    subroutine cintersector_get_output(nonods, totele, ndim, loc, nodes, enlist) bind(c)
+      use, intrinsic :: iso_c_binding, only: c_double, c_int
       implicit none
-      integer, intent(in) :: nonods, totele, ndim, loc
-      real(kind = c_double), dimension(nonods * ndim), intent(out) :: nodes
-      integer, dimension(totele * loc), intent(out) :: enlist
+      integer(c_int), value, intent(in) :: nonods, totele, ndim, loc
+      real(c_double), dimension(nonods * ndim), intent(out) :: nodes
+      integer(c_int), dimension(totele * loc), intent(out) :: enlist
     end subroutine cintersector_get_output
   end interface cintersector_get_output
 
   interface intersector_set_dimension
-    subroutine cintersector_set_dimension(ndim)
+     subroutine cintersector_set_dimension(ndim) bind(c)
+       use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: ndim
+      integer(c_int), value, intent(in) :: ndim
     end subroutine cintersector_set_dimension
   end interface intersector_set_dimension
 
   interface
-    subroutine cintersector_set_exactness(exact)
+     subroutine cintersector_set_exactness(exact) bind(c)
+       use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: exact
+      integer(c_int), value, intent(in) :: exact
     end subroutine cintersector_set_exactness
   end interface
 

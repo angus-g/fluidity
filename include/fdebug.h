@@ -27,7 +27,6 @@
 
 #ifndef DEBUG_H
 #define DEBUG_H
-#include "confdefs.h"
 
 #ifndef __FILE__
 #error __FILE__ does not work

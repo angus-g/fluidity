@@ -76,7 +76,7 @@ contains
                  call get_option("/io/dump_period/constant", real_dump_period)
               else if (have_option("/io/dump_period/python")) then
                  call get_option("/io/dump_period/python", func)
-                 call real_from_python(func, current_time, real_dump_period)
+                 call real_from_python(trim(func), len_trim(func), current_time, real_dump_period, stat)
               else
                  FLAbort("Unable to determine dump period type.")
               end if
@@ -164,6 +164,7 @@ contains
   subroutine update_dump_times
     !!< Update the last_dump_*time variables.
     character(len = OPTION_PATH_LEN) :: func
+    integer :: stat
 
     last_times_initialised = .true.
     real_dump_period = huge(0.0)
@@ -178,7 +179,7 @@ contains
        call get_option("/io/dump_period/constant", real_dump_period)
     else if (have_option("/io/dump_period/python")) then
        call get_option("/io/dump_period/python", func)
-       call real_from_python(func, last_dump_time, real_dump_period)
+       call real_from_python(trim(func), len_trim(func), last_dump_time, real_dump_period, stat)
        if(real_dump_period < 0.0) then
          FLExit("Dump period cannot be negative.")
        end if
@@ -688,7 +689,7 @@ contains
       end if
     else if(have_option("/io/dump_period/python")) then
       call get_option("/io/dump_period/python", func)
-      call real_from_python(func, current_time, real_dump_period, STAT)
+      call real_from_python(trim(func), len_trim(func), current_time, real_dump_period, STAT)
       if(stat == SPUD_NO_ERROR) then
         if(real_dump_period < 0.0) then
           FLExit("Dump period cannot be negative.")

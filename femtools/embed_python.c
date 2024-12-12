@@ -28,7 +28,6 @@ USA
 
 #include <stdlib.h>
 
-#include "confdefs.h"
 #include "string.h"
 
 #ifdef HAVE_PYTHON
@@ -228,8 +227,7 @@ int set_scalar_result_double_array(int i, int *dim, void *data, void **_result, 
   return 0;
 }
 
-#define set_scalar_field_from_python F77_FUNC(set_scalar_field_from_python, SET_SCALAR_FIELD_FROM_PYTHON)
-void set_scalar_field_from_python(char *function, int function_len, int dim,
+void set_scalar_field_from_python_(char *function, int function_len, int dim,
                                   int nodes, double *x, double *y, double *z, double t,
 				  double *result, int *stat)
 {
@@ -260,7 +258,6 @@ int set_scalar_result_integer(int i, int *dim, void *data, void **_result, PyObj
   return 0;
 }
 
-#define set_integer_array_from_python F77_FUNC(set_integer_array_from_python, SET_INTEGER_ARRAY_FROM_PYTHON)
 void set_integer_array_from_python(char* function, int function_len, int dim,
                                    int nodes, double *x, double *y, double *z, double t,
                                    int* result, int* stat)
@@ -332,7 +329,6 @@ int set_vector_result_double_array(int i, int *dim, void *data, void **_result, 
   return 0;
 }
 
-#define set_vector_field_from_python F77_FUNC(set_vector_field_from_python, SET_VECTOR_FIELD_FROM_PYTHON)
 void set_vector_field_from_python(char *function, int function_len, int dim,
                                   int nodes, double *x, double *y, double *z, double t,
                                   int result_dim, double *result_x, double *result_y, double *result_z,
@@ -344,7 +340,6 @@ void set_vector_field_from_python(char *function, int function_len, int dim,
 			&result_dim, (void**)results, set_vector_result_double, NULL);
 }
 
-//#define set_vector_particles_from_python F77_FUNC(set_vector_particles_from_python, SET_VECTOR_PARTICLES_FROM_PYTHON)
 void set_vector_particles_from_python(char *function, int function_len, int dim,
 				      int ndete, double *x, double *y, double *z, double t, double dt,
 				      double *result, int *stat)
@@ -414,25 +409,24 @@ int set_tensor_result_double_array(int i, int *dim, void *data, void **result, P
   return 0;
 }
 
-void set_tensor_particles_from_python(char *function, int function_len, int dim,
-                                      int npart, double *x, double *y, double *z,
-                                      double t, double dt, double *result, int *stat)
+void set_tensor_particles_from_python_single(char *function, int dim,
+					     int npart, double *x, double *y, double *z,
+					     double t, double dt, double *result, int *stat)
 {
   int result_dims[] = {dim, dim};
-  set_field_from_python(function, function_len, dim, npart, NULL, x, y, z, t, &dt, stat,
+  set_field_from_python(function, strlen(function), dim, npart, NULL, x, y, z, t, &dt, stat,
       result_dims, (void**)&result, set_tensor_result_double, NULL);
 }
 
-void set_tensor_particles_from_python_array(char *function, int function_len, int dim,
+void set_tensor_particles_from_python_array(char *function, int dim,
                                       int npart, int natt, double *x, double *y, double *z,
                                       double t, double dt, double *result, int *stat)
 {
   int result_dims[] = {dim, dim};
-  set_field_from_python(function, function_len, dim, npart, &natt, x, y, z, t, &dt, stat,
+  set_field_from_python(function, strlen(function), dim, npart, &natt, x, y, z, t, &dt, stat,
       result_dims, (void**)&result, set_tensor_result_double_array, &natt);
 }
 
-#define set_tensor_field_from_python F77_FUNC(set_tensor_field_from_python, SET_TENSOR_FIELD_FROM_PYTHON)
 void set_tensor_field_from_python(char *function, int function_len, int dim,
                                   int nodes, double *x, double *y, double *z, double t,
 				  int *result_dim, double *result, int *stat)
@@ -765,15 +759,15 @@ void set_vector_particles_from_python_fields_array(char *function, int function_
 			       set_vector_result_double_array, &natt);
 }
 
-void set_tensor_particles_from_python_fields(char *function, int function_len, int dim, int nodes,
-					     double *x, double *y, double *z, double t, double dt,
-					     int name_len, int *nfields, char *field_names, double *field_vals,
-					     int *old_nfields, char *old_field_names, double *old_field_vals,
-					     int *old_natts, char *old_att_names, int *old_att_dims, double *old_atts,
-					     double *result, int *stat)
+void set_tensor_particles_from_python_fields_single(char *function, int dim, int nodes,
+						    double *x, double *y, double *z, double t, double dt,
+						    int name_len, int *nfields, char *field_names, double *field_vals,
+						    int *old_nfields, char *old_field_names, double *old_field_vals,
+						    int *old_natts, char *old_att_names, int *old_att_dims, double *old_atts,
+						    double *result, int *stat)
 {
   int result_dims[] = {dim, dim};
-  set_field_from_python_fields(function, function_len, dim, nodes, NULL,
+  set_field_from_python_fields(function, strlen(function), dim, nodes, NULL,
 			       x, y, z, t, dt, name_len,
 			       nfields, field_names, field_vals,
 			       old_nfields, old_field_names, old_field_vals,
@@ -782,7 +776,7 @@ void set_tensor_particles_from_python_fields(char *function, int function_len, i
 			       set_tensor_result_double, NULL);
 }
 
-void set_tensor_particles_from_python_fields_array(char *function, int function_len, int dim, int nodes, int natt,
+void set_tensor_particles_from_python_fields_array(char *function, int dim, int nodes, int natt,
 						   double *x, double *y, double *z, double t, double dt,
 						   int name_len, int *nfields, char *field_names, double *field_vals,
 						   int *old_nfields, char *old_field_names, double *old_field_vals,
@@ -790,7 +784,7 @@ void set_tensor_particles_from_python_fields_array(char *function, int function_
 						   double *result, int *stat)
 {
   int result_dims[] = {dim, dim};
-  set_field_from_python_fields(function, function_len, dim, nodes, &natt,
+  set_field_from_python_fields(function, strlen(function), dim, nodes, &natt,
 			       x, y, z, t, dt, name_len,
 			       nfields, field_names, field_vals,
 			       old_nfields, old_field_names, old_field_vals,
@@ -856,17 +850,16 @@ void set_detectors_from_python_unknown(char *function, int function_len, int dim
 }
 
 
-#define set_detectors_from_python F77_FUNC(set_detectors_from_python, SET_DETECTORS_FROM_PYTHON)
-void set_detectors_from_python(char *function, int *function_len, int *dim,
-                               int *ndete, double *t,
-                               int *result_dim,
+void set_detectors_from_python(char *function, int function_len, int dim,
+                               int ndete, double t,
+                               int result_dim,
                                double result_x[], double result_y[],
                                double result_z[], int* stat)
 {
 #ifndef HAVE_PYTHON
   int i;
-  strncpy(function, "No Python support!\n", (size_t) *function_len);
-  for (i=0; i < *function_len; i++)
+  strncpy(function, "No Python support!\n", (size_t) function_len);
+  for (i=0; i < function_len; i++)
   {
     if (function[i] == '\0')
       function[i] = ' ';
@@ -881,9 +874,9 @@ void set_detectors_from_python(char *function, int *function_len, int *dim,
 
   // the function string passed down from Fortran needs terminating,
   // so make a copy and fiddle with it (remember to free it)
-  function_c = (char *)malloc(*function_len+3);
-  memcpy( function_c, function, *function_len );
-  function_c[*function_len] = 0;
+  function_c = (char *)malloc(function_len+3);
+  memcpy( function_c, function, function_len );
+  function_c[function_len] = 0;
 
   // Get a reference to the main module and global dictionary
   pMain = PyImport_AddModule("__main__");
@@ -908,7 +901,7 @@ void set_detectors_from_python(char *function, int *function_len, int *dim,
   }
 
   // Python form of time variable.
-  pT=PyFloat_FromDouble(*t);
+  pT=PyFloat_FromDouble(t);
 
   // Tuple of arguments to function;
   pArgs=PyTuple_New(1);
@@ -931,7 +924,7 @@ void set_detectors_from_python(char *function, int *function_len, int *dim,
   }
 
 
-  for (i = 0; i < *ndete; i++){
+  for (i = 0; i < ndete; i++){
     pResultItem = PySequence_GetItem(pResult, i);
 
     px=PySequence_GetItem(pResultItem, 0);
@@ -945,7 +938,7 @@ void set_detectors_from_python(char *function, int *function_len, int *dim,
     }
     Py_DECREF(px);
 
-    if (*result_dim>1) {
+    if (result_dim>1) {
       px=PySequence_GetItem(pResultItem, 1);
       result_y[i]=PyFloat_AsDouble(px);
       // Check for a Python error in unpacking tuple.
@@ -955,7 +948,7 @@ void set_detectors_from_python(char *function, int *function_len, int *dim,
       }
 
       Py_DECREF(px);
-      if (*result_dim>2) {
+      if (result_dim>2) {
         px=PySequence_GetItem(pResultItem, 2);
         result_z[i]=PyFloat_AsDouble(px);
       // Check for a Python error in unpacking tuple.
@@ -985,15 +978,13 @@ void set_detectors_from_python(char *function, int *function_len, int *dim,
 #endif
 }
 
-#define real_from_python F77_FUNC(real_from_python, REAL_FROM_PYTHON)
-void real_from_python(char* function, int* function_len,
-                        double* t,
-                        double* result, int* stat)
+void real_from_python(char* function, int function_len,
+                        double t, double* result, int* stat)
 {
 #ifndef HAVE_PYTHON
   int i;
-  strncpy(function, "No Python support!\n", (size_t) *function_len);
-  for (i=0; i < *function_len; i++)
+  strncpy(function, "No Python support!\n", (size_t) function_len);
+  for (i=0; i < function_len; i++)
   {
     if (function[i] == '\0')
       function[i] = ' ';
@@ -1008,9 +999,9 @@ void real_from_python(char* function, int* function_len,
 
   // the function string passed down from Fortran needs terminating,
   // so make a copy and fiddle with it (remember to free it)
-  function_c = (char *)malloc(*function_len+3);
-  memcpy( function_c, function, *function_len );
-  function_c[*function_len] = 0;
+  function_c = (char *)malloc(function_len+3);
+  memcpy( function_c, function, function_len );
+  function_c[function_len] = 0;
 
   // Get a reference to the main module and global dictionary
   pMain = PyImport_AddModule("__main__");
@@ -1036,7 +1027,7 @@ void real_from_python(char* function, int* function_len,
   }
 
   // Python form of time variable.
-  pT=PyFloat_FromDouble(*t);
+  pT=PyFloat_FromDouble(t);
 
   // Tuple of arguments to function;
   pArgs=PyTuple_New(1);
@@ -1336,15 +1327,13 @@ void integer_vector_from_python(char* function, int* function_len,
 #endif
 }
 
-#define integer_from_python F77_FUNC(integer_from_python, INTEGER_FROM_PYTHON)
-void integer_from_python(char* function, int* function_len,
-                        double* t,
-                        int* result, int* stat)
+void integer_from_python_c(char* function, double t, int* result, int* stat)
 {
 #ifndef HAVE_PYTHON
-  int i;
-  strncpy(function, "No Python support!\n", (size_t) *function_len);
-  for (i=0; i < *function_len; i++)
+  int i, func_len;
+  func_len = strlen(function);
+  strncpy(function, "No Python support!\n", func_len));
+  for (i=0; i < func_len; i++)
   {
     if (function[i] == '\0')
       function[i] = ' ';
@@ -1355,14 +1344,6 @@ void integer_from_python(char* function, int* function_len,
   PyObject *pMain, *pGlobals, *pLocals, *pFunc, *pCode, *pResult,
     *pArgs, *pT;
 
-  char *function_c;
-
-  // the function string passed down from Fortran needs terminating,
-  // so make a copy and fiddle with it (remember to free it)
-  function_c = (char *)malloc(*function_len+3);
-  memcpy( function_c, function, *function_len );
-  function_c[*function_len] = 0;
-
   // Get a reference to the main module and global dictionary
   pMain = PyImport_AddModule("__main__");
 
@@ -1371,13 +1352,10 @@ void integer_from_python(char* function, int* function_len,
   pLocals=PyDict_New();
 
   // Execute the user's code.
-  pCode=PyRun_String(function_c, Py_file_input, pGlobals, pLocals);
+  pCode=PyRun_String(function, Py_file_input, pGlobals, pLocals);
 
   // Extract the function from the code.
   pFunc=PyDict_GetItemString(pLocals, "val");
-
-  // Clean up memory from null termination.
-  free(function_c);
 
   // Check for errors in executing user code.
   if (PyErr_Occurred()){
@@ -1387,7 +1365,7 @@ void integer_from_python(char* function, int* function_len,
   }
 
   // Python form of time variable.
-  pT=PyFloat_FromDouble(*t);
+  pT=PyFloat_FromDouble(t);
 
   // Tuple of arguments to function;
   pArgs=PyTuple_New(1);
@@ -1434,16 +1412,15 @@ void integer_from_python(char* function, int* function_len,
 #endif
 }
 
-#define string_from_python F77_FUNC(string_from_python, STRING_FROM_PYTHON)
-void string_from_python(char* function, int* function_len,
-                        int* result_len,
-                        double* t,
+void string_from_python_c(char* function,
+                        int* result_len, double t,
                         char* result, int* stat)
 {
 #ifndef HAVE_PYTHON
-  int i;
-  strncpy(function, "No Python support!\n", (size_t) *function_len);
-  for (i=0; i < *function_len; i++)
+  int i, func_len;
+  func_len = strlen(function);
+  strncpy(function, "No Python support!\n", func_len);
+  for (i=0; i < func_len; i++)
   {
     if (function[i] == '\0')
       function[i] = ' ';
@@ -1455,14 +1432,6 @@ void string_from_python(char* function, int* function_len,
     *pArgs, *pT;
   int pResult_len;
 
-  char *function_c;
-
-  // the function string passed down from Fortran needs terminating,
-  // so make a copy and fiddle with it (remember to free it)
-  function_c = (char *)malloc(*function_len+3);
-  memcpy( function_c, function, *function_len );
-  function_c[*function_len] = 0;
-
   // Get a reference to the main module and global dictionary
   pMain = PyImport_AddModule("__main__");
 
@@ -1471,13 +1440,10 @@ void string_from_python(char* function, int* function_len,
   pLocals=PyDict_New();
 
   // Execute the user's code.
-  pCode=PyRun_String(function_c, Py_file_input, pGlobals, pLocals);
+  pCode=PyRun_String(function, Py_file_input, pGlobals, pLocals);
 
   // Extract the function from the code.
   pFunc=PyDict_GetItemString(pLocals, "val");
-
-  // Clean up memory from null termination.
-  free(function_c);
 
   // Check for errors in executing user code.
   if (PyErr_Occurred()){
@@ -1487,7 +1453,7 @@ void string_from_python(char* function, int* function_len,
   }
 
   // Python form of time variable.
-  pT=PyFloat_FromDouble(*t);
+  pT=PyFloat_FromDouble(t);
 
   // Tuple of arguments to function;
   pArgs=PyTuple_New(1);

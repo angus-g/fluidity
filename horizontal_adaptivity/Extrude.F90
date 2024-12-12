@@ -22,6 +22,7 @@ module hadapt_extrude
   use vtk_interfaces
   use halos
   use hadapt_combine_meshes
+  use, intrinsic :: iso_c_binding, only : c_null_char
 
   implicit none
 
@@ -32,6 +33,26 @@ module hadapt_extrude
   interface compute_z_nodes
     module procedure compute_z_nodes_wrapper, compute_z_nodes_sizing
   end interface compute_z_nodes
+
+  interface
+     subroutine set_from_map(filename, X, Y, Z, depth, ncolumns, surf_h) bind(C)
+       use, intrinsic :: iso_c_binding
+       character(kind=c_char), dimension(*) :: filename
+       real(c_double), dimension(*), intent(in) :: X, Y, Z
+       real(c_double), dimension(*), intent(out) :: depth
+       integer(c_int), value :: ncolumns
+       real(c_double), value :: surf_h
+     end subroutine set_from_map
+
+     subroutine set_from_map_beta(filename, X, Y, depth, ncolumns, surf_h) bind(C)
+       use, intrinsic :: iso_c_binding
+       character(kind=c_char), dimension(*) :: filename
+       real(c_double), dimension(*), intent(in) :: X, Y
+       real(c_double), dimension(*), intent(out) :: depth
+       integer(c_int), value :: ncolumns
+       real(c_double), value :: surf_h
+     end subroutine set_from_map_beta
+  end interface
 
   contains
 
@@ -379,7 +400,8 @@ module hadapt_extrude
         tmp_pos_vector(:,column) = node_val(h_mesh, column)
       end do
 
-      call set_from_map(trim(file_name)//char(0), tmp_pos_vector(1,:), tmp_pos_vector(2,:), tmp_pos_vector(3,:), &
+      print *, "X coords", tmp_pos_vector(1,:)
+      call set_from_map(trim(file_name)//c_null_char, tmp_pos_vector(1,:), tmp_pos_vector(2,:), tmp_pos_vector(3,:), &
                                                                   depth_vector, size(depth_vector), surface_height)
 
     else
@@ -390,7 +412,7 @@ module hadapt_extrude
         tmp_pos_vector(:,column) = node_val(h_mesh, column)
       end do
 
-      call set_from_map_beta(trim(file_name)//char(0), tmp_pos_vector(1,:), tmp_pos_vector(2,:), &
+      call set_from_map_beta(trim(file_name)//c_null_char, tmp_pos_vector(1,:), tmp_pos_vector(2,:), &
                                                   depth_vector, size(depth_vector), surface_height)
 
     end if

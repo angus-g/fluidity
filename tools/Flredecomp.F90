@@ -26,7 +26,6 @@
 !    USA
 
 #include "fdebug.h"
-#include "confdefs.h"
 
 subroutine flredecomp(input_basename, input_basename_len, output_basename, output_basename_len, &
   & input_nprocs, target_nprocs) bind(c)
@@ -65,7 +64,7 @@ subroutine flredecomp(input_basename, input_basename_len, output_basename, outpu
     end subroutine check_options
 
 #ifdef HAVE_PYTHON
-    subroutine python_init()
+    subroutine python_init() bind(c)
     end subroutine python_init
 #endif
   end interface

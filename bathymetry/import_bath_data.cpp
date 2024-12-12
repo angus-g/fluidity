@@ -34,7 +34,7 @@ USA
 #include <math.h>
 
 #include "SampleNetCDF2.h"
-#include "confdefs.h"
+//#include "confdefs.h"
 
 using namespace std;
 
@@ -51,25 +51,21 @@ void get_ll(double x, double y, double z, double &longitude, double &latitude){
 }
 
 extern "C" {
-#define set_from_map_fc F77_FUNC(set_from_map, SET_FROM_MAP)
-        void set_from_map_fc(const char* filename, const double *X, const double *Y, const double *Z, double *depth, int *ncolumns, double *surf_h);
+  void set_from_map(const char* filename, const double *X, const double *Y, const double *Z, double *depth, int ncolumns, double surf_h);
 
-#define set_from_map_beta_fc F77_FUNC(set_from_map_beta, SET_FROM_MAP_BETA)
-        void set_from_map_beta_fc(const char* filename, const double *X, const double *Y, double *depth, int *ncolumns, double *surf_h);
+  void set_from_map_beta(const char* filename, const double *X, const double *Y, double *depth, int ncolumns, double surf_h);
 
 }
 
-void set_from_map_fc(const char* filename, const double *X, const double *Y, const double *Z, double *depth, int *n, double *surf_h){
-
+void set_from_map(const char* filename, const double *X, const double *Y, const double *Z, double *depth, int ncolumns, double sh){
         string file=string(filename);
         SampleNetCDF2 map(file);
 
-        const int ncolumns = *n;
         double *x = new double[ncolumns];
         double *y = new double[ncolumns];
         double *z = new double[ncolumns];
-        const double sh = *surf_h;
         double height[ncolumns];
+
         for (int i = 0; i < ncolumns; i++) {
           x[i] = X[i];
           y[i] = Y[i];
@@ -95,16 +91,15 @@ void set_from_map_fc(const char* filename, const double *X, const double *Y, con
         }
 }
 
-void set_from_map_beta_fc(const char* filename, const double *X, const double *Y, double *depth, int *n, double *surf_h){
+void set_from_map_beta(const char* filename, const double *X, const double *Y, double *depth, int ncolumns, double sh){
 
         string file=string(filename);
         SampleNetCDF2 map(file);
 
-        const int ncolumns = *n;
-        const double sh = *surf_h;
         double *x = new double[ncolumns];
         double *y = new double[ncolumns];
         double height[ncolumns];
+
         for (int i = 0; i < ncolumns; i++) {
           x[i] = X[i];
           y[i] = Y[i];

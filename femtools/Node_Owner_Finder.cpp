@@ -237,24 +237,25 @@ int Element1D::operator>(const double &rhs) const
 }
 
 extern "C" {
-  void cNodeOwnerFinderReset(const int* id)
+  void cNodeOwnerFinderReset(int id)
   {
-    if(nodeOwnerFinder.count(*id) > 0)
+    if(nodeOwnerFinder.count(id) > 0)
     {
-      nodeOwnerFinder[*id]->Reset();
-      delete nodeOwnerFinder[*id];
-      nodeOwnerFinder.erase(*id);
+      nodeOwnerFinder[id]->Reset();
+      delete nodeOwnerFinder[id];
+      nodeOwnerFinder.erase(id);
     }
 
     return;
   }
 
-  void cNodeOwnerFinderSetInput(int* id, const double* positions, const int* enlist, const int* dim, const int* loc, const int* nnodes, const int* nelements)
+  void cNodeOwnerFinderSetInput(int* id, const double *positions, const int *enlist, int dim,
+				int loc, int nnodes, int nelements)
   {
-    assert(*dim >= 0);
-    assert(*loc >= 0);
-    assert(*nnodes >= 0);
-    assert(*nelements >= 0);
+    assert(dim >= 0);
+    assert(loc >= 0);
+    assert(nnodes >= 0);
+    assert(nelements >= 0);
 
     *id = 1;
     while(nodeOwnerFinder.count(*id) > 0)
@@ -264,38 +265,38 @@ extern "C" {
 
     nodeOwnerFinder[*id] = new NodeOwnerFinder();
 
-    nodeOwnerFinder[*id]->SetInput(positions, *nnodes, *dim, enlist, *nelements, *loc);
+    nodeOwnerFinder[*id]->SetInput(positions, nnodes, dim, enlist, nelements, loc);
 
     return;
   }
 
-  void cNodeOwnerFinderFind(const int* id, const double* position, const int* dim)
+  void cNodeOwnerFinderFind(int id, const double* position, int dim)
   {
-    assert(nodeOwnerFinder.count(*id) > 0);
-    assert(nodeOwnerFinder[*id]);
-    assert(*dim >= 0);
+    assert(nodeOwnerFinder.count(id) > 0);
+    assert(nodeOwnerFinder[id]);
+    assert(dim >= 0);
 
-    nodeOwnerFinder[*id]->SetTestPoint(position, *dim);
+    nodeOwnerFinder[id]->SetTestPoint(position, dim);
 
     return;
   }
 
-  void cNodeOwnerFinderQueryOutput(const int* id, int* nelms)
+  void cNodeOwnerFinderQueryOutput(int id, int* nelms)
   {
-    assert(nodeOwnerFinder.count(*id) > 0);
-    assert(nodeOwnerFinder[*id]);
+    assert(nodeOwnerFinder.count(id) > 0);
+    assert(nodeOwnerFinder[id]);
 
-    nodeOwnerFinder[*id]->QueryOutput(*nelms);
+    nodeOwnerFinder[id]->QueryOutput(*nelms);
 
     return;
   }
 
-  void cNodeOwnerFinderGetOutput(const int* id, int* ele_id, const int* index)
+  void cNodeOwnerFinderGetOutput(int id, int* ele_id, int index)
   {
-    assert(nodeOwnerFinder.count(*id) > 0);
-    assert(nodeOwnerFinder[*id]);
+    assert(nodeOwnerFinder.count(id) > 0);
+    assert(nodeOwnerFinder[id]);
 
-    nodeOwnerFinder[*id]->GetOutput(*ele_id, *index);
+    nodeOwnerFinder[id]->GetOutput(*ele_id, index);
 
     return;
   }

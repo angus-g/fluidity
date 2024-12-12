@@ -26,9 +26,6 @@
     USA
 */
 
-#include "confdefs.h"
-#include "fmangle.h"
-
 #include <iostream>
 
 #include <stdio.h>
@@ -36,8 +33,6 @@
 #include <math.h>
 #include <string.h>
 #include <unistd.h>
-
-#include <vtk.h>
 
 #include "Precision.h"
 #define REAL flfloat_t
@@ -47,7 +42,7 @@ using namespace std;
 
 extern "C" {
 
-int vtk_get_sizes_fc(char *fortname, int *namelen,
+  int vtk_get_sizes(char *filename,
   // number of nodes, elements and entries in the returned enls (ndglno):
                   int *NNOD, int *NELM, int *SZENLS,
   // total number of components over pointwise and cell-wise fields
@@ -61,7 +56,7 @@ int vtk_get_sizes_fc(char *fortname, int *namelen,
   // dimension of the vtu mesh and maximum length of
                   int *NDIM, int *maxlen );
 
-int vtk_read_file_fc(char *fortname, int *namelen,
+  int vtk_read_file(char *filename,
   // number of nodes, elements and entries in the returned enlist:
                   int *NNOD, int *NELM, int *SZENLS,
   // total number of components over pointwise and cell-wise fields
@@ -92,7 +87,7 @@ int vtk_read_file_fc(char *fortname, int *namelen,
 }
 
 
-int vtk_get_sizes_fc(char *fortname, int *namelen,
+int vtk_get_sizes(char *filename,
   // number of nodes, elements and entries in the returned enls (ndglno):
                   int *NNOD, int *NELM, int *SZENLS,
   // total number of components over pointwise and cell-wise fields
@@ -111,12 +106,6 @@ int vtk_get_sizes_fc(char *fortname, int *namelen,
   int *ENLBAS=NULL, *ENLIST=NULL;
   flfloat_t *X=NULL, *Y=NULL, *Z=NULL, *F=NULL, *P=NULL;
 
-  // the filename string passed down from Fortran needs terminating,
-  // so make a copy and fiddle with it (remember to free it)
-  char *filename = (char *)malloc(*namelen+3);
-  memcpy( filename, fortname, *namelen );
-  filename[*namelen] = 0;
-
   // we must create an empty Field_Info record for readVTKFile,
   // so that it can append all the fields after it.
   Field_Info *fieldlst = (Field_Info *)malloc(sizeof(Field_Info));
@@ -128,8 +117,6 @@ int vtk_get_sizes_fc(char *fortname, int *namelen,
   status = readVTKFile( filename, NNOD, NELM, nfield_components, nprop_components,
                         SZENLS, NDIM, fieldlst,
                         &X, &Y, &Z, &ENLBAS, &ENLIST, &F, &P, 2, 0 );
-
-  free( filename );
 
   // we remove the leading record (created before readVTKFile),
   if( fieldlst->ncomponents==-1 ) {
@@ -171,7 +158,7 @@ int vtk_get_sizes_fc(char *fortname, int *namelen,
 #endif
 }
 
-int vtk_read_file_fc(char *fortname, int *namelen,
+int vtk_read_file(char *filename,
   // number of nodes, elements and entries in the returned enlist:
                   int *NNOD, int *NELM, int *SZENLS,
   // total number of components over pointwise and cell-wise fields
@@ -202,12 +189,6 @@ int vtk_read_file_fc(char *fortname, int *namelen,
 #ifdef HAVE_VTK
   int status=0;
 
-  // the filename string passed down from Fortan needs terminating
-  // so make a copy and fiddle with it (remember to free it)
-  char *filename = (char *)malloc(*namelen+3);
-  memcpy( filename, fortname, *namelen );
-  filename[*namelen] = 0;
-
   // we must create an empty Field_Info record for readVTKFile,
   // so that it can append all the fields after it.
   Field_Info *fieldlst = (Field_Info *)malloc(sizeof(Field_Info));
@@ -220,8 +201,6 @@ int vtk_read_file_fc(char *fortname, int *namelen,
                         SZENLS, NDIM, fieldlst,
                         &X, &Y, &Z, &ENLBAS, &ENLIST, &FIELDS, &PROPS,
                         0, 0 );
-
-  free( filename );
 
   // we remove the leading record (created before readVTKFile),
   if( fieldlst->ncomponents==-1 ) {

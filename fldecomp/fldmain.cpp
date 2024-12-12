@@ -148,7 +148,7 @@ int main(int argc, char **argv){
   }else{
     val = 0;
   }
-  set_global_debug_level_fc(&val);
+  set_global_debug_level(&val);
 
   if(!flArgs.count('f')){
     if(argc>optind+1){

@@ -32,41 +32,46 @@ implicit none
 
 #ifndef HAVE_LIBSUPERMESH
 interface crtree_intersection_finder_set_input
-  subroutine cintersection_finder_set_input(positions, enlist, ndim, loc, nnodes, nelements)
+   subroutine cintersection_finder_set_input(positions, enlist, ndim, loc, nnodes, nelements) bind(c)
+     use, intrinsic :: iso_c_binding
     implicit none
-    integer, intent(in) :: ndim, loc, nnodes, nelements
-    real, intent(in), dimension(nnodes * ndim) :: positions
-    integer, intent(in), dimension(nelements * loc) :: enlist
+    integer(c_int), value, intent(in) :: ndim, loc, nnodes, nelements
+    real(c_double), intent(in), dimension(nnodes * ndim) :: positions
+    integer(c_int), intent(in), dimension(nelements * loc) :: enlist
   end subroutine cintersection_finder_set_input
 end interface crtree_intersection_finder_set_input
 
 interface crtree_intersection_finder_find
-  subroutine cintersection_finder_find(positions, ndim, loc)
+   subroutine cintersection_finder_find(positions, ndim, loc) bind(c)
+     use, intrinsic :: iso_c_binding
     implicit none
-    integer, intent(in) :: ndim, loc
-    real, dimension(ndim * loc) :: positions
+    integer(c_int), value, intent(in) :: ndim, loc
+    real(c_double), dimension(ndim * loc) :: positions
   end subroutine cintersection_finder_find
 end interface crtree_intersection_finder_find
 
 interface rtree_intersection_finder_query_output
-  subroutine cintersection_finder_query_output(nelems)
+   subroutine cintersection_finder_query_output(nelems) bind(c)
+     use, intrinsic :: iso_c_binding
     implicit none
-    integer, intent(out) :: nelems
+    integer(c_int), intent(out) :: nelems
   end subroutine cintersection_finder_query_output
 end interface rtree_intersection_finder_query_output
 
 interface rtree_intersection_finder_get_output
-  subroutine cintersection_finder_get_output(id, nelem)
+   subroutine cintersection_finder_get_output(id, nelem) bind(c)
+     use, intrinsic :: iso_c_binding
     implicit none
-    integer, intent(out) :: id
-    integer, intent(in) :: nelem
+    integer(c_int), intent(out) :: id
+    integer(c_int), value, intent(in) :: nelem
   end subroutine cintersection_finder_get_output
 end interface rtree_intersection_finder_get_output
 
 interface crtree_intersection_finder_reset
-  subroutine cintersection_finder_reset(ntests)
+   subroutine cintersection_finder_reset(ntests) bind(c)
+     use, intrinsic :: iso_c_binding
     implicit none
-    integer, intent(out) :: ntests
+    integer(c_int), intent(out) :: ntests
   end subroutine cintersection_finder_reset
 end interface crtree_intersection_finder_reset
 #endif
@@ -89,9 +94,10 @@ contains
     logical :: intersects
 
     interface
-      function tri_tri_overlap_test_2d(p1, q1, r1, p2, q2, r2) result(f)
-      real, dimension(2) :: p1, q1, r1, p2, q2, r2
-      integer :: f
+       function tri_tri_overlap_test_2d(p1, q1, r1, p2, q2, r2) result(f) bind(C)
+         use, intrinsic :: iso_c_binding
+      real(c_double), intent(in), dimension(2) :: p1, q1, r1, p2, q2, r2
+      integer(c_int) :: f
       end function tri_tri_overlap_test_2d
     end interface
 
@@ -111,9 +117,10 @@ contains
     logical :: intersects
 
     interface
-      function tet_a_tet(V1, V2) result(f)
-        real, dimension(4, 3), intent(in) :: V1, V2
-        integer :: f
+       function tet_a_tet(V1, V2) result(f) bind(C)
+         use, intrinsic :: iso_c_binding
+        real(c_double), dimension(4, 3), intent(in) :: V1, V2
+        integer(c_int) :: f
       end function tet_a_tet
     end interface
 

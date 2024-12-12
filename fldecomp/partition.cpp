@@ -33,8 +33,6 @@
 #include <vector>
 #include <set>
 
-#include "fmangle.h"
-
 using namespace std;
 
 extern "C" { // This is the glue between METIS and fluidity

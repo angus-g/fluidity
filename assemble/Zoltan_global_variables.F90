@@ -1,6 +1,3 @@
-
-#include "confdefs.h"
-
 module zoltan_global_variables
 
 #ifdef HAVE_ZOLTAN

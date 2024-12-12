@@ -26,8 +26,6 @@
    USA
 */
 
-#include "confdefs.h"
-
 #ifdef DOUBLEP
 #define REAL double
 #else

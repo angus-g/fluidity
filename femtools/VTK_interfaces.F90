@@ -47,6 +47,7 @@ module vtk_interfaces
   use fields
   use state_module
   use vtkfortran
+  use, intrinsic :: iso_c_binding, only : c_null_char
 
   implicit none
 
@@ -58,46 +59,48 @@ module vtk_interfaces
 
   interface
        subroutine vtk_read_file(&
-          filename, namelen, nnod, nelm, szenls,&
+          filename, nnod, nelm, szenls,&
           nfield_components, nprop_components,&
           nfields, nproperties, &
           ndimensions, maxnamelen, &
           x, y, z, &
           field_components, prop_components, &
           fields, properties,&
-          enlbas, enlist, field_names, prop_names)
+          enlbas, enlist, field_names, prop_names) bind(C)
+         use, intrinsic :: iso_c_binding
        implicit none
-       character*(*) filename
-       integer namelen, nnod, nelm, szenls
-       integer nfield_components, nprop_components, nfields, nproperties
-       integer ndimensions, maxnamelen
-       real x(nnod), y(nnod), z(nnod)
-       integer field_components(nfields), prop_components(nproperties)
-       real fields(nnod,nfields), &
+       character(kind=c_char), dimension(*) :: filename
+       integer(c_int) :: namelen, nnod, nelm, szenls
+       integer(c_int) :: nfield_components, nprop_components, nfields, nproperties
+       integer(c_int) :: ndimensions, maxnamelen
+       real(c_double) :: x(nnod), y(nnod), z(nnod)
+       integer(c_int) :: field_components(nfields), prop_components(nproperties)
+       real(c_double) :: fields(nnod,nfields), &
             properties(nelm,nproperties)
-       integer enlbas(nelm+1), enlist(szenls)
-       character(len=maxnamelen) field_names(nfields)
-       character(len=maxnamelen) prop_names(nproperties)
+       integer(c_int) :: enlbas(nelm+1), enlist(szenls)
+       character(kind=c_char), dimension(*) :: field_names
+       character(kind=c_char), dimension(*) :: prop_names
      end subroutine vtk_read_file
   end interface
 
   interface
-       subroutine vtk_get_sizes( filename, namelen, nnod, nelm, szenls, &
+       subroutine vtk_get_sizes(filename, nnod, nelm, szenls, &
           nfield_components, nprop_components, &
-          nfields, nproperties, ndimensions, maxnamelen )
+          nfields, nproperties, ndimensions, maxnamelen ) bind(C)
+         use, intrinsic :: iso_c_binding
        implicit none
-       character*(*) filename
-       integer namelen
-       integer nnod, nelm, szenls
-       integer nfield_components, nprop_components
-       integer nfields, nproperties, ndimensions, maxnamelen
+       character(kind=c_char), dimension(*) :: filename
+       integer(c_int) :: nnod, nelm, szenls
+       integer(c_int) :: nfield_components, nprop_components
+       integer(c_int) :: nfields, nproperties, ndimensions, maxnamelen
      end subroutine vtk_get_sizes
   end interface
 
-  interface vtkwritecellghostarray
-     subroutine vtkwritecellghostarray(ghosts)
+  interface
+     subroutine vtkwritecellghostarray(ghosts) bind(c)
+       use, intrinsic :: iso_c_binding
        implicit none
-       integer ghosts(*)
+       integer(c_int), intent(in), dimension(*) :: ghosts
      end subroutine vtkwritecellghostarray
   end interface
 
@@ -987,7 +990,7 @@ contains
     ! needed for fgetvtksizes, to tell it to work out the dimension
     dim = 0
 
-    call vtk_get_sizes(trim(filename), len_trim(filename), nodes, elements,&
+    call vtk_get_sizes(trim(filename) // c_null_char, nodes, elements,&
          & sz_enlist, nfield_components, nprop_components, &
          & nfields, nprops, dim, maxnamelen)
 
@@ -1043,7 +1046,7 @@ contains
       prop_names(i) = ' '
     end do
 
-    call vtk_read_file(trim(filename), len_trim(filename), &
+    call vtk_read_file(trim(filename) // c_null_char, &
          & nodes, elements, sz_enlist, &
          & nfield_components, nprop_components, &
          & nfields, nprops, dim, FIELD_NAME_LEN, &

@@ -300,7 +300,7 @@ void ParseArguments(int argc, char** argv){
     }else{
       verbosity = atoi(fl_command_line_options["verbose"].c_str());
     }
-    set_global_debug_level_fc(&verbosity);
+    set_global_debug_level(verbosity);
     if(verbosity >= 2){
       fl_command_line_options["profile"] = "yes";
     }

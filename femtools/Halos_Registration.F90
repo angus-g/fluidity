@@ -46,6 +46,7 @@ module halos_registration
   use fields_allocates
   use fields_manipulation
   use halos_derivation
+  use, intrinsic :: iso_c_binding, only : c_null_char
 
   implicit none
 
@@ -55,64 +56,60 @@ module halos_registration
   public :: extract_raw_halo_data, form_halo_from_raw_data
 
   interface
-    subroutine chalo_reader_reset()
+    subroutine chalo_reader_reset() bind(c)
     end subroutine chalo_reader_reset
 
-    function chalo_reader_set_input(filename, filename_len, process, nprocs)
+    function chalo_reader_set_input(filename, process, nprocs) bind(c)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: filename_len
-      character(len = filename_len) :: filename
-      integer, intent(in) :: process
-      integer, intent(in) :: nprocs
-      integer :: chalo_reader_set_input
+      character(kind=c_char), dimension(*) :: filename
+      integer(c_int), value, intent(in) :: process, nprocs
+      integer(c_int) :: chalo_reader_set_input
     end function chalo_reader_set_input
 
-    subroutine chalo_reader_query_output(level, nprocs, nsends, nreceives)
+    subroutine chalo_reader_query_output(level, nprocs, nsends, nreceives) bind(c)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: level
-      integer, intent(in) :: nprocs
-      integer, dimension(nprocs), intent(out) :: nsends
-      integer, dimension(nprocs), intent(out) :: nreceives
+      integer(c_int), value, intent(in) :: level, nprocs
+      integer(c_int), dimension(nprocs), intent(out) :: nsends, nreceives
     end subroutine chalo_reader_query_output
 
     subroutine chalo_reader_get_output(level, nprocs, nsends, nreceives, &
-      & npnodes, send, recv)
+         npnodes, send, recv) bind(c)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: level
-      integer, intent(in) :: nprocs
-      integer, dimension(nprocs), intent(in) :: nsends
-      integer, dimension(nprocs), intent(in) :: nreceives
-      integer, intent(out) :: npnodes
-      integer, dimension(sum(nsends)), intent(out) :: send
-      integer, dimension(sum(nreceives)), intent(out) :: recv
+      integer(c_int), value, intent(in) :: level, nprocs
+      integer(c_int), dimension(nprocs), intent(in) :: nsends, nreceives
+      integer(c_int), intent(out) :: npnodes
+      integer(c_int), dimension(sum(nsends)), intent(out) :: send
+      integer(c_int), dimension(sum(nreceives)), intent(out) :: recv
     end subroutine chalo_reader_get_output
 
-    subroutine chalo_writer_reset()
+    subroutine chalo_writer_reset() bind(c)
     end subroutine chalo_writer_reset
 
-    subroutine chalo_writer_initialise(process, nprocs)
+    subroutine chalo_writer_initialise(process, nprocs) bind(c)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: process
-      integer, intent(in) :: nprocs
+      integer(c_int), value, intent(in) :: process, nprocs
     end subroutine chalo_writer_initialise
 
     subroutine chalo_writer_set_input(level, nprocs, nsends, nreceives, &
-      & npnodes, send, recv)
+         npnodes, send, recv) bind(c)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: level
-      integer, intent(in) :: nprocs
-      integer, dimension(nprocs), intent(in) :: nsends
-      integer, dimension(nprocs), intent(in) :: nreceives
-      integer, intent(in) :: npnodes
-      integer, dimension(sum(nsends)), intent(in) :: send
-      integer, dimension(sum(nreceives)), intent(in) :: recv
+      integer(c_int), value, intent(in) :: level, nprocs
+      integer(c_int), dimension(nprocs), intent(in) :: nsends, nreceives
+      integer(c_int), value, intent(in) :: npnodes
+      integer(c_int), dimension(sum(nsends)), intent(in) :: send
+      integer(c_int), dimension(sum(nreceives)), intent(in) :: recv
     end subroutine chalo_writer_set_input
 
-    function chalo_writer_write(filename, filename_len)
+    function chalo_writer_write(filename) bind(c)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: filename_len
-      character(len = filename_len) :: filename
-      integer :: chalo_writer_write
+      character(kind=c_char), dimension(*) :: filename
+      integer(c_int) :: chalo_writer_write
     end function chalo_writer_write
   end interface
 
@@ -146,7 +143,7 @@ contains
     procno = getprocno(communicator = lcommunicator)
     nprocs = getnprocs(communicator = lcommunicator)
 
-    error_count = chalo_reader_set_input(filename, len_trim(filename), procno - 1, nprocs)
+    error_count = chalo_reader_set_input(trim(filename) // c_null_char, procno - 1, nprocs)
     call allsum(error_count, communicator = lcommunicator)
     if(error_count > 0) then
       FLExit("Unable to read halos with name " // trim(filename))
@@ -287,7 +284,7 @@ contains
       deallocate(nsends)
       deallocate(nreceives)
 
-      error_count = chalo_writer_write(filename, len_trim(filename))
+      error_count = chalo_writer_write(trim(filename) // c_null_char)
       call chalo_writer_reset()
     else
       error_count = 0

@@ -27,7 +27,6 @@
 */
 #ifndef CLIMATEREADER_H
 #define CLIMATEREADER_H
-#include "confdefs.h"
 
 #include "Calendar.h"
 

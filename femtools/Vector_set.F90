@@ -12,40 +12,48 @@ module vector_set
 
   interface
 
-     subroutine vec_create_set(idx)
-       integer, intent(out) :: idx
+     subroutine vec_create_set(idx) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(out) :: idx
      end subroutine vec_create_set
 
-     subroutine vec_is_present(idx, v, n, bool)
-       integer, intent(in) :: idx, n
-       real, dimension(:), intent(in) :: v
-       integer,  intent(out) :: bool
+     subroutine vec_is_present(idx, v, n, bool) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_double, c_int
+       integer(c_int), intent(in) :: idx, n
+       real(c_double), dimension(:), intent(in) :: v
+       integer(c_int),  intent(out) :: bool
      end subroutine vec_is_present
 
-     subroutine vec_clear_set(idx)
-       integer, intent(in) :: idx
+     subroutine vec_clear_set(idx) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(in) :: idx
      end subroutine vec_clear_set
 
-     subroutine vec_destroy_set(idx)
-       integer, intent(in) :: idx
+     subroutine vec_destroy_set(idx) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(in) :: idx
      end subroutine vec_destroy_set
 
-     subroutine intvec_create_set(idx)
-       integer, intent(out) :: idx
+     subroutine intvec_create_set(idx) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(out) :: idx
      end subroutine intvec_create_set
 
-     subroutine intvec_is_present(idx, v, n, bool)
-       integer, intent(in) :: idx, n
-       integer, dimension(:), intent(in) :: v
-       integer, intent(out) :: bool
+     subroutine intvec_is_present(idx, v, n, bool) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(in) :: idx, n
+       integer(c_int), dimension(:), intent(in) :: v
+       integer(c_int), intent(out) :: bool
      end subroutine intvec_is_present
 
-     subroutine intvec_clear_set(idx)
-       integer, intent(in) :: idx
+     subroutine intvec_clear_set(idx) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(in) :: idx
      end subroutine intvec_clear_set
 
-     subroutine intvec_destroy_set(idx)
-       integer, intent(in) :: idx
+     subroutine intvec_destroy_set(idx) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_int
+       integer(c_int), intent(in) :: idx
      end subroutine intvec_destroy_set
 
   end interface

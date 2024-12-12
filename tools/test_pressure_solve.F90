@@ -3,7 +3,7 @@
   !! This is to make a positive definite matrix (instead of negative)
 #include "fdebug.h"
 
-  subroutine test_pressure_solve
+  subroutine test_pressure_solve() bind(c)
 
     use futils, only: free_unit
     use quadrature
@@ -19,6 +19,7 @@
     use global_parameters, only: OPTION_PATH_LEN, PYTHON_FUNC_LEN
     use free_surface_module
     use FLDebug
+    use diagnostic_output
     use petsc
   implicit none
 #include "petsc_legacy.h"

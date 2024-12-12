@@ -96,10 +96,12 @@ module coriolis_module
   subroutine update_f_plane_coriolis()
     !!< Update python set f-plane Coriolis variables
 
+    integer :: stat
+
     if(.not. do_update_f_plane_coriolis()) return
 
     ewrite(2, *) "Updating f-plane Coriolis from python"
-    call real_from_python(coriolis_python_func, current_time, f0)
+    call real_from_python(trim(coriolis_python_func), len_trim(coriolis_python_func), current_time, f0, stat)
 
     python_coriolis_initialised = .true.
     python_coriolis_time = current_time

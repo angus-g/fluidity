@@ -17,8 +17,6 @@
 #ifndef SAMPLENETCDF2_H
 #define SAMPLENETCDF2_H
 
-#include "confdefs.h"
-
 #include <cmath>
 #include <string>
 #include <vector>

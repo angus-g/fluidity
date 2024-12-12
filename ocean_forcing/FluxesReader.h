@@ -29,7 +29,6 @@
 #ifndef FLUXESREADER_H
 #define FLUXESREADER_H
 
-#include "fmangle.h"
 #include "c++debug.h"
 
 #include <cassert>

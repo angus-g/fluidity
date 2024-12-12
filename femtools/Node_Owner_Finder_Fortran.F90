@@ -65,37 +65,29 @@ module node_owner_finder
     end subroutine cnode_owner_finder_reset
   end interface node_owner_finder_reset
 
-  interface cnode_owner_finder_set_input
-    module procedure node_owner_finder_set_input_sp
-
-    subroutine cnode_owner_finder_set_input(id, positions, enlist, dim, loc, nnodes, nelements)
-      use iso_c_binding, only: c_double
+  interface
+    subroutine cnode_owner_finder_set_input(id, positions, enlist, dim, loc, nnodes, nelements) bind(c)
+      use iso_c_binding, only: c_double, c_int
       implicit none
-      integer, intent(out) :: id
-      integer, intent(in) :: dim
-      integer, intent(in) :: loc
-      integer, intent(in) :: nnodes
-      integer, intent(in) :: nelements
-      real(kind = c_double), dimension(nnodes * dim), intent(in) :: positions
-      integer, dimension(nelements * loc), intent(in) :: enlist
+      integer(c_int), intent(out) :: id
+      integer(c_int), value, intent(in) :: dim, loc, nnodes, nelements
+      real(c_double), dimension(nnodes * dim), intent(in) :: positions
+      integer(c_int), dimension(nelements * loc), intent(in) :: enlist
     end subroutine cnode_owner_finder_set_input
-  end interface cnode_owner_finder_set_input
+ end interface
 
   interface node_owner_finder_set_input
     module procedure node_owner_finder_set_input_positions
   end interface node_owner_finder_set_input
 
-  interface cnode_owner_finder_find
-    module procedure node_owner_finder_find_sp
-
-    subroutine cnode_owner_finder_find(id, position, dim)
-      use iso_c_binding, only: c_double
+  interface
+    subroutine cnode_owner_finder_find(id, position, dim) bind(c)
+      use iso_c_binding, only: c_double, c_int
       implicit none
-      integer, intent(in) :: id
-      integer, intent(in) :: dim
-      real(kind = c_double), dimension(dim), intent(in) :: position
+      integer(c_int), value, intent(in) :: id, dim
+      real(c_double), dimension(dim), intent(in) :: position
     end subroutine cnode_owner_finder_find
-  end interface cnode_owner_finder_find
+  end interface
 
   interface node_owner_finder_find
     module procedure node_owner_finder_find_single_position, &
@@ -107,22 +99,24 @@ module node_owner_finder
       & node_owner_finder_find_nodes_tolerance
   end interface node_owner_finder_find
 
-  interface cnode_owner_finder_query_output
-    subroutine cnode_owner_finder_query_output(id, nelms)
+  interface
+     subroutine cnode_owner_finder_query_output(id, nelms) bind(c)
+       use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: id
-      integer, intent(out) :: nelms
+      integer(c_int), value, intent(in) :: id
+      integer(c_int), intent(out) :: nelms
     end subroutine cnode_owner_finder_query_output
-  end interface cnode_owner_finder_query_output
+  end interface
 
-  interface cnode_owner_finder_get_output
-    subroutine cnode_owner_finder_get_output(id, ele_id, index)
+  interface
+     subroutine cnode_owner_finder_get_output(id, ele_id, index) bind(c)
+       use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: id
-      integer, intent(out) :: ele_id
-      integer, intent(in) :: index
+      integer(c_int), value, intent(in) :: id
+      integer(c_int), intent(out) :: ele_id
+      integer(c_int), value, intent(in) :: index
     end subroutine cnode_owner_finder_get_output
-  end interface cnode_owner_finder_get_output
+ end interface
 
   interface ownership_predicate
     module procedure ownership_predicate_position, ownership_predicate_node

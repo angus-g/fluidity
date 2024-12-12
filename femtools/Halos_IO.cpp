@@ -282,7 +282,7 @@ extern "C"{
     return;
   }
 
-  int cHaloReaderSetInput(char* filename, int* filename_len, int* process, int* nprocs){
+  int cHaloReaderSetInput(char* filename, int process, int nprocs){
     if(readHaloData){
       delete readHaloData;
       readHaloData = NULL;
@@ -290,20 +290,20 @@ extern "C"{
     readHaloData = new HaloData();
 
     ostringstream buffer;
-    buffer << string(filename, *filename_len) << "_" << *process << ".halo";
+    buffer << filename << "_" << process << ".halo";
     HaloReadError ret = ReadHalos(buffer.str(),
       readHaloData->process, readHaloData->nprocs,
       readHaloData->npnodes, readHaloData->send, readHaloData->recv);
 
     int errorCount = 0;
     if(ret == HALO_READ_FILE_NOT_FOUND){
-      if(*process == 0){
+      if(process == 0){
         cerr << "Error reading halo file " << buffer.str() << "\n"
              << "Zero process file not found" << endl;
         errorCount++;
       }else{
-        readHaloData->process = *process;
-        readHaloData->nprocs = *nprocs;
+        readHaloData->process = process;
+        readHaloData->nprocs = nprocs;
         readHaloData->npnodes.clear();
         readHaloData->send.clear();
         readHaloData->recv.clear();
@@ -320,14 +320,14 @@ extern "C"{
           break;
       }
       errorCount++;
-    }else if(readHaloData->process != *process){
+    }else if(readHaloData->process != process){
       cerr << "Error reading halo file " << buffer.str() << "\n"
            << "Unexpected process number in .halo file" << endl;
       errorCount++;
-    }else if(readHaloData->nprocs > *nprocs){
+    }else if(readHaloData->nprocs > nprocs){
       cerr << "Error reading halo file " << buffer.str() << "\n"
            << "Number of processes in .halo file: " << readHaloData->nprocs << "\n"
-           << "Number of running processes: " << *nprocs << "\n"
+           << "Number of running processes: " << nprocs << "\n"
            << "Number of processes in .halo file exceeds number of running processes" << endl;
       errorCount++;
     }
@@ -335,25 +335,25 @@ extern "C"{
     return errorCount;
   }
 
-  void cHaloReaderQueryOutput(int* level, int* nprocs, int* nsends, int* nreceives){
+  void cHaloReaderQueryOutput(int level, int nprocs, int* nsends, int* nreceives){
     assert(readHaloData);
-    assert(*nprocs >= readHaloData->nprocs);
+    assert(nprocs >= readHaloData->nprocs);
 
-    if(readHaloData->send.count(*level) == 0){
-      assert(readHaloData->recv.count(*level) == 0);
+    if(readHaloData->send.count(level) == 0){
+      assert(readHaloData->recv.count(level) == 0);
 
-      for(int i = 0;i < *nprocs;i++){
+      for(int i = 0;i < nprocs;i++){
         nsends[i] = 0;
         nreceives[i] = 0;
       }
     }else{
-      assert(readHaloData->recv.count(*level) > 0);
+      assert(readHaloData->recv.count(level) > 0);
 
       for(int i = 0;i < readHaloData->nprocs;i++){
-        nsends[i] = readHaloData->send[*level][i].size();
-        nreceives[i] = readHaloData->recv[*level][i].size();
+        nsends[i] = readHaloData->send[level][i].size();
+        nreceives[i] = readHaloData->recv[level][i].size();
       }
-      for(int i = readHaloData->nprocs;i < *nprocs;i++){
+      for(int i = readHaloData->nprocs;i < nprocs;i++){
         nsends[i] = 0;
         nreceives[i] = 0;
       }
@@ -362,18 +362,18 @@ extern "C"{
     return;
   }
 
-  void cHaloReaderGetOutput(int* level, int* nprocs, int* nsends, int* nreceives,
+  void cHaloReaderGetOutput(int level, int nprocs, int* nsends, int* nreceives,
     int* npnodes, int* send, int* recv){
 
 #ifdef DDEBUG
     assert(readHaloData);
     assert(*nprocs >= readHaloData->nprocs);
-    int* lnsends = (int*)malloc(*nprocs * sizeof(int));
+    int* lnsends = (int*)malloc(nprocs * sizeof(int));
     assert(lnsends);
-    int* lnreceives = (int*)malloc(*nprocs * sizeof(int));
+    int* lnreceives = (int*)malloc(nprocs * sizeof(int));
     assert(lnreceives);
     cHaloReaderQueryOutput(level, nprocs, lnsends, lnreceives);
-    for(int i = 0;i < *nprocs;i++){
+    for(int i = 0;i < nprocs;i++){
       assert(nsends[i] == lnsends[i]);
       assert(nreceives[i] == lnreceives[i]);
     }
@@ -381,31 +381,31 @@ extern "C"{
     free(lnreceives);
 #endif
 
-    if(readHaloData->send.count(*level) == 0){
+    if(readHaloData->send.count(level) == 0){
 #ifdef DDEBUG
-      assert(readHaloData->recv.count(*level) == 0);
-      for(int i = 0;i < *nprocs;i++){
+      assert(readHaloData->recv.count(level) == 0);
+      for(int i = 0;i < nprocs;i++){
         assert(nsends[i] == 0);
         assert(nreceives[i] == 0);
       }
 #endif
     }else{
-      assert(readHaloData->recv.count(*level) > 0);
+      assert(readHaloData->recv.count(level) > 0);
 
       int sendIndex = 0, recvIndex = 0;;
       for(int i = 0;i < readHaloData->nprocs;i++){
         for(int j = 0;j < nsends[i];j++){
-          send[sendIndex] = readHaloData->send[*level][i][j];
+          send[sendIndex] = readHaloData->send[level][i][j];
           sendIndex++;
         }
         for(int j = 0;j < nreceives[i];j++){
-          recv[recvIndex] = readHaloData->recv[*level][i][j];
+          recv[recvIndex] = readHaloData->recv[level][i][j];
           recvIndex++;
         }
       }
     }
 
-    *npnodes = readHaloData->npnodes[*level];
+    *npnodes = readHaloData->npnodes[level];
 
     return;
     }
@@ -419,52 +419,52 @@ extern "C"{
     return;
   }
 
-  void cHaloWriterInitialise(int* process, int* nprocs){
+  void cHaloWriterInitialise(int process, int nprocs){
     if(writeHaloData){
       delete writeHaloData;
       writeHaloData = NULL;
     }
     writeHaloData = new HaloData();
 
-    writeHaloData->process = *process;
-    writeHaloData->nprocs = *nprocs;
+    writeHaloData->process = process;
+    writeHaloData->nprocs = nprocs;
 
     return;
   }
 
-  void cHaloWriterSetInput(int* level, int* nprocs, int* nsends, int* nreceives,
-    int* npnodes, int* send, int* recv){
+  void cHaloWriterSetInput(int level, int nprocs, int* nsends, int* nreceives,
+    int npnodes, int* send, int* recv){
 
     assert(writeHaloData);
-    assert(writeHaloData->nprocs == *nprocs);
+    assert(writeHaloData->nprocs == nprocs);
 
-    writeHaloData->send[*level].clear();  writeHaloData->send[*level].resize(*nprocs);
-    writeHaloData->recv[*level].clear();  writeHaloData->recv[*level].resize(*nprocs);
+    writeHaloData->send[level].clear();  writeHaloData->send[level].resize(nprocs);
+    writeHaloData->recv[level].clear();  writeHaloData->recv[level].resize(nprocs);
     int send_index = 0, recv_index = 0;
-    for(int i = 0;i < *nprocs;i++){
-      writeHaloData->send[*level][i].resize(nsends[i]);
+    for(int i = 0;i < nprocs;i++){
+      writeHaloData->send[level][i].resize(nsends[i]);
       for(int j = 0;j < nsends[i];j++){
-        writeHaloData->send[*level][i][j] = send[send_index];
+        writeHaloData->send[level][i][j] = send[send_index];
         send_index++;
       }
-      writeHaloData->recv[*level][i].resize(nreceives[i]);
+      writeHaloData->recv[level][i].resize(nreceives[i]);
       for(int j = 0;j < nreceives[i];j++){
-        writeHaloData->recv[*level][i][j] = recv[recv_index];
+        writeHaloData->recv[level][i][j] = recv[recv_index];
         recv_index++;
       }
     }
 
-    writeHaloData->npnodes[*level] = *npnodes;
+    writeHaloData->npnodes[level] = npnodes;
 
     return;
   }
 
-  int cHaloWriterWrite(char* filename, int* filename_len){
+  int cHaloWriterWrite(char* filename) {
     assert(writeHaloData);
 
     // Write out the halos
     ostringstream buffer;
-    buffer << string(filename, *filename_len) << "_" << writeHaloData->process << ".halo";
+    buffer << filename << "_" << writeHaloData->process << ".halo";
 
     return WriteHalos(buffer.str(),
                       writeHaloData->process, writeHaloData->nprocs,

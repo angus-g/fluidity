@@ -1,5 +1,4 @@
 #include "fdebug.h"
-#include "confdefs.h"
 
 module zoltan_integration
 

@@ -17,6 +17,8 @@ program periodise
   use field_options
   use mesh_files
   use integer_set_module
+  use diagnostic_output
+  use python_state
   implicit none
 
   character(len=4096) :: filename, external_filename, new_external_filename, new_filename

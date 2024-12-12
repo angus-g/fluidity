@@ -80,7 +80,7 @@ contains
           call get_option(trim(option_path) // "/dump_period/constant", CS%real_dump_period)
         else if (have_option(trim(option_path) // "/dump_period/python")) then
           call get_option(trim(option_path) // "/dump_period/python", func)
-          call real_from_python(func, current_time, CS%real_dump_period)
+          call real_from_python(trim(func), len_trim(func), current_time, CS%real_dump_period, stat)
         else
           FLAbort("Unable to determine dump period type.")
         end if
@@ -174,6 +174,7 @@ contains
     character(len=*), intent(in) :: option_path !! path prefix for reading options
 
     character(len=OPTION_PATH_LEN) :: func
+    integer :: stat
 
     call get_option("/timestepping/current_time", CS%last_dump_time)
 
@@ -185,7 +186,7 @@ contains
       ! initialising the last dump time (unlike update_output_CS)
       CS%real_dump_period = huge(0.0)
       call get_option(trim(option_path) // "/dump_period/python", func)
-      call real_from_python(func, CS%last_dump_time, CS%real_dump_period)
+      call real_from_python(trim(func), len_trim(func), CS%last_dump_time, CS%real_dump_period, stat)
 
       if (CS%real_dump_period < 0.0) then
         FLExit("Dump period cannot be negative.")

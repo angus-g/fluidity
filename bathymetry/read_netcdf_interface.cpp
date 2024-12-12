@@ -34,24 +34,21 @@ USA
 #include <math.h>
 
 #include "SampleNetCDF2.h"
-#include "confdefs.h"
 
 using namespace std;
 
 extern "C" {
-#define get_field_values_fc F77_FUNC(get_field_values, GET_FIELD_VALUES)
-        void get_field_values_fc(const char* filename, const double *X, const double *Y, double *Z, int *nodes);
-
+        void get_field_values(const char* filename, const double *X, const double *Y, double *Z, int nodes);
 }
 
-void get_field_values_fc(const char* filename, const double *X, const double *Y, double *Z, int *n){
+void get_field_values(const char* filename, const double *X, const double *Y, double *Z, int nodes){
 
         string file=string(filename);
         SampleNetCDF2 map(file);
 
-        const int nodes = *n;
         double *x = new double[nodes];
         double *y = new double[nodes];
+
         for (int i = 0; i < nodes; i++) {
           x[i] = X[i];
           y[i] = Y[i];

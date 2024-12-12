@@ -28,7 +28,6 @@
 
 #ifndef COMMAND_LINE_OPTIONS_H
 #define COMMAND_LINE_OPTIONS_H
-#include "confdefs.h"
 #include "version.h"
 
 #include "Tokenize.h"
@@ -56,7 +55,6 @@
 #include <vector>
 
 #include "c++debug.h"
-#include "fmangle.h"
 
 extern std::map<std::string, std::string> fl_command_line_options;
 

@@ -89,20 +89,21 @@ namespace Fluidity {
 extern std::map<int, Fluidity::NodeOwnerFinder*> nodeOwnerFinder;
 
 extern "C" {
-#define cNodeOwnerFinderReset F77_FUNC(cnode_owner_finder_reset, CNODE_OWNER_FINDER_RESET)
-  void cNodeOwnerFinderReset(const int* id);
+  #define cNodeOwnerFinderReset cnode_owner_finder_reset
+  void cNodeOwnerFinderReset(int id);
 
-#define cNodeOwnerFinderSetInput F77_FUNC(cnode_owner_finder_set_input, CNODE_OWNER_FINDER_SET_INPUT)
-  void cNodeOwnerFinderSetInput(int* id, const double* positions, const int* enlist, const int* dim, const int* loc, const int* nnodes, const int* nelements);
+  #define cNodeOwnerFinderSetInput cnode_owner_finder_set_input
+  void cNodeOwnerFinderSetInput(int* id, const double* positions, const int* enlist,
+				int dim, int loc, int nnodes, int nelements);
 
-#define cNodeOwnerFinderFind F77_FUNC(cnode_owner_finder_find, CNODE_OWNER_FINDER_FIND)
-  void cNodeOwnerFinderFind(const int* id, const double* position, const int* dim);
+  #define cNodeOwnerFinderFind cnode_owner_finder_find
+  void cNodeOwnerFinderFind(int id, const double* position, int dim);
 
-#define cNodeOwnerFinderQueryOutput F77_FUNC(cnode_owner_finder_query_output, CNODE_OWNER_FINDER_QUERY_OUTPUT)
-  void cNodeOwnerFinderQueryOutput(const int* id, int* nelms);
+  #define cNodeOwnerFinderQueryOutput cnode_owner_finder_query_output
+  void cNodeOwnerFinderQueryOutput(int id, int* nelms);
 
-#define cNodeOwnerFinderGetOutput F77_FUNC(cnode_owner_finder_get_output, CNODE_OWNER_FINDER_GET_OUTPUT)
-  void cNodeOwnerFinderGetOutput(const int* id, int* ele_id, const int* index);
+  #define cNodeOwnerFinderGetOutput cnode_owner_finder_get_output
+  void cNodeOwnerFinderGetOutput(int id, int* ele_id, int index);
 }
 
 #endif

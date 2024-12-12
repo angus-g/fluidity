@@ -36,10 +36,6 @@
 *
 */
 
-#include "confdefs.h"
-
-
-
 /* function prototype */
 
 int tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
@@ -51,7 +47,6 @@ int coplanar_tri_tri3d(double  p1[3], double  q1[3], double  r1[3],
            double  N1[3], double  N2[3]);
 
 
-#define tri_tri_overlap_test_2d F77_FUNC(tri_tri_overlap_test_2d, TRI_TRI_OVERLAP_TEST_2D)
 int tri_tri_overlap_test_2d(double p1[2], double q1[2], double r1[2],
           double p2[2], double q2[2], double r2[2]);
 

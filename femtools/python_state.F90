@@ -36,207 +36,200 @@ module python_state
 
   private
 
-  public :: python_init, python_reset
-  public :: python_add_array, python_add_field
+  public :: python_init, python_reset, python_end
+  public :: python_add_field
   public :: python_add_state, python_add_states, python_add_states_time
   public :: python_run_string, python_run_file
   public :: python_shell
-  public :: python_fetch_real
 
   interface
     !! Python init and end
-    subroutine python_init()
+    subroutine python_init() bind(c)
     end subroutine python_init
-    subroutine python_reset()
+ end interface
+
+ interface
+    subroutine python_reset() bind(c)
     end subroutine python_reset
-    subroutine python_end()
+ end interface
+
+ interface
+    subroutine python_end() bind(c)
     end subroutine python_end
+ end interface
 
+ interface
     !! Add a state_type object into the Python interpreter
-    subroutine python_add_statec(name,nlen)
+    subroutine python_add_state_c(name, nlen) bind(c)
+      use, intrinsic :: iso_c_binding, only : c_char, c_int
       implicit none
-      integer :: nlen
-      character(len=nlen) :: name
-    end subroutine python_add_statec
+      character(kind=c_char), dimension(*), intent(in) :: name
+      integer(c_int), value, intent(in) :: nlen
+    end subroutine python_add_state_c
+ end interface
 
+ interface
     !! Run a python string and file
-    subroutine python_run_stringc(s, slen, stat)
+    subroutine python_run_string_c(s, slen, stat) bind(c)
+     use, intrinsic :: iso_c_binding, only : c_char, c_int
       implicit none
-      integer, intent(in) :: slen
-      character(len = slen), intent(in) :: s
-      integer, intent(out) :: stat
-    end subroutine python_run_stringc
-
-    subroutine python_run_filec(s, slen, stat)
+      character(kind=c_char), dimension(*), intent(in) :: s
+      integer(c_int), value, intent(in) :: slen
+      integer(c_int), intent(out) :: stat
+    end subroutine python_run_string_c
+end interface
+interface
+   subroutine python_run_file_c(s, slen, stat) bind(c)
+     use, intrinsic :: iso_c_binding, only : c_char, c_int
       implicit none
-      integer, intent(in) :: slen
-      character(len = slen), intent(in) :: s
-      integer, intent(out) :: stat
-    end subroutine python_run_filec
-
+      character(kind=c_char), dimension(*), intent(in) :: s
+      integer(c_int), value, intent(in) :: slen
+      integer(c_int), intent(out) :: stat
+    end subroutine python_run_file_c
   end interface
 
   interface python_shell
      module procedure python_shell_state, python_shell_states
-  end interface
+  end interface python_shell
 
-  interface python_add_array
-    subroutine python_add_array_double_1d(arr,sizex,name,name_len)
+  interface
+     subroutine python_add_array_double_1d(arr,sizex,name,name_len) bind(c)
+       use, intrinsic :: iso_c_binding, only : c_char, c_double, c_int
       implicit none
-      integer :: name_len,sizex
-      character(len=name_len) :: name
-      real,dimension(sizex) :: arr
+      integer(c_int) :: name_len,sizex
+      character(kind=c_char), dimension(*) :: name
+      real(c_double), dimension(sizex) :: arr
     end subroutine python_add_array_double_1d
-    subroutine python_add_array_double_2d(arr,sizex,sizey,name,name_len)
-      implicit none
-      integer :: name_len,sizex,sizey
-      character(len=name_len) :: name
-      real,dimension(sizex,sizey) :: arr
-    end subroutine python_add_array_double_2d
-    subroutine python_add_array_double_3d(arr,sizex,sizey,sizez,name,name_len)
-      implicit none
-      integer :: name_len,sizex,sizey,sizez
-      character(len=name_len) :: name
-      real,dimension(sizex,sizey,sizez) :: arr
-    end subroutine python_add_array_double_3d
+ end interface
 
-    subroutine python_add_array_integer_1d(arr,sizex,name,name_len)
+ interface
+    subroutine python_add_element(dim, loc, ngi, degree, stname, slen, &
+         mname, mlen, n, nx, ny, dn, dnx, dny, dnz, &
+         size_spoly_x, size_spoly_y, size_dspoly_x, size_dspoly_y, &
+         family_name, family_name_len, &
+         type_name, type_name_len, &
+         coords, size_coords_x, size_coords_y) bind(c)
+      !! Add an element to the state with stname and mesh with mname
+      use, intrinsic :: iso_c_binding, only : c_char, c_double, c_int
       implicit none
-      integer :: name_len,sizex
-      character(len=name_len) :: name
-      integer,dimension(sizex) :: arr
-    end subroutine python_add_array_integer_1d
-    subroutine python_add_array_integer_2d(arr,sizex,sizey,name,name_len)
+
+      integer(c_int), intent(in) :: dim, loc, ngi, degree, slen, mlen, nx, ny
+      integer(c_int), intent(in) :: dnx, dny, dnz, family_name_len, type_name_len
+      integer(c_int), intent(in) :: size_spoly_x, size_spoly_y
+      integer(c_int), intent(in) :: size_dspoly_x, size_dspoly_y
+      integer(c_int), intent(in) :: size_coords_x, size_coords_y
+      real(c_double), dimension(nx,ny), intent(in) :: n
+      real(c_double), dimension(dnx,dny,dnz), intent(in) :: dn
+      character(kind=c_char), dimension(*) :: stname
+      character(kind=c_char), dimension(*) :: mname
+      character(kind=c_char), dimension(*) :: family_name
+      character(kind=c_char), dimension(*) :: type_name
+      real(c_double), dimension(size_coords_x, size_coords_y), intent(in) :: coords
+    end subroutine python_add_element
+ end interface
+
+ interface
+    subroutine python_add_quadrature(dim, loc, ngi, degree, &
+         weight, weight_size, locations, loc_size, surfacequad) bind(c)
+      !! Add a quadrature to the last added element
+      use, intrinsic :: iso_c_binding, only : c_double, c_int
       implicit none
-      integer :: name_len,sizex,sizey
-      character(len=name_len) :: name
-      integer,dimension(sizex,sizey) :: arr
-    end subroutine python_add_array_integer_2d
-    subroutine python_add_array_integer_3d(arr,sizex,sizey,sizez,name,name_len)
+      integer(c_int), intent(in) :: weight_size, loc_size
+      integer(c_int), intent(in) :: dim, loc, ngi, degree
+      integer(c_int), intent(in) :: surfacequad  !! Specifies whether this quadrature is the normal quadr. or surface_quadr.
+      real(c_double), dimension(weight_size), intent(in) :: weight
+      real(c_double), dimension(loc_size), intent(in) :: locations
+    end subroutine python_add_quadrature
+ end interface
+
+ interface
+    subroutine python_add_polynomial(coefs, scoefs, degree, x, y, &
+         is_spoly) bind(c)
+      !! Add a polynomial to the last added element at position x,y
+      !! is_spoly==1 <-> will be added to spoly, 0 to dspoly
+      use, intrinsic :: iso_c_binding, only : c_double, c_int
       implicit none
-      integer :: name_len,sizex,sizey,sizez
-      character(len=name_len) :: name
-      integer,dimension(sizex,sizey,sizez) :: arr
-    end subroutine python_add_array_integer_3d
+      integer(c_int), intent(in) :: scoefs, degree, x, y, is_spoly
+      real(c_double), dimension(scoefs), intent(in) :: coefs
+    end subroutine python_add_polynomial
+ end interface
 
-    module procedure python_add_array_d_1d_directly
-    module procedure python_add_array_d_2d_directly
-    module procedure python_add_array_d_3d_directly
+ interface
+    subroutine python_add_mesh(ndglno, sndglno, elements, nodes, &
+         name, nlen, option_path, oplen, &
+         continuity, region_ids, sregion_ids, &
+         state_name, state_name_len) bind(c)
+      !! Add a mesh to the state called state_name
+      use, intrinsic :: iso_c_binding, only : c_char, c_int
+      implicit none
+      integer(c_int), dimension(*), intent(in) :: ndglno, region_ids
+      integer(c_int), intent(in) :: sndglno, elements, nodes
+      integer(c_int), intent(in) :: nlen, oplen, continuity
+      integer(c_int), intent(in) :: sregion_ids, state_name_len
+      character(kind=c_char), dimension(*) :: name, option_path, state_name
+    end subroutine python_add_mesh
+ end interface
 
-    module procedure python_add_array_i_1d_directly
-    module procedure python_add_array_i_2d_directly
-    module procedure python_add_array_i_3d_directly
-  end interface python_add_array
+ interface
+    subroutine python_add_tensor(sx, sy, sz, x, numdim, &
+         name, nlen, field_type, option_path, oplen, &
+         state_name, snlen, mesh_name, mesh_name_len) bind(c)
+      use, intrinsic :: iso_c_binding, only : c_char, c_double, c_int
+      implicit none
+      integer(c_int), intent(in) :: sx, sy, sz, nlen, field_type
+      integer(c_int), intent(in) :: oplen,snlen,mesh_name_len
+      integer(c_int), dimension(2), intent(in) :: numdim
+      real(c_double), dimension(sx,sy,sz), intent(in) :: x
+      character(kind=c_char), dimension(*) :: name, state_name, option_path, mesh_name
+    end subroutine python_add_tensor
+ end interface
 
+ interface
+    subroutine python_add_vector(numdim, sx, x, &
+         name, nlen, field_type, option_path, oplen, &
+         state_name,snlen, mesh_name,mesh_name_len) bind(c)
+      use, intrinsic :: iso_c_binding, only : c_char, c_double, c_int
+      implicit none
+      integer(c_int), intent(in) :: sx, numdim, nlen, field_type
+      integer(c_int), intent(in) :: oplen, snlen, mesh_name_len
+      real(c_double), dimension(sx), intent(in) :: x
+      character(kind=c_char), dimension(*) :: name, state_name, option_path, mesh_name
+    end subroutine python_add_vector
+ end interface
+
+ interface
+    subroutine python_add_csr_matrix(valuesSize, values, &
+         col_indSize, col_ind, row_ptrSize, row_ptr, &
+         name, namelen, state_name,snlen, numCols) bind(c)
+      use, intrinsic :: iso_c_binding, only : c_char, c_double, c_int
+      implicit none
+      integer(c_int), intent(in) :: valuesSize, col_indSize, row_ptrSize, namelen, snlen, numCols
+      real(c_double), dimension(valuesSize), intent(in) :: values
+      integer(c_int), dimension(col_indSize), intent(in) :: col_ind
+      integer(c_int), dimension(row_ptrSize), intent(in) :: row_ptr
+      character(kind=c_char), dimension(*) :: name, state_name
+    end subroutine python_add_csr_matrix
+ end interface
+
+ interface
+    subroutine python_add_scalar(sx, x, name, nlen, field_type, &
+         option_path, oplen, state_name, snlen, &
+         mesh_name, mesh_name_len) bind(c)
+      use, intrinsic :: iso_c_binding, only : c_char, c_double, c_int
+      implicit none
+      integer(c_int), intent(in) :: sx, nlen, field_type, oplen, snlen, mesh_name_len
+      real(c_double), dimension(sx), intent(in) :: x
+      character(kind=c_char), dimension(*) :: name, state_name, option_path, mesh_name
+    end subroutine python_add_scalar
+ end interface
 
   !! Add a field to a State (these are for the C-interface, python_add_field_directly() is what you want probably)
   interface python_add_field
-    subroutine python_add_scalar(sx,x,name,nlen,field_type,option_path,oplen,state_name,snlen,&
-      &mesh_name,mesh_name_len)
-      implicit none
-      integer :: sx,nlen,field_type,oplen,snlen,mesh_name_len
-      real, dimension(sx) :: x
-      character(len=nlen) :: name
-      character(len=snlen) :: state_name
-      character(len=oplen) :: option_path
-      character(len=mesh_name_len) :: mesh_name
-    end subroutine python_add_scalar
-
-    subroutine python_add_csr_matrix(valuesSize, values, col_indSize, col_ind, row_ptrSize, &
-      row_ptr, name, namelen, state_name,snlen, numCols)
-      implicit none
-      integer :: valuesSize,col_indSize,row_ptrSize,namelen,snlen,numCols
-      real, dimension(valuesSize) :: values
-      integer, dimension(col_indSize) :: col_ind
-      integer, dimension(row_ptrSize) :: row_ptr
-      character(len=namelen) :: name
-      character(len=snlen) :: state_name
-    end subroutine python_add_csr_matrix
-
-    subroutine python_add_vector(numdim,sx,x,&
-      &name,nlen,field_type,option_path,oplen,state_name,snlen,&
-      &mesh_name,mesh_name_len)
-      implicit none
-      integer :: sx,numdim,nlen,field_type,oplen,snlen,mesh_name_len
-      real, dimension(sx) :: x
-      character(len=nlen) :: name
-      character(len=snlen) :: state_name
-      character(len=oplen) :: option_path
-      character(len=mesh_name_len) :: mesh_name
-    end subroutine python_add_vector
-    subroutine python_add_tensor(sx,sy,sz,x,numdim,name,nlen,field_type,option_path,oplen,state_name,snlen,&
-      &mesh_name,mesh_name_len)
-      implicit none
-      integer :: sx,sy,sz,nlen,field_type,oplen,snlen,mesh_name_len
-      integer, dimension(2) :: numdim
-      real, dimension(sx,sy,sz) :: x
-      character(len=nlen) :: name
-      character(len=snlen) :: state_name
-      character(len=oplen) :: option_path
-      character(len=mesh_name_len) :: mesh_name
-    end subroutine python_add_tensor
-
-    subroutine python_add_mesh(ndglno,sndglno,elements,nodes,name,nlen,option_path,oplen,&
-      &continuity,region_ids,sregion_ids,state_name,state_name_len)
-      !! Add a mesh to the state called state_name
-      implicit none
-      integer, dimension(*) :: ndglno,region_ids    !! might cause a problem
-      integer :: sndglno, elements, nodes, nlen, oplen, continuity, sregion_ids, state_name_len
-      character(len=nlen) :: name
-      character(len=oplen) :: option_path
-      character(len=state_name_len) :: state_name
-    end subroutine python_add_mesh
-
-    subroutine python_add_element(dim,loc,ngi,degree,stname,slen,mname,mlen,n,nx,ny,dn,dnx,dny,dnz,&
-      &size_spoly_x,size_spoly_y,size_dspoly_x,size_dspoly_y, family_name, family_name_len, &
-      & type_name, type_name_len, &
-      & coords, size_coords_x, size_coords_y)
-      !! Add an element to the state with stname and mesh with mname
-      implicit none
-      integer :: dim,loc,ngi,degree,slen,mlen,nx,ny,dnx,dny,dnz, family_name_len, type_name_len
-      integer :: size_spoly_x,size_spoly_y,size_dspoly_x,size_dspoly_y, size_coords_x, size_coords_y
-      real,dimension(nx,ny) :: n
-      real,dimension(dnx,dny,dnz) :: dn
-      character(len=slen) :: stname
-      character(len=mlen) :: mname
-      character(len=family_name_len) :: family_name
-      character(len=type_name_len) :: type_name
-      real, dimension(size_coords_x,size_coords_y) :: coords
-    end subroutine python_add_element
-
-    subroutine python_add_quadrature(dim,loc,ngi,degree,weight,weight_size,locations,loc_size,surfacequad)
-      !! Add a quadrature to the last added element
-      implicit none
-      integer :: weight_size, loc_size, dim,loc,ngi,degree
-      integer :: surfacequad  !! Specifies whether this quadrature is the normal quadr. or surface_quadr.
-      real, dimension(weight_size) :: weight
-      real, dimension(loc_size) :: locations
-    end subroutine python_add_quadrature
-
-    subroutine python_add_polynomial(coefs, scoefs, degree, x,y, is_spoly)
-      !! Add a polynomial to the last added element at position x,y
-      !! is_spoly==1 <-> will be added to spoly, 0 to dspoly
-      implicit none
-      integer :: scoefs, degree, x,y,is_spoly
-      real, dimension(scoefs) :: coefs
-    end subroutine python_add_polynomial
-
-    subroutine python_fetch_real_c(name, len, output)
-      character(len=*), intent(in) :: name
-      integer, intent(in) :: len
-      real, intent(out) :: output
-    end subroutine python_fetch_real_c
-
     module procedure python_add_scalar_directly
     module procedure python_add_vector_directly
     module procedure python_add_tensor_directly
     module procedure python_add_csr_matrix_directly
-  end interface
-
-
-
-
-
+ end interface python_add_field
 
   !! The function versions called in Fortran, mainly simplified arguments, then
   !! unwrapped and called to the interface to C
@@ -422,7 +415,7 @@ module python_state
     type(state_type) :: S
     integer :: i,nlen
     nlen = len(trim(S%name))
-    call python_add_statec(trim(S%name),nlen)
+    call python_add_state_c(trim(S%name), nlen)
 
     if ( associated(S%meshes) )  then
       do i=1,(size(S%meshes))
@@ -450,8 +443,6 @@ module python_state
         call python_add_field(S%csr_matrices(i)%ptr,S)
       end do
     end if
-
-
   end subroutine python_add_state
 
   subroutine python_add_states(S)
@@ -524,65 +515,6 @@ module python_state
 
   end subroutine python_shell_states
 
-
-  !! Wrapper procedures to add arrays to the Python interpreter
-
-  subroutine python_add_array_d_1d_directly(arr,var_name)
-    real,dimension(:) :: arr
-    character(len=*) :: var_name
-    integer :: name_len, sizex
-    sizex = size(arr)
-    name_len = len(var_name)
-    call python_add_array_double_1d(arr,sizex,var_name,name_len)
-  end subroutine python_add_array_d_1d_directly
-  subroutine python_add_array_d_2d_directly(arr,var_name)
-    real,dimension(:,:) :: arr
-    character(len=*) :: var_name
-    integer :: name_len, sizex, sizey
-    sizex = size(arr,1)
-    sizey = size(arr,2)
-    name_len = len(var_name)
-    call python_add_array_double_2d(arr,sizex,sizey,var_name,name_len)
-  end subroutine python_add_array_d_2d_directly
-  subroutine python_add_array_d_3d_directly(arr,var_name)
-    real,dimension(:,:,:) :: arr
-    character(len=*) :: var_name
-    integer :: name_len, sizex, sizey, sizez
-    sizex = size(arr,1)
-    sizey = size(arr,2)
-    sizez = size(arr,3)
-    name_len = len(var_name)
-    call python_add_array_double_3d(arr,sizex,sizey,sizez,var_name,name_len)
-  end subroutine python_add_array_d_3d_directly
-
-  subroutine python_add_array_i_1d_directly(arr,var_name)
-    integer,dimension(:) :: arr
-    character(len=*) :: var_name
-    integer :: name_len, sizex
-    sizex = size(arr)
-    name_len = len(var_name)
-    call python_add_array_integer_1d(arr,sizex,var_name,name_len)
-  end subroutine python_add_array_i_1d_directly
-  subroutine python_add_array_i_2d_directly(arr,var_name)
-    integer,dimension(:,:) :: arr
-    character(len=*) :: var_name
-    integer :: name_len, sizex, sizey
-    sizex = size(arr,1)
-    sizey = size(arr,2)
-    name_len = len(var_name)
-    call python_add_array_integer_2d(arr,sizex,sizey,var_name,name_len)
-  end subroutine python_add_array_i_2d_directly
-  subroutine python_add_array_i_3d_directly(arr,var_name)
-    integer,dimension(:,:,:) :: arr
-    character(len=*) :: var_name
-    integer :: name_len, sizex, sizey, sizez
-    sizex = size(arr,1)
-    sizey = size(arr,2)
-    sizez = size(arr,3)
-    name_len = len(var_name)
-    call python_add_array_integer_3d(arr,sizex,sizey,sizez,var_name,name_len)
-  end subroutine python_add_array_i_3d_directly
-
   subroutine python_run_string(s, stat)
     !!< Wrapper for function for python_run_stringc
 
@@ -593,7 +525,7 @@ module python_state
 
     if(present(stat)) stat = 0
 
-    call python_run_stringc(s, len_trim(s), lstat)
+    call python_run_string_c(s, len_trim(s), lstat)
     if(lstat /= 0) then
       if(present(stat)) then
         stat = lstat
@@ -616,7 +548,7 @@ module python_state
 
     if(present(stat)) stat = 0
 
-    call python_run_filec(s, len_trim(s), lstat)
+    call python_run_file_c(s, len_trim(s), lstat)
     if(lstat /= 0) then
       if(present(stat)) then
         stat = lstat
@@ -626,14 +558,6 @@ module python_state
         FLExit("Dying")
       end if
     end if
-
   end subroutine python_run_file
-
-  function python_fetch_real(name) result(output)
-    character(len=*), intent(in) :: name
-    real :: output
-
-    call python_fetch_real_c(name, len(name), output)
-  end function python_fetch_real
 
 end module python_state

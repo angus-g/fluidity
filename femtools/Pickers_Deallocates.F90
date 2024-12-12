@@ -51,9 +51,10 @@ module pickers_deallocates
   end interface nullify
 
   interface node_owner_finder_reset
-    subroutine cnode_owner_finder_reset(id)
+     subroutine cnode_owner_finder_reset(id) bind(c)
+       use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: id
+      integer(c_int), value, intent(in) :: id
     end subroutine cnode_owner_finder_reset
   end interface node_owner_finder_reset
 

@@ -53,44 +53,48 @@ module Profiler
   end interface profiler_get
 
   interface
-    subroutine cprofiler_zero
+    subroutine cprofiler_zero() bind(C)
     end subroutine cprofiler_zero
 
-    subroutine cprofiler_tic(key, key_len)
+    subroutine cprofiler_tic(key, key_len) bind(C)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: key_len
-      character(len = key_len), intent(in) :: key
+      integer(c_int), intent(in), value :: key_len
+      character(kind=c_char), dimension(key_len), intent(in) :: key
     end subroutine cprofiler_tic
 
-    subroutine cprofiler_toc(key, key_len)
+    subroutine cprofiler_toc(key, key_len) bind(C)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: key_len
-      character(len = key_len), intent(in) :: key
+      integer(c_int), intent(in), value :: key_len
+      character(kind=c_char), dimension(key_len), intent(in) :: key
     end subroutine cprofiler_toc
 
-    subroutine cprofiler_get(key, key_len, time)
-      use iso_c_binding, only: c_double
+    subroutine cprofiler_get(key, key_len, time) bind(C)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(in) :: key_len
-      character(len = key_len), intent(in) :: key
-      real(kind = c_double), intent(out) :: time
+      integer(c_int), intent(in), value :: key_len
+      character(kind=c_char), dimension(key_len), intent(in) :: key
+      real(kind=c_double), intent(out) :: time
     end subroutine cprofiler_get
 
-    subroutine cprofiler_minorpagefaults(faults)
+    subroutine cprofiler_minorpagefaults(faults) bind(C)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(out) :: faults
+      integer(c_int), intent(out) :: faults
     end subroutine cprofiler_minorpagefaults
 
-    subroutine cprofiler_majorpagefaults(faults)
+    subroutine cprofiler_majorpagefaults(faults) bind(C)
+      use, intrinsic :: iso_c_binding
       implicit none
-      integer, intent(out) :: faults
+      integer(c_int), intent(out) :: faults
     end subroutine cprofiler_majorpagefaults
 
-    subroutine cprofiler_getresidence(ptr, residence)
-      use iso_c_binding, only : c_ptr
+    subroutine cprofiler_getresidence(ptr, residence) bind(C)
+      use iso_c_binding
       implicit none
-      type(c_ptr), intent(in) :: ptr
-      integer, intent(out):: residence
+      type(c_ptr), intent(in), value :: ptr
+      integer(c_int), intent(out):: residence
     end subroutine cprofiler_getresidence
 
   end interface
@@ -228,6 +232,6 @@ contains
     type(c_ptr), intent(in) :: ptr
     integer, intent(out) :: residence
     call cprofiler_getresidence(ptr, residence)
-    end subroutine profiler_getresidence
+  end subroutine profiler_getresidence
 
 end module Profiler

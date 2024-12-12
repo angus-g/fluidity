@@ -644,8 +644,8 @@ contains
        end if
     end if
 
-    call set_detectors_from_python(func, len(func), dim, &
-         ndete, time, dim,                               &
+    call set_detectors_from_python(trim(func), len_trim(func), dim, &
+         ndete, time, dim, &
          lvx, lvy, lvz, stat)
 
     if (stat/=0) then
@@ -1103,10 +1103,10 @@ contains
 
     allocate(tensor_res(dim,dim,natt,nparts))
     if (is_array) then
-      call set_tensor_particles_from_python(func, len(func), dim, &
+      call set_tensor_particles_from_python_array(trim(func) // c_null_char, dim, &
             nparts, natt, lvx, lvy, lvz, time, dt, tensor_res, stat)
     else
-      call set_tensor_particles_from_python(func, len(func), dim, &
+      call set_tensor_particles_from_python_single(trim(func) // c_null_char, dim, &
             nparts, lvx, lvy, lvz, time, dt, tensor_res, stat)
     end if
     if (stat/=0) then
@@ -1219,9 +1219,16 @@ contains
 
     allocate(tensor_res(dim,dim,natt,nparts))
 
-    call set_tensor_particles_from_python_fields(func, len(func), dim, nparts, natt, &
-         lvx, lvy, lvz, time, dt, field_counts, field_names, field_vals, old_field_counts, old_field_names, &
-         old_field_vals, old_attr_counts, old_attr_names, old_attr_dims, old_attributes, is_array, tensor_res, stat)
+    if (is_array) then
+       call set_tensor_particles_from_python_fields_array(trim(func) // c_null_char, dim, nparts, natt, &
+            lvx, lvy, lvz, time, dt, FIELD_NAME_LEN, field_counts, field_names, field_vals, old_field_counts, old_field_names, &
+            old_field_vals, old_attr_counts, old_attr_names, old_attr_dims, old_attributes, tensor_res, stat)
+    else
+       call set_tensor_particles_from_python_fields_single(trim(func) // c_null_char, dim, nparts, &
+            lvx, lvy, lvz, time, dt, FIELD_NAME_LEN, field_counts, field_names, field_vals, old_field_counts, old_field_names, &
+            old_field_vals, old_attr_counts, old_attr_names, old_attr_dims, old_attributes, tensor_res, stat)
+    end if
+
     if (stat/=0) then
        ewrite(-1, *) "Python error, Python string was:"
        ewrite(-1 , *) trim(func)

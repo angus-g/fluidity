@@ -26,8 +26,6 @@
 #include <map>
 #include <vector>
 
-#include <vtk.h>
-
 #include "SampleNetCDF.h"
 
 using namespace std;
@@ -207,41 +205,37 @@ void SampleNetCDF::VerboseOn(){
 map<int, SampleNetCDF> netcdf_sampler;
 
 extern "C" {
-#define samplenetcdf_open_fc F77_FUNC_(samplenetcdf_open_c, SAMPLENETCDF_OPEN_C)
-  void samplenetcdf_open_fc(const char *name, const int *len, int *id){
+  void samplenetcdf_open_c(const char *name, int *id){
     *id=0;
     for(;;(*id)++)
       if(netcdf_sampler.find(*id)==netcdf_sampler.end())
         break;
 
-    netcdf_sampler[*id] = SampleNetCDF(string(name, *len));
+    netcdf_sampler[*id] = SampleNetCDF(string(name));
   }
 
-#define samplenetcdf_setvariable_fc F77_FUNC_(samplenetcdf_setvariable_c, SAMPLENETCDF_SETVARIABLE_C)
-  void samplenetcdf_setvariable_fc(const int *id, const char *varname, const int *len){
-    if(netcdf_sampler.find(*id)==netcdf_sampler.end()){
+  void samplenetcdf_setvariable_c(int id, const char *varname){
+    if(netcdf_sampler.find(id)==netcdf_sampler.end()){
       cerr<<"ERROR: netcdf file has not been opened\n";
       exit(-1);
     }
 
-    netcdf_sampler[*id].SetVariable(string(varname, *len));
+    netcdf_sampler[id].SetVariable(string(varname));
   }
 
-#define samplenetcdf_getvalue_fc F77_FUNC_(samplenetcdf_getvalue_c, SAMPLENETCDF_GETVALUE_C)
-  void samplenetcdf_getvalue_fc(const int *id, const double *longitude, const double *latitude, double *val){
-    if(netcdf_sampler.find(*id)==netcdf_sampler.end()){
+  void samplenetcdf_getvalue_c(int id, double longitude, double latitude, double *val){
+    if(netcdf_sampler.find(id)==netcdf_sampler.end()){
       cerr<<"ERROR: netcdf file has not been opened\n";
       exit(-1);
     }
 
-    *val = netcdf_sampler[*id].GetValue(*longitude, *latitude);
+    *val = netcdf_sampler[id].GetValue(longitude, latitude);
   }
 
-#define samplenetcdf_close_fc F77_FUNC_(samplenetcdf_close_c, SAMPLENETCDF_CLOSE_C)
-  void samplenetcdf_close_fc(const int *id){
-    map<int, SampleNetCDF>::iterator it = netcdf_sampler.find(*id);
+  void samplenetcdf_close_c(int id){
+    map<int, SampleNetCDF>::iterator it = netcdf_sampler.find(id);
     if(it!=netcdf_sampler.end()){
-      netcdf_sampler[*id].Close();
+      netcdf_sampler[id].Close();
       netcdf_sampler.erase(it);
     }
   }

@@ -1,25 +1,26 @@
 module element_set
-
   implicit none
 
   interface
-
-     subroutine ele_get_ele(i,ele)
-       integer, intent(in)  :: i
-       integer, intent(out) :: ele
+     subroutine ele_get_ele(i, ele) bind(C)
+       use, intrinsic :: iso_c_binding
+       integer(c_int), intent(in), value :: i
+       integer(c_int), intent(out) :: ele
      end subroutine ele_get_ele
 
-     subroutine ele_fetch_list(arr)
-       use iso_c_binding
+     subroutine ele_fetch_list(arr) bind(C)
+       use, intrinsic :: iso_c_binding
        integer(c_int), dimension(*), intent(out) :: arr
       end subroutine ele_fetch_list
 
-      subroutine ele_get_size(size)
-        integer, intent(out) :: size
+      subroutine ele_get_size(size) bind(C)
+        use, intrinsic :: iso_c_binding
+        integer(c_int), intent(out) :: size
       end subroutine ele_get_size
 
-      subroutine ele_add_to_set(i)
-        integer, intent(in) :: i
+      subroutine ele_add_to_set(i) bind(C)
+        use, intrinsic :: iso_c_binding
+        integer(c_int), intent(in), value :: i
       end subroutine ele_add_to_set
 
    end interface

@@ -26,8 +26,6 @@
     USA
 */
 
-#include "confdefs.h"
-#include "fmangle.h"
 #include "flmpi.h"
 #ifdef HAVE_PETSC
 #include "petsc.h"

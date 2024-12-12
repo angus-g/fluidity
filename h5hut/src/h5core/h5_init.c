@@ -12,8 +12,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "config.h"
-
 #include "private/h5_hdf5.h"
 
 #include "private/h5_mpi.h"

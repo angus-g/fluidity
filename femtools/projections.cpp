@@ -28,7 +28,6 @@
 
 
 
-#include <confdefs.h>
 
 #include <cmath>
 #include <iostream>
@@ -59,11 +58,8 @@ void tests();
 // fortran wrappers - we do *not* want to start messing with fortran chars to C++ strings, so wrap some of the functions
 // up
 extern "C" {
-#define projections_spherical_cartesian_fc F77_FUNC(projections_spherical_cartesian, PROJECTIONS_SPHERICAL_CARTESIAN)
-    int projections_spherical_cartesian_fc(int *nPoints, double *x, double *y, double *z);
-
-#define projections_cartesian_spherical_fc F77_FUNC(projections_cartesian_spherical, PROJECTIONS_CARTESIAN_SPHERICAL)
-    int projections_cartesian_spherical_fc(int *nPoints, double *x, double *y, double *z);
+  int projections_spherical_cartesian(int nPoints, double *x, double *y, double *z);
+  int projections_cartesian_spherical_fc(int *nPoints, double *x, double *y, double *z);
 
 }
 
@@ -210,8 +206,8 @@ int projections(int nPoints, double *x, double *y, double *z, string current_coo
 /*
  * Fortran wrappers
  */
-int projections_spherical_cartesian_fc(int *nPoints, double *x, double *y, double *z) {
-    projections(*nPoints,x,y,z,"spherical","cart");
+int projections_spherical_cartesian(int nPoints, double *x, double *y, double *z) {
+    projections(nPoints,x,y,z,"spherical","cart");
     return 0;
 }
 

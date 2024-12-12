@@ -27,7 +27,7 @@
 */
 
 
-#include "confdefs.h"
+//#include "confdefs.h"
 
 #include <unistd.h>
 
@@ -48,9 +48,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "vtk.h"
 #include "Halos_IO.h"
-#include "fmangle.h"
 #include "partition.h"
 
 using namespace std;
@@ -59,7 +57,7 @@ using namespace Fluidity;
 
 extern "C" {
   void fldecomp_fc(const char *, const int *, const int *);
-  void set_global_debug_level_fc(int *val);
+  void set_global_debug_level(int *val);
 }
 
 

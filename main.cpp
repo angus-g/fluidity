@@ -27,10 +27,6 @@
 */
 
 #include "Usage.h"
-#include "fmangle.h"
-//#ifdef HAVE_PYTHON
-//#include "Python.h"
-//#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +83,7 @@ int main(int argc, char **argv){
 
 #ifdef HAVE_PYTHON
   // Initialize the Python Interpreter
-  python_init_();
+  python_init();
 #endif
 
   // Start fortran main
@@ -100,7 +96,7 @@ int main(int argc, char **argv){
 
 #ifdef HAVE_PYTHON
   // Finalize the Python Interpreter
-  python_end_();
+  python_end();
 #endif
 
 #ifdef HAVE_PETSC

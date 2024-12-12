@@ -32,8 +32,6 @@
 #include <string>
 #include <vector>
 
-#include "confdefs.h"
-
 #ifdef USING_VTK
 #include <vtk.h>
 #endif

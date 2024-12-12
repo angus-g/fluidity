@@ -41,9 +41,6 @@
    (a[2]-b[2])*c[2]\
 )
 
-#include "confdefs.h"
-
-
 extern "C"
 {
 
@@ -215,7 +212,6 @@ inline static bool EdgeA(const int & f0 , const int & f1)
 
 // main function
 
-#define tet_a_tet F77_FUNC(tet_a_tet,TET_A_TET)
 int tet_a_tet(double V_1[4][3],double V_2[4][3] )
 {
 

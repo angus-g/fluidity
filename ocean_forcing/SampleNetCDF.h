@@ -34,7 +34,6 @@ extern "C" {
 }
 #endif
 #include "NetCDFReader.h"
-#include "confdefs.h"
 
 class SampleNetCDF{
  public:

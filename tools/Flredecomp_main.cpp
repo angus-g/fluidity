@@ -33,8 +33,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "confdefs.h"
-
 #include "c++debug.h"
 
 #include "flmpi.h"
@@ -132,7 +130,7 @@ int main(int argc, char** argv){
   if(args.count('v') > 0){
     verbosity = 3;
   }
-  set_global_debug_level_fc(&verbosity);
+  set_global_debug_level(verbosity);
 
   // Input and output base names
   string input_basename, output_basename;
