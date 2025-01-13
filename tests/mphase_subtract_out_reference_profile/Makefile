@@ -4,7 +4,7 @@ preprocess:
 
 run:
 	@echo **********Running simulation
-	../../bin/fluidity -v2 -l mphase_subtract_out_reference_profile_1d.flml
+	fluidity -v2 -l mphase_subtract_out_reference_profile_1d.flml
 
 input: clean preprocess
 

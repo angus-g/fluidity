@@ -4,7 +4,7 @@ preprocess:
 
 run:
 	@echo **********Running simulation
-	../../bin/fluidity -v2 -l strong_pressure_bc_compressible.flml
+	fluidity -v2 -l strong_pressure_bc_compressible.flml
 
 input: clean preprocess
 

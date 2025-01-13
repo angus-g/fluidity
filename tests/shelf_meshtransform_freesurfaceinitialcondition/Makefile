@@ -9,4 +9,4 @@ clean:
 	rm -f  *.ele *.edge *.node *.msh *.msh.bak *.vtu *.stat matrixdump* *.node.bak fluidity.*
 
 run: input
-	${ROOT}/bin/fluidity -v3 -l shelf.flml
+	fluidity -v3 -l shelf.flml

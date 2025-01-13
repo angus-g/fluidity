@@ -3,10 +3,10 @@
   <name>parallel_vertical_extrapolation</name>
   <owner userid="skramer"/>
   <problem_definition length="short" nprocs="3">
-    <command_line>mpiexec ../../bin/flredecomp -l -i 1 -o 3 input1 input1_NP3
-mpiexec ../../bin/fluidity -v2 -l input1_NP3.flml
-mpiexec ../../bin/flredecomp -l -i 1 -o 3 input2 input2_NP3
-mpiexec ../../bin/fluidity -v2 -l input2_NP3.flml</command_line>
+    <command_line>mpiexec flredecomp -l -i 1 -o 3 input1 input1_NP3
+mpiexec fluidity -v2 -l input1_NP3.flml
+mpiexec flredecomp -l -i 1 -o 3 input2 input2_NP3
+mpiexec fluidity -v2 -l input2_NP3.flml</command_line>
   </problem_definition>
   <variables>
     <variable name="errors" language="python">from vtktools import vtu

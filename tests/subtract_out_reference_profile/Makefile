@@ -6,9 +6,9 @@ preprocess:
 
 run:
 	@echo **********Running 1D simulation
-	../../bin/fluidity subtract_out_reference_profile_1d.flml
+	fluidity subtract_out_reference_profile_1d.flml
 	@echo **********Running pseudo-1D simulation
-	../../bin/fluidity subtract_out_reference_profile_pseudo1d.flml
+	fluidity subtract_out_reference_profile_pseudo1d.flml
 
 input: clean preprocess
 

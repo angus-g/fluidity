@@ -2,7 +2,7 @@
 default: run
 
 run: input
-	../../bin/fluidity -v 3 -l missingdata.flml
+	fluidity -v 3 -l missingdata.flml
 
 %.flml: valid.flml
 	@sed -e 's/valid\.nc/$*.nc/' $^ > $@

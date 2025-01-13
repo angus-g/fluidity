@@ -6,8 +6,8 @@ preprocess:
 
 run:
 	@echo **********Running simulation
-	../../bin/fluidity inlet_velocity_bc_compressible_without_gravity_1d.flml
-	../../bin/fluidity inlet_velocity_bc_compressible_without_gravity_pseudo1d.flml
+	fluidity inlet_velocity_bc_compressible_without_gravity_1d.flml
+	fluidity inlet_velocity_bc_compressible_without_gravity_pseudo1d.flml
 
 input: clean preprocess
 

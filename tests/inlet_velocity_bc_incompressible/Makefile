@@ -4,7 +4,7 @@ preprocess:
 
 run:
 	@echo **********Running simulation
-	../../bin/fluidity -v2 -l inlet_velocity_bc_incompressible.flml
+	fluidity -v2 -l inlet_velocity_bc_incompressible.flml
 
 input: clean preprocess
 
