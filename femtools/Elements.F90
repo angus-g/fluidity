@@ -147,7 +147,7 @@ module elements
     module procedure eval_dshape_node, eval_dshape_all_nodes
   end interface
 
-#include "Reference_count_interface_element_type.F90"
+#include "Reference_count_interface_element_type.h"
 
   private
 
@@ -954,6 +954,6 @@ contains
     !! dimension n_constraints x loc x dim
   end subroutine make_constraints_rt0_square
 
-#include "Reference_count_element_type.F90"
+#include "Reference_count_element_type.h"
 
 end module elements

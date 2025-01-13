@@ -62,11 +62,11 @@ module halos_allocates
     module procedure nullify_halo
   end interface nullify
 
-#include "Reference_count_interface_halo_type.F90"
+#include "Reference_count_interface_halo_type.h"
 
 contains
 
-#include "Reference_count_halo_type.F90"
+#include "Reference_count_halo_type.h"
 
   subroutine allocate_halo(halo, nsends, nreceives, name, communicator, nprocs, nowned_nodes, data_type, ordering_scheme)
     !!< Allocate a halo

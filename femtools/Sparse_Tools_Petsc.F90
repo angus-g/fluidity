@@ -135,7 +135,7 @@ module sparse_tools_petsc
      module procedure petsc_csr_assemble
   end interface
 
-#include "Reference_count_interface_petsc_csr_matrix.F90"
+#include "Reference_count_interface_petsc_csr_matrix.h"
 
   public :: petsc_csr_matrix, petsc_csr_matrix_pointer, &
      allocate, deallocate, &
@@ -1324,5 +1324,5 @@ contains
 
   end subroutine dump_petsc_csr_matrix
 
-#include "Reference_count_petsc_csr_matrix.F90"
+#include "Reference_count_petsc_csr_matrix.h"
 end module sparse_tools_petsc

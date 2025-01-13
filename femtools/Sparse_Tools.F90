@@ -25,6 +25,8 @@
 !    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 !    USA
 #include "fdebug.h"
+#include <petsc/finclude/petscksp.h>
+
 module sparse_tools
   !!< This module implements abstract data types for sparse matrices and
   !!< operations on them.
@@ -37,11 +39,9 @@ module sparse_tools
   use memory_diagnostics
   use ieee_arithmetic
   use data_structures
-  use petsc
+  use petscksp
 
   implicit none
-
-#include "petsc_legacy.h"
 
   private
 
@@ -421,11 +421,11 @@ module sparse_tools
     module procedure csr_write_minmax, block_csr_write_minmax
   end interface
 
-#include "Reference_count_interface_csr_sparsity.F90"
-#include "Reference_count_interface_csr_matrix.F90"
-#include "Reference_count_interface_block_csr_matrix.F90"
-#include "Reference_count_interface_dynamic_csr_matrix.F90"
-#include "Reference_count_interface_block_dynamic_csr_matrix.F90"
+#include "Reference_count_interface_csr_sparsity.h"
+#include "Reference_count_interface_csr_matrix.h"
+#include "Reference_count_interface_block_csr_matrix.h"
+#include "Reference_count_interface_dynamic_csr_matrix.h"
+#include "Reference_count_interface_block_dynamic_csr_matrix.h"
 
   !! Parameters enabling the selection of matrix entry type.
   integer, public, parameter :: CSR_REAL=0, CSR_INTEGER=1, CSR_NONE=2
@@ -5213,10 +5213,10 @@ contains
 
   end subroutine block_csr_write_minmax
 
-#include "Reference_count_csr_matrix.F90"
-#include "Reference_count_csr_sparsity.F90"
-#include "Reference_count_block_csr_matrix.F90"
-#include "Reference_count_dynamic_csr_matrix.F90"
-#include "Reference_count_block_dynamic_csr_matrix.F90"
+#include "Reference_count_csr_matrix.h"
+#include "Reference_count_csr_sparsity.h"
+#include "Reference_count_block_csr_matrix.h"
+#include "Reference_count_dynamic_csr_matrix.h"
+#include "Reference_count_block_dynamic_csr_matrix.h"
 
 end module sparse_tools

@@ -102,7 +102,7 @@ module Petsc_Tools
     module procedure petsc_numbering_create_is_dim
   end interface
 
-#include "Reference_count_interface_petsc_numbering_type.F90"
+#include "Reference_count_interface_petsc_numbering_type.h"
 
   private
 
@@ -1539,5 +1539,5 @@ function IsNullMatNullSpace(nullsp)
 
 end function IsNullMatNullSpace
 
-#include "Reference_count_petsc_numbering_type.F90"
+#include "Reference_count_petsc_numbering_type.h"
 end module Petsc_Tools

@@ -31,6 +31,7 @@ module quadrature
   !!< elements. Quadrature information is used to numerically evaluate
   !!< integrals over an element.
   use FLDebug
+  use parallel_tools
   use reference_counting
   use wandzura_quadrature
   use grundmann_moeller_quadrature
@@ -134,7 +135,7 @@ module quadrature
      module procedure quad_equal
   end interface
 
-#include "Reference_count_interface_quadrature_type.F90"
+#include "Reference_count_interface_quadrature_type.h"
 
   public make_quadrature, allocate, deallocate, quadrature_type,&
        & quadrature_template, construct_quadrature_templates, &
@@ -555,7 +556,7 @@ contains
 
   end subroutine deallocate_quad
 
-#include "Reference_count_quadrature_type.F90"
+#include "Reference_count_quadrature_type.h"
 
   pure function quad_equal(quad1,quad2)
     !!< Return true if the two quadratures are equivalent.

@@ -148,10 +148,10 @@ implicit none
       remove_boundary_conditions_vector
   end interface remove_boundary_conditions
 
-#include "Reference_count_interface_mesh_type.F90"
-#include "Reference_count_interface_scalar_field.F90"
-#include "Reference_count_interface_vector_field.F90"
-#include "Reference_count_interface_tensor_field.F90"
+#include "Reference_count_interface_mesh_type.h"
+#include "Reference_count_interface_scalar_field.h"
+#include "Reference_count_interface_vector_field.h"
+#include "Reference_count_interface_tensor_field.h"
 
 contains
 
@@ -3298,9 +3298,9 @@ contains
 
   end subroutine zero_tensor_field_nodes
 
-#include "Reference_count_mesh_type.F90"
-#include "Reference_count_scalar_field.F90"
-#include "Reference_count_vector_field.F90"
-#include "Reference_count_tensor_field.F90"
+#include "Reference_count_mesh_type.h"
+#include "Reference_count_scalar_field.h"
+#include "Reference_count_vector_field.h"
+#include "Reference_count_tensor_field.h"
 
 end module fields_allocates

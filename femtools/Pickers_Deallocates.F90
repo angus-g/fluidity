@@ -58,11 +58,11 @@ module pickers_deallocates
     end subroutine cnode_owner_finder_reset
   end interface node_owner_finder_reset
 
-#include "Reference_count_interface_picker_type.F90"
+#include "Reference_count_interface_picker_type.h"
 
 contains
 
-#include "Reference_count_picker_type.F90"
+#include "Reference_count_picker_type.h"
 
   subroutine deallocate_picker(picker)
     !!< Deallocate a picker
