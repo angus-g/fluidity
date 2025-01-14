@@ -187,7 +187,6 @@ try:
         def __init__(self, *args, **kwargs):
             try:
                 scipy.sparse.csr_matrix.__init__(self, *args, **kwargs)
-                self.format = "csr"
             except TypeError:  # old version of scipy
                 pass
 
