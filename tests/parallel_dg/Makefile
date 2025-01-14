@@ -1,6 +1,6 @@
 FLFLAGS = -v2 -l
 FLMLMODEL = cube
-FLUIDITY = ../../bin/dfluidity
+FLUIDITY = ../../tools/dfluidity.py
 MESHARCH = cube
 MESH = $(notdir $(MESHARCH))
 MODEL = cube
@@ -10,7 +10,7 @@ default: input
 
 input: src/$(MESH).tar.bz2
 	tar -xvjf src/$(MESHARCH).tar.bz2
-	../../bin/triangle2gmsh cube
+	../../tools/triangle2gmsh.py cube
 
 clean: clean-mesh clean-run-debug
 clean-mesh:

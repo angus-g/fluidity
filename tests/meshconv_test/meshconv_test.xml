@@ -4,9 +4,9 @@
   <owner userid="ffm10"/>
   <tags>exodusii</tags>
   <problem_definition length="short" nprocs="2">
-    <command_line>../../bin/meshconv -i exodusii -o gmsh rectangle; fluidity meshconv_exo2gmsh.flml;
-    ../../bin/meshconv -i gmsh -o triangle rectangle; fluidity meshconv_gmsh2triangle.flml; rm rectangle.msh;
-    mpiexec ../../bin/meshconv -i gmsh -o triangle prectangle; mpiexec fluidity meshconv_parallel_gmsh2triangle.flml; rm prectangle_?.msh;
+    <command_line>../../tools/meshconv.py -i exodusii -o gmsh rectangle; fluidity meshconv_exo2gmsh.flml;
+    ../../tools/meshconv.py -i gmsh -o triangle rectangle; fluidity meshconv_gmsh2triangle.flml; rm rectangle.msh;
+    mpiexec ../../tools/meshconv.py -i gmsh -o triangle prectangle; mpiexec fluidity meshconv_parallel_gmsh2triangle.flml; rm prectangle_?.msh;
     </command_line>
   </problem_definition>
   <variables>

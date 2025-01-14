@@ -1,7 +1,7 @@
 input: clean preprocess
 
 preprocess:
-	../../bin/interval --dx=5 -- 0 2000 line
+	../../tools/interval.py --dx=5 -- 0 2000 line
 
 run:
 	fluidity -v2 -l swe_dam_break_1d.flml

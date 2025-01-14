@@ -6,7 +6,7 @@
   <problem_definition length="short" nprocs="3">
     <command_line>mpiexec flredecomp -i 1 -o 3 -v -l pvtu2vtu pvtu2vtu_flredecomp &amp;&amp;
 mpiexec fluidity -v2 -l pvtu2vtu_flredecomp.flml &amp;&amp;
-../../bin/pvtu2vtu output 0 0</command_line>
+../../tools/pvtu2vtu.py output 0 0</command_line>
   </problem_definition>
   <variables>
     <variable name="SameNodes" language="python">import vtktools

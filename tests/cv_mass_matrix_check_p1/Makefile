@@ -6,7 +6,7 @@ LEFT_X    = 0.0
 RIGHT_X   = 1.2
 
 input: clean
-	interval --dx=$(MESH_SIZE) $(LEFT_X) $(RIGHT_X) line
+	../../tools/interval.py --dx=$(MESH_SIZE) $(LEFT_X) $(RIGHT_X) line
 	cp src/tri.msh .
 	cp src/tet.msh .
 

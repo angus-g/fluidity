@@ -5,7 +5,7 @@ default: input
 
 input: src/$(MESH).tar.bz2
 	tar -xvf src/$(MESH).tar.bz2
-	../../bin/triangle2gmsh $(MESH)
+	../../tools/triangle2gmsh.py $(MESH)
 
 clean: clean-mesh clean-run-debug clean-checkpoint
 clean-mesh:

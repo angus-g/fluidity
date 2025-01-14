@@ -1,5 +1,5 @@
 input: clean
-	../../bin/create_aligned_mesh box 50 50 -- -50 10 10 10
+	../../tools/create_aligned_mesh.py box 50 50 -- -50 10 10 10
 
 clean:
 	# serial

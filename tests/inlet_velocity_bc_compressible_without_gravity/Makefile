@@ -1,6 +1,6 @@
 preprocess:
 	@echo **********Creating 1D mesh
-	../../bin/interval --dx=100.0 -- 0.0 10000.0 line
+	../../tools/interval.py --dx=100.0 -- 0.0 10000.0 line
 	@echo **********Creating 2D mesh
 	gmsh -2 -o inlet_velocity_bc_compressible_without_gravity_pseudo1d.msh src/inlet_velocity_bc_compressible_without_gravity_pseudo1d.geo
 

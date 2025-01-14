@@ -2,7 +2,7 @@ default: input
 
 input: src/cube.tar.bz2
 	tar -xvjf src/cube.tar.bz2
-	../../bin/triangle2gmsh cube
+	../../tools/triangle2gmsh.py cube
 
 clean: clean-mesh clean-run
 clean-mesh:

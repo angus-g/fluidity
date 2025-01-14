@@ -8,7 +8,7 @@ import vtktools
 # into vtu format.
 os.system("gmsh -3 spherical_shell.geo")
 os.system("../../../tools/gmsh2triangle.py spherical_shell.msh")
-os.system("../../../bin/triangle2vtu spherical_shell")
+os.system("../../../tools/triangle2vtu.py spherical_shell")
 # Open file containing mesh and extract vertex coordinates
 file = vtktools.vtu("spherical_shell.vtu")
 vertices = file.GetLocations()

@@ -1,5 +1,5 @@
 input:
-	../../bin/interval --dx=0.01 -- -1 2 tube
+	../../tools/interval.py --dx=0.01 -- -1 2 tube
 
 clean:
 	rm -f *.msh

@@ -4,7 +4,7 @@ default: input
 
 input:
 	tar -xvjf src/$(MESH).tar.bz2
-	../../bin/triangle2gmsh $(MESH)
+	../../tools/triangle2gmsh.py $(MESH)
 
 clean: clean-mesh clean-run-debug
 clean-mesh:

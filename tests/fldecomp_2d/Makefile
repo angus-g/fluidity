@@ -2,7 +2,7 @@ default: input
 
 input: src/square.tar.bz2
 	tar -xvjf src/square.tar.bz2
-	../../bin/triangle2gmsh square
+	../../tools/triangle2gmsh.py square
 
 clean: clean-mesh clean-run
 clean-mesh:

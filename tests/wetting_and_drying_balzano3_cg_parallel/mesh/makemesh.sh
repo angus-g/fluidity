@@ -1,2 +1,2 @@
 #/bin/sh
-../../../bin/gmsh2triangle mesh_connected.msh -2
+../../../tools/gmsh2triangle.py mesh_connected.msh -2

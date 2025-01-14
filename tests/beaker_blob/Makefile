@@ -1,5 +1,5 @@
 input:	clean
-	interval --dx=0.05 0 1 beaker
+	../../tools/interval.py --dx=0.05 0 1 beaker
 
 
 clean:

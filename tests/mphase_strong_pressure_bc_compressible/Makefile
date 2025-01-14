@@ -1,6 +1,6 @@
 preprocess:
 	@echo **********Creating 1D mesh
-	../../bin/interval --dx=100.0 -- 0.0 10000.0 line
+	../../tools/interval.py --dx=100.0 -- 0.0 10000.0 line
 
 run:
 	@echo **********Running P2-P1 simulation

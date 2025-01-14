@@ -15,10 +15,10 @@ MESH_SIZE_D = 0.25
 
 input: clean
 	@echo "Running INTERVAL script for $(SIM) for each mesh resolution"
-	interval --dx=$(MESH_SIZE_A) $(LEFT_X) $(RIGHT_X) $(SIM)_A
-	interval --dx=$(MESH_SIZE_B) $(LEFT_X) $(RIGHT_X) $(SIM)_B
-	interval --dx=$(MESH_SIZE_C) $(LEFT_X) $(RIGHT_X) $(SIM)_C
-	interval --dx=$(MESH_SIZE_D) $(LEFT_X) $(RIGHT_X) $(SIM)_D
+	../../tools/interval.py --dx=$(MESH_SIZE_A) $(LEFT_X) $(RIGHT_X) $(SIM)_A
+	../../tools/interval.py --dx=$(MESH_SIZE_B) $(LEFT_X) $(RIGHT_X) $(SIM)_B
+	../../tools/interval.py --dx=$(MESH_SIZE_C) $(LEFT_X) $(RIGHT_X) $(SIM)_C
+	../../tools/interval.py --dx=$(MESH_SIZE_D) $(LEFT_X) $(RIGHT_X) $(SIM)_D
 	cp $(SIM)_A.flml $(SIM)_B.flml
 	cp $(SIM)_A.flml $(SIM)_C.flml
 	cp $(SIM)_A.flml $(SIM)_D.flml
