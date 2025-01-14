@@ -78,6 +78,7 @@ module diagnostic_variables
   use detector_tools
   use detector_parallel
   use h5hut
+  use hdf5
   use particles, only: get_particle_arrays
   use state_fields_module
 
