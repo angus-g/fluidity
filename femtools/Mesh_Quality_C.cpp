@@ -25,13 +25,12 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 //    USA
 
-#include "vtkCell.h"
-#include "vtkDataArray.h"
-#include "vtkPoints.h"
-#include "vtkCellData.h"
-#include "vtkDataSet.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkMeshQuality.h"
+#include <vtkDataArray.h>
+#include <vtkPoints.h>
+#include <vtkCellData.h>
+#include <vtkDataSet.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkMeshQuality.h>
 
 #include <stdio.h>
 
@@ -79,8 +78,13 @@ void mesh_quality_c(int* dim, int* n_nodes, int* n_elements, int* connectivity_l
 #endif
 
   filter->SetTriangleQualityMeasure(*measure);
+#if VTK_MAJOR_VERSION > 9 || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION >= 2)
+  if (*measure == static_cast<int>(vtkMeshQuality::QualityMeasureTypes::AREA)) {
+    filter->SetTetQualityMeasure(static_cast<int>(vtkMeshQuality::QualityMeasureTypes::VOLUME));
+#else
   if (*measure == VTK_QUALITY_AREA) {
     filter->SetTetQualityMeasure(VTK_QUALITY_VOLUME);
+#endif
   } else {
     filter->SetTetQualityMeasure(*measure);
   }

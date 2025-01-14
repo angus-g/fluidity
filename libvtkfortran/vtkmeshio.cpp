@@ -41,7 +41,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <vtk.h>
+#include <vtkCellData.h>
+#include <vtkDataSetReader.h>
+#include <vtkPointData.h>
+#include <vtkType.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLPUnstructuredGridReader.h>
+#include <vtkXMLUnstructuredGridReader.h>
 
 #include "vtkmeshio.h"
 

@@ -29,7 +29,18 @@
 
 #ifdef HAVE_VTK
 
-#include <vtk.h>
+#include <vtkCellData.h>
+#include <vtkDataSet.h>
+#include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
+#include <vtkPointData.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLPUnstructuredGridWriter.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkZLibDataCompressor.h>
+
+#include <vtkMPICommunicator.h>
+#include <vtkMPIController.h>
 
 #if VTK_MAJOR_VERSION>6
 #define VTK_USES_MPI 1

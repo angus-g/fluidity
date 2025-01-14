@@ -29,8 +29,6 @@
 #ifndef VTKIO_H
 #define VTKIO_H
 
-#include "confdefs.h"
-
 typedef struct _Field_Info Field_Info;
 
 // struct that contains all info about vtk fields
