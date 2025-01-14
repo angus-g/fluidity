@@ -14,8 +14,8 @@ def Error(msg):
 baseName = "Diagnostic_Fields_New"
 disabledDiags = ["Diagnostic_Source_Fields.F90", "Diagnostic_Fields_Interfaces.F90"]
 
-inputFilename = baseName + ".F90.in"
-outputFilename = baseName + ".F90"
+inputFilename = sys.argv[2]
+outputFilename = sys.argv[1]
 
 # get sha1 digest of existing generated file.  Can't use 'rw' here
 # because it updates the modtime of the file, which we're trying to
@@ -67,7 +67,7 @@ subroutineRe = re.compile(
     r"^\s*subroutine\s+(\w+)\(?([\w,\s]*)\)?\s*$", re.IGNORECASE | re.MULTILINE
 )
 
-diagFiles = glob.glob("*.F90")
+diagFiles = sys.argv[3:]
 for file in [inputFilename, outputFilename] + disabledDiags:
     try:
         diagFiles.remove(file)

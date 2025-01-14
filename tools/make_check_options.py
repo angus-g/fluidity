@@ -2,6 +2,7 @@
 import glob
 import hashlib
 import re
+import sys
 from io import StringIO
 
 
@@ -18,7 +19,7 @@ footer = """
 end subroutine check_options
 """
 
-outfile = "preprocessor/check_options.F90"
+outfile = sys.argv[1]
 
 # get sha1 digest of existing generated file.  Can't use 'rw' here
 # because it updates the modtime of the file, which we're trying to
