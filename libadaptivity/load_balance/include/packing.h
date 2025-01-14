@@ -28,8 +28,6 @@
 #ifndef PACKING_H
 #define PACKING_H
 
-#include <confdefs.h>
-
 #include <algorithm>
 #include <map>
 #include <vector>

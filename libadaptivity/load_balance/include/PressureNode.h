@@ -28,7 +28,6 @@
 #ifndef H_PRESSURENODES
 #define H_PRESSURENODES
 
-#include "confdefs.h"
 #include <vector>
 #include <deque>
 #include <map>

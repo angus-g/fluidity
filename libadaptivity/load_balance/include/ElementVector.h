@@ -28,8 +28,6 @@
 #ifndef ELEMENTVECTOR_H
 #define ELEMENTVECTOR_H
 
-#include "confdefs.h"
-
 #include <vector>
 #include <deque>
 #include <iostream>

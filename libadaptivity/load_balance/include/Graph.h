@@ -29,7 +29,6 @@
 #ifndef H_GRAPH
 #define H_GRAPH
 
-#include <confdefs.h>
 #include "samtypes.h"
 
 #include <deque>

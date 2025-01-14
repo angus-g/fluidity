@@ -28,7 +28,6 @@
 #ifndef H_ELEMENTS
 #define H_ELEMENTS
 
-#include "confdefs.h"
 #include <vector>
 #include <deque>
 #include <map>

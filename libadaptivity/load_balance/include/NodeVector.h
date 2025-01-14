@@ -29,8 +29,6 @@
 #ifndef NODEVECTOR_H
 #define NODEVECTOR_H
 
-#include "confdefs.h"
-
 #include <vector>
 #include <deque>
 #include <map>

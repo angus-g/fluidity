@@ -28,7 +28,6 @@
 #ifndef SAM_MPI_H
 #define SAM_MPI_H
 
-#include "confdefs.h"
 #ifdef HAVE_MPI
 #if !defined(MPICH_SKIP_MPICXX)
 #  define MPICH_SKIP_MPICXX 1

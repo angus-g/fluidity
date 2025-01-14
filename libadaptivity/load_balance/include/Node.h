@@ -28,7 +28,6 @@
 #ifndef H_NODES
 #define H_NODES
 
-#include "confdefs.h"
 #include <vector>
 #include <deque>
 #include <map>

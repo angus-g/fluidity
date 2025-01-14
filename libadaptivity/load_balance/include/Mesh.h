@@ -33,7 +33,6 @@
 
    As can be seen below, the mesh is built using two classes,
    Node and Element. */
-#include "confdefs.h"
 #include <vector>
 #include <deque>
 #include <map>

@@ -25,7 +25,6 @@
 ! Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
 ! USA
 
-#include "confdefs.h"
 #include "ewrite.h"
 
 ! #define FORTRAN_DISALLOWS_LONG_LINES

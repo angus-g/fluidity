@@ -28,7 +28,6 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "confdefs.h"
 #include <string>
 #include <iostream>
 

@@ -28,8 +28,6 @@
 #ifndef MI5_H
 #define MI5_H
 
-#include <confdefs.h>
-
 #include <vector>
 #include <map>
 #include <set>

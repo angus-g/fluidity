@@ -28,7 +28,6 @@
 #ifndef H_SAMTYPES
 #define H_SAMTYPES
 
-#include "confdefs.h"
 #include "sam_mpi.h"
 
 #ifdef USING_DOUBLE_PRECISION
