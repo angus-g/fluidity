@@ -49,7 +49,7 @@ module solvers
   implicit none
   ! Module to provide explicit interfaces to matrix solvers.
 
-#include "petsc_legacy.h"
+#include "petsc/finclude/petsc.h"
 
   ! stuff used in the PETSc monitor (see petsc_solve_callback_setup() below)
   integer :: petsc_monitor_iteration = 0
@@ -884,7 +884,7 @@ type(vector_field), intent(in), optional :: positions
       ksp_pointer = ksp
 
       ! make sure we don't destroy it, the %ksp becomes a separate reference
-      call PetscObjectReferenceWrapper(ksp, ierr)
+      call PetscObjectReference(ksp%v, ierr)
     else
       ! matrices coming from block() can't cache
       FLAbort("User wants to cache solver context, but no proper matrix is provided.")
@@ -894,11 +894,11 @@ type(vector_field), intent(in), optional :: positions
 
     ! ksp is a copy of matrix%ksp, make it a separate reference,
     ! so we can KSPDestroy it without destroying matrix%ksp
-    call PetscObjectReferenceWrapper(ksp, ierr)
+    call PetscObjectReference(ksp%v, ierr)
 
     ! same for the matrix, kspgetoperators returns the matrix reference
     ! owned by the ksp - make it a separate reference
-    call PetscObjectReferenceWrapper(A, ierr)
+    call PetscObjectReference(A%v, ierr)
 
   end if
 
@@ -1821,6 +1821,9 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
     MatSolverType:: matsolvertype
     PetscErrorCode:: ierr
     integer :: n_local, first_local
+    integer :: i, mg_levels
+    character(len=256) :: str
+    PetscBool :: option_flag
 
     call get_option(trim(option_path)//'/name', pctype)
 
@@ -1927,6 +1930,14 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
        call PCSetType(pc, pctype, ierr)
        ! set options that may have been supplied via the
        ! PETSC_OPTIONS env. variable for the preconditioner
+       if (pctype == PCGAMG) then
+          ! setting SOR for the GAMG smoother is almost impossible when not going through
+          ! the options database, so we'll put it there if it isn't on the command line
+          call PetscOptionsGetString(PETSC_NULL_OPTIONS, PETSC_NULL_CHARACTER, "-mg_levels_pc_type", str, option_flag, ierr)
+          if (option_flag .eqv. PETSC_FALSE) then
+             call PetscOptionsSetValue(PETSC_NULL_OPTIONS, "-mg_levels_pc_type", "sor", ierr)
+          end if
+       end if
        call PCSetFromOptions(pc, ierr)
        ! set pctype again to enforce flml choice
        call PCSetType(pc, pctype, ierr)
@@ -1945,11 +1956,18 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
         ! I believe the following leads to the same default we were using previously:
         ! 0.01 is set at level 1 only, and a scaling of 1.0 (i.e. no scaling) is applied
         ! so that other levels get the same threshold value
-        call PCGAMGSetThresholdScale(pc, 1.0, ierr)
-        call PCGAMGSetThreshold(pc, (/ 0.01/), 1, ierr)
+        call PCGAMGSetThresholdScale(pc, real(1.0, kind=PetscScalar_kind), ierr)
+        call PCGAMGSetThreshold(pc, (/ real(0.01, kind=PetscScalar_kind) /), 1, ierr)
+        call PCGAMGSetAggressiveLevels(pc, 100, ierr)
+        !call PCGAMGMISkSetMinDegreeOrdering(pc, PETSC_TRUE, ierr)
+        !call PCGAMGSetSquareGraph(pc, 100, ierr)
+        ! revert to old algorithm, only available in PETSc 3.20+
+        ! call PCGAMGSetAggressiveSquareGraph(pc, PETSC_TRUE, ierr)
 
         ! this was the old default:
-        call PCGAMGSetCoarseEqLim(pc, 800, ierr)
+        !call PCGAMGSetCoarseEqLim(pc, 800, ierr)
+        call PCGAMGSetCoarseEqLim(pc, 1000, ierr)
+
         ! PC setup seems to be required so that the Coarse Eq Lim option is used.
         call PCSetup(pc,ierr)
 
@@ -1964,7 +1982,7 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
           call KSPSetType(subksp, KSPPREONLY, ierr)
           call KSPGetPC(subksp, subpc, ierr)
           call PCSetType(subpc, PCSOR, ierr)
-          call KSPSetTolerances(subksp, 1e-50, 1e-50, 1e50, 10, ierr)
+          call KSPSetTolerances(subksp, 1e-50_PetscScalar_kind, 1e-50_PetscScalar_kind, 1e50_PetscScalar_kind, 10, ierr)
         end if
       end if
 
@@ -2021,7 +2039,7 @@ subroutine create_ksp_from_options(ksp, mat, pmat, solver_option_path, parallel,
     case ("additive")
       call pcfieldsplitsettype(pc, PC_COMPOSITE_ADDITIVE, ierr)
     case ("symmetric_multiplicative")
-      call pcfieldsplitsettype(pc, PC_COMPOSITE_SYMMETRIC_MULTIPLICATIVE, ierr)
+      call pcfieldsplitsettype(pc, PC_COMPOSITE_SYM_MULTIPLICATIVE, ierr)
     case default
       FLAbort("Unknown fieldsplit_type")
     end select

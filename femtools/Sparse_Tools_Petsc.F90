@@ -767,7 +767,7 @@ contains
     row=matrix%row_numbering%gnn2unn(i,blocki)
     col=matrix%column_numbering%gnn2unn(j,blockj)
 
-    call MatSetValue(matrix%M, row, col, val, ADD_VALUES, ierr)
+    call MatSetValue(matrix%M, row, col, real(val, kind=PetscScalar_kind), ADD_VALUES, ierr)
     matrix%is_assembled=.false.
 
   end subroutine petsc_csr_addto
