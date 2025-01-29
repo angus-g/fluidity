@@ -77,9 +77,6 @@ bin/
 lib/
 share/
 
-## Configure and compile generated files
-tests/tools.mk
-
 ## Tools
 tools/lib
 tools/version-info

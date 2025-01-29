@@ -1,0 +1,2 @@
+FC = gfortran
+SED= sed
